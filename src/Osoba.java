@@ -1,4 +1,4 @@
-public class Osoba {
+public abstract class Osoba {
     private String imie;
     private String nazwisko;
 
@@ -12,4 +12,5 @@ public class Osoba {
     public String getNazwisko(){
         return nazwisko;
     }
+    public abstract void wyswietlDane();
 }
