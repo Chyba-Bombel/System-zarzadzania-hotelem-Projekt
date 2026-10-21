@@ -10,7 +10,7 @@ public class Main {
     private static int nastepneID = 1;
 
     public static void main(String[] args){
-        //miejsce na dane przykładowe (wywołanie funkcji)
+        dodajDanePrzykladowe();
 
         boolean dziala = true;
 
@@ -54,6 +54,14 @@ public class Main {
         scanner.close();
 
 
+
+    }
+    private static void dodajDanePrzykladowe(){
+        goscie.add(new Gosc(nastepneID++, "Jan", "Kowalski", "500100100"));
+        goscie.add(new Gosc(nastepneID++, "Anna", "Pruska", "500123134"));
+
+        pracownicy.add(new Pracownik("Piotr", "Nowak", "Recopcjonista"));
+        pracownicy.add(new Pracownik("Piotr", "Zieliński", "Kierownik"));
 
     }
 }
