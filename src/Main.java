@@ -38,7 +38,7 @@ public class Main {
                     dziala = dodajGoscia();
                     break;
                 case "3":
-                    //funkcja wyszukiwania goscia po nazwisku(lub części:) )
+                    dziala = wyszukajGoscia();
                     break;
                 case "4":
                     //funkcja wyswietlenia pracownikow
@@ -113,5 +113,26 @@ public class Main {
             gosc.wyswietlDane();
         }
     }
+    private static boolean wyszukajGoscia() {
+        String szukaneNazwisko = wczytajNiepustyTekst("Podaj nazwisko lub jego fragment: ");
+        if (szukaneNazwisko == null) return false;
 
+        boolean znaleziono = false;
+
+        for (Gosc gosc : goscie) {
+            if (gosc.getNazwisko().toLowerCase(Locale.ROOT).contains((szukaneNazwisko.toLowerCase(Locale.ROOT)))) {
+                gosc.wyswietlDane();
+                znaleziono = true;
+            }
+
+            if (!znaleziono) {
+                System.out.println("Nie znaleziono gościa o takim nazwisku");
+            }
+        }
+        return true;
+
+    }
+    private static void wyswietlPracownikow(){
+
+    }
 }
