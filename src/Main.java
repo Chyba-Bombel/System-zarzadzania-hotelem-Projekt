@@ -32,7 +32,7 @@ public class Main {
             String wybor = scanner.nextLine().trim();
             switch (wybor){
                 case "1":
-                    //funkcja wyswietlania gosci
+                    wyswietlGosci();
                     break;
                 case "2":
                     dziala = dodajGoscia();
@@ -100,6 +100,18 @@ public class Main {
 
 
 
+    }
+    private static void wyswietlGosci(){
+        System.out.println("\n--- Lista GOŚCI ---");
+
+        if (goscie.isEmpty()){
+            System.out.println("Nie znaleziono gości w bazie");
+            return;
+        }
+
+        for (Gosc gosc : goscie){
+            gosc.wyswietlDane();
+        }
     }
 
 }
