@@ -64,4 +64,25 @@ public class Main {
         pracownicy.add(new Pracownik("Piotr", "Zieliński", "Kierownik"));
 
     }
+    private static String wczytajNiepustyTekst(String komunikat) {
+        while (true) {
+            System.out.print(komunikat);
+            if (!scanner.hasNextLine()) {
+                return null;
+            }
+            String tekst = scanner.nextLine().trim();
+
+            if (!tekst.isEmpty()) {
+                return tekst;
+            }
+
+            System.out.println("To pole nie może być puste.");
+        }
+    }
+    private static boolean dodajGoscia(){
+        System.out.println("\n---NOWY GOŚĆ---");
+        String imie = wczytajNiepustyTekst("Imię: ");
+        if (imie == null) return false;
+    }
+
 }
