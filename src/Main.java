@@ -35,7 +35,7 @@ public class Main {
                     //funkcja wyswietlania gosci
                     break;
                 case "2":
-                    //funkcja dodawania gosci
+                    dziala = dodajGoscia();
                     break;
                 case "3":
                     //funkcja wyszukiwania goscia po nazwisku(lub części:) )
@@ -82,7 +82,24 @@ public class Main {
     private static boolean dodajGoscia(){
         System.out.println("\n---NOWY GOŚĆ---");
         String imie = wczytajNiepustyTekst("Imię: ");
+
         if (imie == null) return false;
+
+        String nazwisko = wczytajNiepustyTekst("Nazwisko: ");
+        if (nazwisko == null) return false;
+
+        String telefon = wczytajNiepustyTekst("Telefon: ");
+        if (telefon == null) return false;
+
+        Gosc nowyGosc = new Gosc(nastepneID++, imie, nazwisko, telefon);
+        goscie.add(nowyGosc);
+
+        System.out.println("Dodano Gościa: ");
+        nowyGosc.wyswietlDane();
+        return true;
+
+
+
     }
 
 }
