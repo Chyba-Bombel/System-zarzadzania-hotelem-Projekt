@@ -41,7 +41,7 @@ public class Main {
                     dziala = wyszukajGoscia();
                     break;
                 case "4":
-                    //funkcja wyswietlenia pracownikow
+                    wyswietlPracownikow();
                     break;
                 case "0":
                     dziala = false;
@@ -124,15 +124,18 @@ public class Main {
                 gosc.wyswietlDane();
                 znaleziono = true;
             }
-
-            if (!znaleziono) {
-                System.out.println("Nie znaleziono gościa o takim nazwisku");
-            }
+        }
+        if (znaleziono == false) {
+            System.out.println("Nie znaleziono gościa o takim nazwisku");
         }
         return true;
 
     }
     private static void wyswietlPracownikow(){
+        System.out.println("\n---PRACOWNICY ---");
 
+        for (Pracownik pracownik : pracownicy){
+            pracownik.wyswietlDane();
+        }
     }
 }
