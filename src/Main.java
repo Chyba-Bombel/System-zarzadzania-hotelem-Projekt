@@ -116,6 +116,21 @@ public class Main {
             System.out.println("To pole nie może być puste.");
         }
     }
+    private static Integer wczytajLiczbe(String komunikat){
+        while (true){
+            String tekst = wczytajNiepustyTekst(komunikat);
+            if (tekst == null) return null;
+            try {
+                int liczba = Integer.parseInt(tekst);
+                if (liczba > 0) return liczba;
+
+            } catch (NumberFormatException e){
+
+            }
+            System.out.println("Wpisz dodatnią liczbe całkowitą.");
+        }
+    }
+
     private static boolean dodajGoscia(){
         System.out.println("\n---NOWY GOŚĆ---");
         String imie = wczytajNiepustyTekst("Imię: ");
@@ -175,4 +190,5 @@ public class Main {
             pracownik.wyswietlDane();
         }
     }
+
 }
