@@ -25,7 +25,7 @@ public class BazaDanych {
         ArrayList<Gosc> lista = new ArrayList<>();
 
         String sql =
-                "SELECT id, imie, nazwisko, telefon "
+                "SELECT id, imie, nazwisko, telefon, email "
                         + "FROM goscie ORDER BY id";
 
         try (
@@ -50,12 +50,14 @@ public class BazaDanych {
                 String imie = wynik.getString("imie");
                 String nazwisko = wynik.getString("nazwisko");
                 String telefon = wynik.getString("telefon");
+                String email = wynik.getString("email");
 
                 Gosc gosc = new Gosc(
                         id,
                         imie,
                         nazwisko,
-                        telefon
+                        telefon,
+                        email
                 );
 
                 lista.add(gosc);
@@ -64,9 +66,9 @@ public class BazaDanych {
 
         return lista;
     }
-    public static Gosc zapiszGoscia(String imie, String nazwisko, String telefon) throws SQLException{
-        String sql = "INSERT INTO goscie (imie, nazwisko, telefon) "
-                + "VALUES (?, ?, ?)";
+    public static Gosc zapiszGoscia(String imie, String nazwisko, String telefon, String email) throws SQLException{
+        String sql = "INSERT INTO goscie (imie, nazwisko, telefon, email) "
+                + "VALUES (?, ?, ?, ?)";
 
         try (
             Connection polaczenie = polacz();
@@ -77,6 +79,7 @@ public class BazaDanych {
             zapytanie.setString(1, imie);
             zapytanie.setString(2, nazwisko);
             zapytanie.setString(3, telefon);
+            zapytanie.setString(4, email);
 
             zapytanie.executeUpdate();
 
@@ -88,7 +91,7 @@ public class BazaDanych {
                                 "ID zapisanego gościa nie mieści sie w typie int"
                         );
                     }
-                    return new Gosc((int) idZBazy, imie, nazwisko, telefon);
+                    return new Gosc((int) idZBazy, imie, nazwisko, telefon, email);
                 }
 
             }

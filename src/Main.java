@@ -22,11 +22,17 @@ public class Main {
         try {
             goscie = BazaDanych.pobierzGosci();
             pokoje = BazaDanych.pobierzPokoje();
+            rezerwacje = BazaDanych.pobierzRezerwacje(
+                    goscie,
+                    pokoje
+            );
+
 
             System.out.println(
                     "Wczytano gości z bazy: " + goscie.size()
             );
             System.out.println("Wczytano pokoje: " + pokoje.size());
+            System.out.println("Wczytano rezerwacji: " + rezerwacje.size());
         } catch (SQLException e) {
             System.out.println(
                     "Nie udało się wczytać gości: "
@@ -78,7 +84,7 @@ public class Main {
                     dziala = pokazWolnePokoje();
                     break;
                 case "7":
-                    dziala = dodajRezerwacja();
+                    System.out.println("Ze względu na aktualizacje zapis rezerwacji nie jest możliwy. Spróbuj ponownie później");
                     break;
                 case "8":
                     if (rezerwacje.isEmpty()){
@@ -89,7 +95,7 @@ public class Main {
                     }
                     break;
                 case "9":
-                    dziala = anulujRezerwacje();
+                    System.out.println("Anulowanie rezerwacji aktualnie nie jest możliwe. Sprobój ponownie później ");
                     break;
                 case "0":
                     dziala = false;
@@ -166,8 +172,20 @@ public class Main {
         String telefon = wczytajNiepustyTekst("Telefon: ");
         if (telefon == null) return false;
 
+       String email;
+       while (true){
+           email = wczytajNiepustyTekst("E-mail: ");
+
+           if (email == null) return false;
+
+           if (czyPoprawnyEmail(email)){
+               break;
+           }
+           System.out.println("Niepoprawny email. Przykład jankowalski123@gmail.com");
+       }
+
         try {
-            Gosc nowyGosc = BazaDanych.zapiszGoscia(imie, nazwisko, telefon);
+            Gosc nowyGosc = BazaDanych.zapiszGoscia(imie, nazwisko, telefon, email);
             goscie.add(nowyGosc);
             System.out.println("Zapisano gościa w bazie");
             nowyGosc.wyswietlDane();
@@ -180,6 +198,15 @@ public class Main {
 
 
 
+    }
+    private static boolean czyPoprawnyEmail(String email) {
+        return email != null
+                && email.length() <= 120
+                && email.matches(
+                "^[A-Za-z0-9_%+-]+(?:\\.[A-Za-z0-9_%+-]+)*"
+                        + "@(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\\.)+"
+                        + "[A-Za-z]{2,63}$"
+        );
     }
     private static void wyswietlGosci(){
         System.out.println("\n--- Lista GOŚCI ---");
