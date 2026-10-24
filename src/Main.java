@@ -57,7 +57,7 @@ public class Main {
                     for (Pokoj pokoj : pokoje) pokoj.wyswietlDane();
                     break;
                 case "6":
-                    //Wywolanie funkcji pokazWolnePokoje
+                    dziala = pokazWolnePokoje();
                     break;
                 case "7":
                     //Wywolanie funkcji dodajRezerwacje
@@ -220,7 +220,22 @@ public class Main {
         return true;
     }
     private static boolean pokazWolnePokoje(){
-
+        LocalDate od = wczytajDate("Przyjazd");
+        if (od == null)return false;
+        LocalDate doDnia = wczytajDate("Wyjazd");
+        if (doDnia == null)return false;
+        if (!poprawnyTermin(od, doDnia)) return true;
+        Integer osoby = wczytajLiczbe("Liczba osob: ");
+        if (osoby == null) return false;
+        boolean znaleziono = false;
+        for (Pokoj pokoj: pokoje){
+            if (pokoj.getLiczbaMiejsc() >= osoby && czyWolny(pokoj, od, doDnia)){
+                pokoj.wyswietlDane();
+                znaleziono = true;
+            }
+        }
+        if (!znaleziono) System.out.println("Brak wolnych pokoi dla podanej liczby osób");
+        return true;
     }
 
 }
