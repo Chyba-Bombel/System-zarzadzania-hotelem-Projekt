@@ -60,7 +60,7 @@ public class Main {
                     dziala = pokazWolnePokoje();
                     break;
                 case "7":
-                    //Wywolanie funkcji dodajRezerwacje
+                    dziala = dodajRezerwacja();
                     break;
                 case "8":
                     if (rezerwacje.isEmpty()){
@@ -237,5 +237,54 @@ public class Main {
         if (!znaleziono) System.out.println("Brak wolnych pokoi dla podanej liczby osób");
         return true;
     }
+    private static boolean dodajRezerwacja(){
+        wyswietlGosci();
+        Integer id  = wczytajLiczbe("ID Goscia: ");
+        if (id == null) return false;
+        Gosc wybranyGosc = null;
+        for (Gosc g : goscie){
+            if (g.getId() == id) wybranyGosc = g;
+
+        }
+        if (wybranyGosc == null){
+            System.out.println("Nie takiego gościa o podanym ID");
+            return true;
+        }
+        for (Pokoj pokoj : pokoje){
+            pokoj.wyswietlDane();
+        }
+        Integer numer = wczytajLiczbe("Numer Pokoju");
+        if (numer == null) return false;
+        Pokoj wybranyPokoj = null;
+        for (Pokoj pokoj : pokoje){
+            if (pokoj.getNumer() == numer){
+                wybranyPokoj = pokoj;
+            }
+        }
+        if (wybranyPokoj == null){
+            System.out.println("Nie ma takiego pokoju");
+            return true;
+        }
+        Integer osoby = wczytajLiczbe("Liczba osób: ");
+        if (osoby == null) return false;
+        if (osoby > wybranyPokoj.getLiczbaMiejsc()){
+            System.out.println("Za dużo osób dla tego pokoju");
+            return true;
+        }
+        LocalDate od = wczytajDate("Przyjazd");
+        if (od == null) return false;
+        LocalDate doDnia = wczytajDate("Wyjazd");
+        if (doDnia == null) return false;
+        if (!poprawnyTermin(od,doDnia)) return true;
+        if (!czyWolny(wybranyPokoj, od ,doDnia)){
+            System.out.println("Pokój jest zajęty w tym terminie");
+            return true;
+        }
+        Rezerwacja nowa = new Rezerwacja(nastepneIDRezerwacji++, wybranyGosc, wybranyPokoj, od, doDnia, osoby);
+        rezerwacje.add(nowa);
+        nowa.wyswietlDane();
+        return true;
+    }
+
 
 }
