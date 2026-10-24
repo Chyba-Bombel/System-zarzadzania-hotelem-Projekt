@@ -14,7 +14,6 @@ public class Main {
     private static ArrayList<Rezerwacja> rezerwacje = new ArrayList<>();
     //Scanner i sixseven
     private static Scanner scanner = new Scanner(System.in);
-    private static int nastepneID = 1;
     private static int nastepneIDRezerwacji = 1;
 
     public static void main(String[] args){
@@ -170,11 +169,16 @@ public class Main {
         String telefon = wczytajNiepustyTekst("Telefon: ");
         if (telefon == null) return false;
 
-        Gosc nowyGosc = new Gosc(nastepneID++, imie, nazwisko, telefon);
-        goscie.add(nowyGosc);
+        try {
+            Gosc nowyGosc = BazaDanych.zapiszGosica(imie, nazwisko, telefon);
+            goscie.add(nowyGosc);
+            System.out.println("Zapisano gościa w bazie");
+            nowyGosc.wyswietlDane();
+        } catch (SQLException e){
+            System.out.println("Bład podczas zapisywania: " + e.getMessage());
+            System.out.println("Przed ponowną próba sprawdź czy gośc pojawił sie w bazie danych");
+        }
 
-        System.out.println("Dodano Gościa: ");
-        nowyGosc.wyswietlDane();
         return true;
 
 
