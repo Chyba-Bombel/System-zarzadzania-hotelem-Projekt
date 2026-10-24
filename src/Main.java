@@ -226,6 +226,7 @@ public class Main {
         return true;
     }
     private static boolean czyWolny(Pokoj pokoj, LocalDate od, LocalDate doDnia){
+        if (pokoj.getStan().equals("WYLACZONY")) return false;
         for (Rezerwacja rezerwacja : rezerwacje){
             if (rezerwacja.kolidacja(pokoj.getNumer(), od, doDnia)){
                 return false;

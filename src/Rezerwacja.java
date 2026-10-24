@@ -43,8 +43,8 @@ public class Rezerwacja {
         return pokoj.getCenaZaNoc().multiply(BigDecimal.valueOf(liczbaNocy()));
     }
 
-    public boolean kolidacja(int numerPokoju, LocalDate poczatek, LocalDate koniec) {
-        return !anulowana && pokoj.getNumer() == numerPokoju && poczatek.isBefore(doDnia) && koniec.isAfter(od);
+    public boolean kolidacja(String numerPokoju, LocalDate poczatek, LocalDate koniec) {
+        return !anulowana && pokoj.getNumer().equalsIgnoreCase(numerPokoju) && poczatek.isBefore(doDnia) && koniec.isAfter(od);
 
     }
 
