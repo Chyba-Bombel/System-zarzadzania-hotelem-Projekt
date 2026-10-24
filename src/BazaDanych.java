@@ -1,8 +1,4 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 public class BazaDanych {
     private static final String URL =
@@ -66,5 +62,41 @@ public class BazaDanych {
         }
 
         return lista;
+    }
+    public static Gosc zapiszGosica(String imie, String nazwisko, String telefon) throws SQLException{
+        String sql = "INSERT INTO goscie (imie, nazwisko, telefon) "
+                + "VALUES (?, ?, ?)";
+
+        try (
+            Connection polaczenie = polacz();
+
+            PreparedStatement zapytanie = polaczenie.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+
+        ){
+            zapytanie.setString(1, imie);
+            zapytanie.setString(2, nazwisko);
+            zapytanie.setString(3, telefon);
+
+            zapytanie.executeUpdate();
+
+            try(ResultSet wynik = zapytanie.getGeneratedKeys()) {
+                if (wynik.next()){
+                    long idZBazy = wynik.getLong(1);
+                    if (idZBazy < 1 || idZBazy > Integer.MAX_VALUE){
+                        throw new SQLException(
+                                "ID zapisanego gościa nie mieści sie w typie int"
+                        );
+                    }
+                    return new Gosc((int) idZBazy, imie, nazwisko, telefon);
+                }
+
+            }
+
+
+        }
+
+        throw new SQLException(
+                "Nie udało sie odczytać ID zapisanego gościa"
+        );
     }
 }
