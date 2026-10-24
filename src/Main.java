@@ -51,6 +51,26 @@ public class Main {
                 case "4":
                     wyswietlPracownikow();
                     break;
+                case "5":
+                    for (Pokoj pokoj : pokoje) pokoj.wyswietlDane();
+                    break;
+                case "6":
+                    //Wywolanie funkcji pokazWolnePokoje
+                    break;
+                case "7":
+                    //Wywolanie funkcji dodajRezerwacje
+                    break;
+                case "8":
+                    if (rezerwacje.isEmpty()){
+                        System.out.println("Brak Rezerwacji.");
+                    }
+                    for (Rezerwacja rezerwacja : rezerwacje){
+                        rezerwacja.wyswietlDane();
+                    }
+                    break;
+                case "9":
+                    //Wywoalnie funkcji anulujRezerwacje
+                    break;
                 case "0":
                     dziala = false;
                     break;
