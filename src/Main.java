@@ -18,17 +18,21 @@ public class Main {
     private static int nastepneIDRezerwacji = 1;
 
     public static void main(String[] args){
-        try (Connection polaczenie = BazaDanych.polacz()) {
+
+        dodajDanePrzykladowe();
+        try {
+            goscie = BazaDanych.pobierzGosci();
+
             System.out.println(
-                    "Połączono z bazą: " + polaczenie.getCatalog()
+                    "Wczytano gości z bazy: " + goscie.size()
             );
         } catch (SQLException e) {
             System.out.println(
-                    "Błąd połączenia: " + e.getMessage()
+                    "Nie udało się wczytać gości: "
+                            + e.getMessage()
             );
             return;
         }
-        dodajDanePrzykladowe();
 
         boolean dziala = true;
 
@@ -100,9 +104,6 @@ public class Main {
 
     }
     private static void dodajDanePrzykladowe(){
-        goscie.add(new Gosc(nastepneID++, "Jan", "Kowalski", "500100100"));
-        goscie.add(new Gosc(nastepneID++, "Anna", "Pruska", "500123134"));
-
         pracownicy.add(new Pracownik("Piotr", "Nowak", "Recopcjonista"));
         pracownicy.add(new Pracownik("Piotr", "Zieliński", "Kierownik"));
 
