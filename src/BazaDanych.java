@@ -64,7 +64,7 @@ public class BazaDanych {
 
         return lista;
     }
-    public static Gosc zapiszGosica(String imie, String nazwisko, String telefon) throws SQLException{
+    public static Gosc zapiszGoscia(String imie, String nazwisko, String telefon) throws SQLException{
         String sql = "INSERT INTO goscie (imie, nazwisko, telefon) "
                 + "VALUES (?, ?, ?)";
 
@@ -124,5 +124,64 @@ public class BazaDanych {
             }
             return lista;
         }
+    }
+    public static ArrayList<Rezerwacja> pobierzRezerwacje(ArrayList<Gosc> goscie, ArrayList<Pokoj> pokoje) throws SQLException{
+        ArrayList<Rezerwacja> lista = new ArrayList<>();
+
+        String sql = "SELECT id, gosc_id, pokoj_id, data_od, data_do, "
+                + "liczba_osob, cena_za_noc, status "
+                + "FROM rezerwacje ORDER BY id";
+        try (
+                Connection polaczenie = polacz();
+
+                PreparedStatement zapytanie = polaczenie.prepareStatement(sql);
+                ResultSet wynik = zapytanie.executeQuery();
+                ){
+            while (wynik.next()){
+                long idZBazy = wynik.getLong("id");
+                long idGoscia = wynik.getLong("gosc_id");
+                long idPokoju = wynik.getLong("pokoj_id");
+
+                if (idZBazy < 1 || idZBazy > Integer.MAX_VALUE){
+                    throw new SQLException(
+                            "ID rezerwacji nie mieści sie w typie INT. "
+                    );
+                }
+                Gosc znalezionyGosc = null;
+
+                for (Gosc gosc: goscie){
+                    if (gosc.getId() == idGoscia){
+                        znalezionyGosc = gosc;
+                        break;
+                    }
+                }
+                Pokoj znalezionyPokoj = null;
+                for (Pokoj pokoj : pokoje){
+                    if (pokoj.getId() == idPokoju){
+                        znalezionyPokoj = pokoj;
+                        break;
+                    }
+                }
+                if (znalezionyGosc == null || znalezionyPokoj == null){
+                    throw new SQLException(
+                            "Nie znaleziono goscia lub pokoju "+ "dla rezerwacji" + idZBazy
+                    );
+                }
+                Rezerwacja rezerwacja = new Rezerwacja(
+                        (int) idZBazy,
+                        znalezionyGosc,
+                        znalezionyPokoj,
+                        wynik.getDate("data_od").toLocalDate(),
+                        wynik.getDate("data_do").toLocalDate(),
+                        wynik.getInt("liczba_osob"),
+                        wynik.getBigDecimal("cena_za_noc"),
+                        wynik.getString("status")
+                );
+
+                lista.add(rezerwacja);
+            }
+
+        }
+        return lista;
     }
 }

@@ -167,7 +167,7 @@ public class Main {
         if (telefon == null) return false;
 
         try {
-            Gosc nowyGosc = BazaDanych.zapiszGosica(imie, nazwisko, telefon);
+            Gosc nowyGosc = BazaDanych.zapiszGoscia(imie, nazwisko, telefon);
             goscie.add(nowyGosc);
             System.out.println("Zapisano gościa w bazie");
             nowyGosc.wyswietlDane();
