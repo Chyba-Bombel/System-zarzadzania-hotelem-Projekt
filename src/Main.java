@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
@@ -128,6 +130,17 @@ public class Main {
 
             }
             System.out.println("Wpisz dodatnią liczbe całkowitą.");
+        }
+    }
+    private static LocalDate wczytajDate(String komunikat){
+        while (true){
+            String tekst = wczytajNiepustyTekst(komunikat + " (RRRR-MM-DD): ");
+            if (tekst == null) return null;
+            try {
+                return LocalDate.parse(tekst);
+            } catch (DateTimeParseException e){
+                System.out.println("Niepoprawna data. Przykład: 2026-12-23");
+            }
         }
     }
 
