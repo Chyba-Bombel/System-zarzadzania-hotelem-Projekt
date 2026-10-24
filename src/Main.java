@@ -21,10 +21,12 @@ public class Main {
         dodajDanePrzykladowe();
         try {
             goscie = BazaDanych.pobierzGosci();
+            pokoje = BazaDanych.pobierzPokoje();
 
             System.out.println(
                     "Wczytano gości z bazy: " + goscie.size()
             );
+            System.out.println("Wczytano pokoje: " + pokoje.size());
         } catch (SQLException e) {
             System.out.println(
                     "Nie udało się wczytać gości: "
@@ -106,11 +108,6 @@ public class Main {
         pracownicy.add(new Pracownik("Piotr", "Nowak", "Recopcjonista"));
         pracownicy.add(new Pracownik("Piotr", "Zieliński", "Kierownik"));
 
-        pokoje.add(new Pokoj(101, 1, "150.00"));
-        pokoje.add(new Pokoj(102, 2, "250.00"));
-        pokoje.add(new Pokoj(103, 2, "280.00"));
-        pokoje.add(new Pokoj(201, 3, "350.00"));
-        pokoje.add(new Pokoj(202, 4, "450.00"));
 
 
 
@@ -271,16 +268,21 @@ public class Main {
         for (Pokoj pokoj : pokoje){
             pokoj.wyswietlDane();
         }
-        Integer numer = wczytajLiczbe("Numer Pokoju");
+        String numer = wczytajNiepustyTekst("Numer Pokoju: ");
         if (numer == null) return false;
         Pokoj wybranyPokoj = null;
         for (Pokoj pokoj : pokoje){
-            if (pokoj.getNumer() == numer){
+            if (pokoj.getNumer().equalsIgnoreCase(numer)){
                 wybranyPokoj = pokoj;
+                break;
             }
         }
         if (wybranyPokoj == null){
             System.out.println("Nie ma takiego pokoju");
+            return true;
+        }
+        if (wybranyPokoj.getStan().equals("WYLACZONY")) {
+            System.out.println("Ten pokój jest wyłączony z użytkowania.");
             return true;
         }
         Integer osoby = wczytajLiczbe("Liczba osób: ");

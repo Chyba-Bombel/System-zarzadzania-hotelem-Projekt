@@ -1,3 +1,4 @@
+import java.net.ConnectException;
 import java.sql.*;
 import java.util.ArrayList;
 public class BazaDanych {
@@ -98,5 +99,30 @@ public class BazaDanych {
         throw new SQLException(
                 "Nie udało sie odczytać ID zapisanego gościa"
         );
+    }
+    public static ArrayList<Pokoj> pobierzPokoje() throws SQLException{
+        ArrayList<Pokoj> lista = new ArrayList<>();
+
+        String sql = "SELECT id, numer, liczba_miejsc, cena_za_noc, stan "
+                + "FROM pokoje ORDER BY numer";
+        try (
+                Connection polaczenie = polacz();
+                PreparedStatement zapytanie = polaczenie.prepareStatement(sql);
+                ResultSet wynik = zapytanie.executeQuery()
+        ){
+            while (wynik.next()){
+                Pokoj pokoj = new Pokoj(
+                        wynik.getLong("id"),
+                        wynik.getString("numer"),
+                        wynik.getInt("liczba_miejsc"),
+                        wynik.getBigDecimal("cena_za_noc"),
+                        wynik.getString("stan")
+
+                );
+
+                lista.add(pokoj);
+            }
+            return lista;
+        }
     }
 }
