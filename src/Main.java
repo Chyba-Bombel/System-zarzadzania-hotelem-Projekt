@@ -5,9 +5,12 @@ public class Main {
     //Listy przechowujące obiekty podczas gdy program działa
     private static ArrayList<Gosc> goscie = new ArrayList<>();
     private static ArrayList<Pracownik> pracownicy = new ArrayList<>();
+    private static ArrayList<Pokoj> pokoje = new ArrayList<>();
+    private static ArrayList<Rezerwacja> rezerwacje = new ArrayList<>();
     //Scanner i sixseven
     private static Scanner scanner = new Scanner(System.in);
     private static int nastepneID = 1;
+    private static int nastepneIDRezerwacji = 1;
 
     public static void main(String[] args){
         dodajDanePrzykladowe();
@@ -22,6 +25,11 @@ public class Main {
             System.out.println("2. Dodaj gościa");
             System.out.println("3. Wyszukaj gościa po nazwisku");
             System.out.println("4. Wyświetl pracowników");
+            System.out.println("5. Wyświetl pokoje");
+            System.out.println("6.Sprawdź wolne pokoje");
+            System.out.println("7.Dodaj Rezerwacje");
+            System.out.println("8.Wyświetl rezerwacje");
+            System.out.println("9 Anuluj Rezerwacje");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -62,6 +70,15 @@ public class Main {
 
         pracownicy.add(new Pracownik("Piotr", "Nowak", "Recopcjonista"));
         pracownicy.add(new Pracownik("Piotr", "Zieliński", "Kierownik"));
+
+        pokoje.add(new Pokoj(101, 1, "150.00"));
+        pokoje.add(new Pokoj(102, 2, "250.00"));
+        pokoje.add(new Pokoj(103, 2, "280.00"));
+        pokoje.add(new Pokoj(201, 3, "350.00"));
+        pokoje.add(new Pokoj(202, 4, "450.00"));
+
+
+
 
     }
     private static String wczytajNiepustyTekst(String komunikat) {
