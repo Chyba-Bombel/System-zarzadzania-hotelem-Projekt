@@ -4,6 +4,8 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
+import java.sql.Connection;
+import java.sql.SQLException;
 public class Main {
     //Listy przechowujące obiekty podczas gdy program działa
     private static ArrayList<Gosc> goscie = new ArrayList<>();
@@ -16,6 +18,16 @@ public class Main {
     private static int nastepneIDRezerwacji = 1;
 
     public static void main(String[] args){
+        try (Connection polaczenie = BazaDanych.polacz()) {
+            System.out.println(
+                    "Połączono z bazą: " + polaczenie.getCatalog()
+            );
+        } catch (SQLException e) {
+            System.out.println(
+                    "Błąd połączenia: " + e.getMessage()
+            );
+            return;
+        }
         dodajDanePrzykladowe();
 
         boolean dziala = true;
