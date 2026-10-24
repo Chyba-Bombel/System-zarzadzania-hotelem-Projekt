@@ -1,3 +1,4 @@
+import java.net.IDN;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -71,7 +72,7 @@ public class Main {
                     }
                     break;
                 case "9":
-                    //Wywoalnie funkcji anulujRezerwacje
+                    dziala = anulujRezerwacje();
                     break;
                 case "0":
                     dziala = false;
@@ -283,6 +284,24 @@ public class Main {
         Rezerwacja nowa = new Rezerwacja(nastepneIDRezerwacji++, wybranyGosc, wybranyPokoj, od, doDnia, osoby);
         rezerwacje.add(nowa);
         nowa.wyswietlDane();
+        return true;
+    }
+    private static boolean anulujRezerwacje(){
+        Integer id = wczytajLiczbe("ID Rezerwacji do anulowania: ");
+        if (id == null) return false;
+        for (Rezerwacja rezerwacja : rezerwacje){
+            if (rezerwacja.GetId() == id){
+                if (rezerwacja.isAnulowana()){
+                    System.out.println("Ta rezerwacja została anulowana");
+                } else {
+                    rezerwacja.anuluj();
+                    System.out.println("Anulowano rezerwację. Termin jest ponownie dostępny");
+
+                }
+                return true;
+            }
+        }
+        System.out.println("Nie znaleziono rezerwacji.");
         return true;
     }
 
