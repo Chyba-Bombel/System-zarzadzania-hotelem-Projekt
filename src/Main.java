@@ -203,5 +203,24 @@ public class Main {
             pracownik.wyswietlDane();
         }
     }
+    private static boolean poprawnyTermin(LocalDate od, LocalDate doDnia){
+        if (od.isBefore(LocalDate.now()) || !doDnia.isAfter(od)){
+            System.out.println("Przyjazd nie może być w przeszłości a wyjazd musi być po przyjeździe.");
+            return false;
+        }
+        return true;
+    }
+    private static boolean czyWolny(Pokoj pokoj, LocalDate od, LocalDate doDnia){
+        for (Rezerwacja rezerwacja : rezerwacje){
+            if (rezerwacja.kolidacja(pokoj.getNumer(), od, doDnia)){
+                return false;
+            }
+
+        }
+        return true;
+    }
+    private static boolean pokazWolnePokoje(){
+
+    }
 
 }
