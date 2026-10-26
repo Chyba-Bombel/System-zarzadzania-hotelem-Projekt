@@ -359,6 +359,11 @@ public class Main {
         }
         return true;
     }
+    private static boolean edytujGoscia(){
+        try {
+            goscie = BazaDanych.pobierzGosci();
+        }
+    }
 
 
 }

@@ -381,4 +381,31 @@ public class BazaDanych {
 
 
     }
+    public static boolean edytujGoscia(
+            int id,
+            String imie,
+            String nazwisko,
+            String telefon,
+            String email
+    )throws SQLException{
+        if (imie.length() > 60 || nazwisko.length() > 80 || telefon.length() > 30 || email.length() > 120){
+            throw new SQLException("Przekroczono maksymalną długość danych.");
+        }
+        String sql =
+                "UPDATE goscie "
+                        + "SET imie = ?, nazwisko = ?, telefon = ?, email = ? "
+                        + "WHERE id = ?";
+        try (Connection polaczenie = polacz();
+
+            PreparedStatement zapytanie = polaczenie.prepareStatement(sql)
+        )   {
+            zapytanie.setString(1, imie);
+            zapytanie.setString(2, nazwisko);
+            zapytanie.setString(3, telefon);
+            zapytanie.setString(4, email);
+            zapytanie.setInt(5, id);
+            return zapytanie.executeUpdate() == 1;
+        }
+
+    }
 }
