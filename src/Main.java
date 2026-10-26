@@ -324,13 +324,9 @@ public class Main {
         LocalDate doDnia = wczytajDate("Wyjazd");
         if (doDnia == null) return false;
         if (!poprawnyTermin(od,doDnia)) return true;
-        if (!czyWolny(wybranyPokoj, od ,doDnia)){
-            System.out.println("Pokój jest zajęty w tym terminie");
-            return true;
+        try {
+            long pracownikId
         }
-        Rezerwacja nowa = new Rezerwacja(nastepneIDRezerwacji++, wybranyGosc, wybranyPokoj, od, doDnia, osoby);
-        rezerwacje.add(nowa);
-        nowa.wyswietlDane();
         return true;
     }
     private static boolean anulujRezerwacje(){
