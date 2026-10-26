@@ -331,4 +331,26 @@ public class BazaDanych {
 
         }
     }
+    private static boolean anulujRezerwacje(int id) throws SQLException{
+        String sql =
+                "UPDATE rezerwacje "
+                        + "SET status = 'ANULOWANA' "
+                        + "WHERE id = ? AND status = 'POTWIERDZONA' "
+                        + "AND NOT EXISTS ("
+                        + "SELECT 1 FROM platnosci "
+                        + "WHERE rezerwacja_id = ?"
+                        + ")";
+        try (
+                Connection polaczenie = polacz();
+
+                PreparedStatement zapytanie = polaczenie.prepareStatement(sql)
+        ){
+            zapytanie.setInt(1, id);
+            zapytanie.setInt(2,id);
+
+            int zmienioneWiersze = zapytanie.executeUpdate();
+
+            return zmienioneWiersze == 1;
+        }
+    }
 }

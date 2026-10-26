@@ -14,7 +14,6 @@ public class Main {
     private static ArrayList<Rezerwacja> rezerwacje = new ArrayList<>();
     //Scanner i sixseven
     private static Scanner scanner = new Scanner(System.in);
-    private static int nastepneIDRezerwacji = 1;
 
     public static void main(String[] args){
 
@@ -84,7 +83,7 @@ public class Main {
                     dziala = pokazWolnePokoje();
                     break;
                 case "7":
-                    System.out.println("Ze względu na aktualizacje zapis rezerwacji nie jest możliwy. Spróbuj ponownie później");
+                    dziala = dodajRezerwacja();
                     break;
                 case "8":
                     if (rezerwacje.isEmpty()){
@@ -325,7 +324,23 @@ public class Main {
         if (doDnia == null) return false;
         if (!poprawnyTermin(od,doDnia)) return true;
         try {
-            long pracownikId
+            long pracownikId = 2;
+
+            Rezerwacja nowa = BazaDanych.zapiszRezerwacje(
+                    wybranyGosc,
+                    wybranyPokoj,
+                    od,
+                    doDnia,
+                    osoby,
+                    pracownikId
+            );
+            rezerwacje.add(nowa);
+
+            System.out.println("Pomyślnie zapisano rezerwacje");
+            nowa.wyswietlDane();
+        } catch (SQLException e){
+            System.out.println("Błąd zapisu rezerwacji: " + e.getMessage());
+            System.out.println("Przed ponowną próbą sprawdź liste rezerwacji");
         }
         return true;
     }
