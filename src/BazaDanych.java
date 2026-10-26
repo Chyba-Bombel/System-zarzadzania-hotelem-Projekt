@@ -353,4 +353,32 @@ public class BazaDanych {
             return zmienioneWiersze == 1;
         }
     }
+    public static ArrayList<Pracownik> pobierzPracownikow() throws SQLException{
+        ArrayList<Pracownik> lista = new ArrayList<>();
+
+
+        String sql =
+                "SELECT imie, nazwisko, rola "
+                        + "FROM pracownicy "
+                        + "WHERE aktywny = TRUE "
+                        + "ORDER BY id";
+
+        try (Connection polaczenie = polacz();
+        PreparedStatement zapytanie = polaczenie.prepareStatement(sql);
+        ResultSet wynik = zapytanie.executeQuery()
+        ){
+            while (wynik.next()){
+                Pracownik pracownik = new Pracownik(
+                        wynik.getString("imie"),
+                        wynik.getString("nazwisko"),
+                        wynik.getString("rola")
+                );
+
+                lista.add(pracownik);
+            }
+        }
+        return lista;
+
+
+    }
 }
