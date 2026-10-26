@@ -17,7 +17,7 @@ public class Main {
 
     public static void main(String[] args){
 
-        dodajDanePrzykladowe();
+        pracownicy = BazaDanych.pobierzPracownikow();
         try {
             goscie = BazaDanych.pobierzGosci();
             pokoje = BazaDanych.pobierzPokoje();
@@ -105,15 +105,6 @@ public class Main {
         }
         System.out.println("Program zakońcozny. Do zobaczenia!");
         scanner.close();
-
-
-
-    }
-    private static void dodajDanePrzykladowe(){
-        pracownicy.add(new Pracownik("Piotr", "Nowak", "Recopcjonista"));
-        pracownicy.add(new Pracownik("Piotr", "Zieliński", "Kierownik"));
-
-
 
 
 
