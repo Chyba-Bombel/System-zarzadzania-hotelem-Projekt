@@ -16,8 +16,6 @@ public class Main {
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args){
-
-        pracownicy = BazaDanych.pobierzPracownikow();
         try {
             goscie = BazaDanych.pobierzGosci();
             pokoje = BazaDanych.pobierzPokoje();
@@ -25,6 +23,7 @@ public class Main {
                     goscie,
                     pokoje
             );
+            pracownicy = BazaDanych.pobierzPracownikow();
 
 
             System.out.println(
@@ -32,6 +31,7 @@ public class Main {
             );
             System.out.println("Wczytano pokoje: " + pokoje.size());
             System.out.println("Wczytano rezerwacji: " + rezerwacje.size());
+            System.out.println("Wczytano pracowników: " + pracownicy.size());
         } catch (SQLException e) {
             System.out.println(
                     "Nie udało się wczytać gości: "
