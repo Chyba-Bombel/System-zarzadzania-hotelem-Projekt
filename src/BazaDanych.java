@@ -408,4 +408,41 @@ public class BazaDanych {
         }
 
     }
+    public static void dodajPokoj(
+            String numer,
+            String typ,
+            int liczbaMiejsc,
+            BigDecimal cena
+    )throws SQLException{
+
+        if (numer.isBlank() || numer.length() > 10){
+            throw new SQLException("Numer pokoju musi mięc od 1 do 10 znaków.");
+        }
+        if (typ.isBlank() || typ.length() > 40){
+            throw new SQLException("Typ pokoju musi mięc od 1 do 40 znaków");
+        }
+        if (liczbaMiejsc < 1 || liczbaMiejsc > 10){
+            throw new SQLException("Pokój musi mieć od 1 do 10 miejsc.");
+        }
+
+        if (cena.signum() <= 0 || cena.compareTo(new BigDecimal(99999999.99)) > 0 || cena.scale() > 2){
+
+            throw new SQLException("Podaj dodatnią cenę z maksymalnie dwoma miejscami po przecinku.");
+        }
+        String sql =
+                "INSERT INTO pokoje "
+                        + "(numer, typ, liczba_miejsc, cena_za_noc, stan) "
+                        + "VALUES (?, ?, ?, ?, 'GOTOWY')";
+        try (Connection polaczenie = polacz();
+            PreparedStatement zapytanie = polaczenie.prepareStatement(sql);
+        ){
+            zapytanie.setString(1,numer);
+            zapytanie.setString(2,typ);
+            zapytanie.setInt(3, liczbaMiejsc);
+            zapytanie.setBigDecimal(4, cena);
+
+            zapytanie.executeUpdate();
+        }
+
+    }
 }
