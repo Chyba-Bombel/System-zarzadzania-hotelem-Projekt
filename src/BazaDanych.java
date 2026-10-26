@@ -3,6 +3,7 @@ import com.sun.source.tree.TryTree;
 
 import javax.print.DocFlavor;
 import java.net.ConnectException;
+import java.security.PublicKey;
 import java.sql.*;
 import java.util.ArrayList;
 import java.math.BigDecimal;
@@ -442,6 +443,35 @@ public class BazaDanych {
             zapytanie.setBigDecimal(4, cena);
 
             zapytanie.executeUpdate();
+        }
+
+    }
+    public static boolean edytujPokoj(long id, String numer, String typ, BigDecimal cena)throws SQLException{
+        if (numer.isBlank() || numer.length() > 10){
+            throw new SQLException("Numer pokoju musi mięc od 1 do 10 znaków.");
+        }
+
+        if (typ.isBlank() || typ.length() > 40){
+            throw new SQLException("Typ pokoju musi mięc od 1 do 40 znaków");
+        }
+
+        if (cena.signum() <= 0 || cena.compareTo(new BigDecimal(99999999.99)) > 0 || cena.scale() > 2){
+
+            throw new SQLException("Podaj dodatnią cenę z maksymalnie dwoma miejscami po przecinku.");
+        }
+        String sql =
+                "UPDATE pokoje "
+                        + "SET numer = ?, typ = ?, cena_za_noc = ? "
+                        + "WHERE id = ?";
+        try (Connection polaczenie = polacz();
+            PreparedStatement zapytanie = polaczenie.prepareStatement(sql)
+        ){
+            zapytanie.setString(1, numer);
+            zapytanie.setString(2, typ);
+            zapytanie.setBigDecimal(3, cena);
+            zapytanie.setLong(4, id);
+
+            return zapytanie.executeUpdate() == 1;
         }
 
     }
