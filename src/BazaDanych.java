@@ -331,7 +331,7 @@ public class BazaDanych {
 
         }
     }
-    private static boolean anulujRezerwacje(int id) throws SQLException{
+    public static boolean anulujRezerwacje(int id) throws SQLException{
         String sql =
                 "UPDATE rezerwacje "
                         + "SET status = 'ANULOWANA' "

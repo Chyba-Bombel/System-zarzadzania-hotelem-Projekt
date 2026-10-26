@@ -94,7 +94,7 @@ public class Main {
                     }
                     break;
                 case "9":
-                    System.out.println("Anulowanie rezerwacji aktualnie nie jest możliwe. Sprobój ponownie później ");
+                    dziala = anulujRezerwacje();
                     break;
                 case "0":
                     dziala = false;
@@ -347,19 +347,25 @@ public class Main {
     private static boolean anulujRezerwacje(){
         Integer id = wczytajLiczbe("ID Rezerwacji do anulowania: ");
         if (id == null) return false;
-        for (Rezerwacja rezerwacja : rezerwacje){
-            if (rezerwacja.GetId() == id){
-                if (rezerwacja.isAnulowana()){
-                    System.out.println("Ta rezerwacja została anulowana");
-                } else {
-                    rezerwacja.anuluj();
-                    System.out.println("Anulowano rezerwację. Termin jest ponownie dostępny");
 
+        try {
+            boolean anulowano = BazaDanych.anulujRezerwacje(id);
+            if (anulowano){
+                for (Rezerwacja rezerwacja : rezerwacje){
+                    if (rezerwacja.getId() == id){
+                        rezerwacja.anuluj();
+                        break;
+                    }
                 }
-                return true;
+
+                System.out.println("Anulowano rezerwację. Termin jest dostępny ponownie.");
+            } else {
+                System.out.println("Nie anulowano rezerwacji; nie istniję bądź nie ma statusu Potwierdzona lub ma przypisane płatności");
             }
+        } catch (SQLException e){
+            System.out.println("Błąd anulowania: " + e.getMessage());
+            System.out.println("Przed ponowieniem sprawdź status rezerwacji");
         }
-        System.out.println("Nie znaleziono rezerwacji.");
         return true;
     }
 

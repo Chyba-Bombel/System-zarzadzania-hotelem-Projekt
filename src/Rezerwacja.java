@@ -38,7 +38,7 @@ public class Rezerwacja {
         this.status = status;
     }
 
-    public int GetId() {
+    public int getId() {
         return id;
     }
     public String getStatus(){
