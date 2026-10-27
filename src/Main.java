@@ -3,6 +3,7 @@ import com.mysql.cj.protocol.a.SqlDateValueEncoder;
 import javax.swing.plaf.InsetsUIResource;
 import java.math.BigDecimal;
 import java.net.IDN;
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ public class Main {
             System.out.println("10. Edytuj dane gościa");
             System.out.println("11. Dodaj pokój");
             System.out.println("12. Edytuj pokój");
+            System.out.println("13. Zmień termin rezerwacji");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -111,6 +113,9 @@ public class Main {
                     break;
                 case "12":
                     dziala = edytujPokoj();
+                    break;
+                case "13":
+                    dziala = zmienTerminRezerwacji();
                     break;
                 case "0":
                     dziala = false;
@@ -585,6 +590,60 @@ public class Main {
             System.out.println("Dane zapisano ale nie udalo się odświeżyć list: " + e.getMessage());
             System.out.println("Uruchom program ponownie.");
 
+        }
+        return true;
+    }
+    private static boolean zmienTerminRezerwacji(){
+        try {
+            goscie = BazaDanych.pobierzGosci();
+            pokoje = BazaDanych.pobierzPokoje();
+
+            rezerwacje = BazaDanych.pobierzRezerwacje(goscie, pokoje);
+
+        } catch (SQLException e){
+            System.out.println("Nie udało się pobrać danych: " + e.getMessage());
+            return true;
+        }
+        if (rezerwacje.isEmpty()){
+            System.out.println("Brak rezerwacji.");
+            return true;
+        }
+
+        for (Rezerwacja rezerwacja: rezerwacje){
+            rezerwacja.wyswietlDane();
+        }
+        Integer id = wczytajLiczbe("ID rezerwacji do zmiany terminu");
+
+        if (id == null) return false;
+
+        LocalDate noweOD = wczytajDate("Nowy przyjazd: ");
+        if (noweOD == null) return false;
+
+        LocalDate noweDo = wczytajDate("Nowy wyjazd: ");
+        if (noweDo == null) return false;
+
+        try {
+            BazaDanych.zmienTerminRezerwacji(id, noweOD, noweDo);
+            System.out.println("Zapisano nowy termin rezeracji.");
+
+        }catch (SQLException e){
+            System.out.println("Nie potwierdzono zmiany terminu: " + e.getMessage());
+            System.out.println("Przed ponowienie sprawdź aktualne dane rezerwacji.");
+            return true;
+        }
+
+        try {
+            rezerwacje = BazaDanych.pobierzRezerwacje(goscie,pokoje);
+
+            for (Rezerwacja rezerwacja : rezerwacje){
+                if (rezerwacja.getId() == id){
+                    rezerwacja.wyswietlDane();
+                    break;
+                }
+            }
+        } catch (SQLException e){
+            System.out.println("Termin zapisano, ale nie udało się odświeżyć listy: " + e.getMessage());
+            System.out.println("Uruchom program ponownie.");
         }
         return true;
     }
