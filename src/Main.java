@@ -69,6 +69,7 @@ public class Main {
             System.out.println("16. Oznacz pokój jako posprzątany");
             System.out.println("17. Pokaż rozliczenie rezerwacji");
             System.out.println("18. Dodaj wpłatę lub zaliczkę");
+            System.out.println("19. Zarejestruj zwrot");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -136,6 +137,9 @@ public class Main {
                     break;
                 case "18":
                     dziala = dodajWplate();
+                    break;
+                case "19":
+                    dziala = dodajZwrot();
                     break;
                 case "0":
                     dziala = false;
@@ -940,6 +944,56 @@ public class Main {
         }
         return true;
     }
+
+    private static boolean dodajZwrot(){
+        Integer id = wczytajLiczbe("ID rezerwacji: ");
+        if (id == null) return false;
+
+        try {
+            Rozliczenie rozliczenie = BazaDanych.pobierzRozliczenie(id);
+            BigDecimal dostepneDoZwrotu = rozliczenie.zaplaconoNetto();
+
+            if (dostepneDoZwrotu.signum() <= 0){
+                System.out.println("Brak środków, które można zwrócić");
+                return true;
+            }
+            System.out.println("Maksymalna kwota zwrotu: " + dostepneDoZwrotu + " zł");
+
+            if (!rozliczenie.status().equals("ANULOWANA")){
+                System.out.println("Uwaga: zwrot nie zmniejsza ceny pobytu. Zwiększy pozostałą należność.");
+
+            }
+        } catch (SQLException e) {
+            System.out.println("Błąd odczytu rozliczenia: " + e.getMessage());
+            return true;
+
+        }
+        BigDecimal kwota = wczytajCene("Kwota zwrotu: ");
+        if (kwota == null) return false;
+
+        String metoda = wybierzMetodePlatnosci();
+        if (metoda == null) return false;
+
+        String potwierdzenie = wczytajNiepustyTekst("Potwierdzasz zwrot " + kwota + " zł (t/n) ? ");
+        if (potwierdzenie == null) return false;
+
+        if (!potwierdzenie.equalsIgnoreCase("t")){
+            System.out.println("Zrezygnowano ze zwrotu.");
+            return true;
+        }
+        try {
+            BazaDanych.zapiszZwrot(id, kwota, metoda, 2L);
+
+            System.out.println("Zarejestrowano zwrot " + kwota + " zł.");
+        } catch (SQLException e){
+            System.out.println("Nie potwierdzono zwrotu: " + e.getMessage());
+
+            System.out.println("Przed ponowieniem sprawdź historię płatności w opcji 17.");
+        }
+        return true;
+    }
+
+
 
 
 }

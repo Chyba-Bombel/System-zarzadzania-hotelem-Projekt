@@ -337,26 +337,74 @@ public class BazaDanych {
 
         }
     }
-    public static boolean anulujRezerwacje(int id) throws SQLException{
-        String sql =
-                "UPDATE rezerwacje "
-                        + "SET status = 'ANULOWANA' "
-                        + "WHERE id = ? AND status = 'POTWIERDZONA' "
-                        + "AND NOT EXISTS ("
-                        + "SELECT 1 FROM platnosci "
-                        + "WHERE rezerwacja_id = ?"
-                        + ")";
-        try (
-                Connection polaczenie = polacz();
+    public static boolean anulujRezerwacje(int id)
+            throws SQLException {
 
-                PreparedStatement zapytanie = polaczenie.prepareStatement(sql)
-        ){
-            zapytanie.setInt(1, id);
-            zapytanie.setInt(2,id);
+        try (Connection polaczenie = polacz()) {
 
-            int zmienioneWiersze = zapytanie.executeUpdate();
+            polaczenie.setTransactionIsolation(
+                    Connection.TRANSACTION_READ_COMMITTED
+            );
 
-            return zmienioneWiersze == 1;
+            polaczenie.setAutoCommit(false);
+
+            try {
+                String sqlRezerwacja = "SELECT status FROM rezerwacje "
+                                + "WHERE id = ? FOR UPDATE";
+
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlRezerwacja)) {
+
+                    zapytanie.setInt(1, id);
+
+                    try (ResultSet wynik = zapytanie.executeQuery()) {
+
+                        if (!wynik.next()) {
+                            throw new SQLException(
+                                    "Nie znaleziono rezerwacji."
+                            );
+                        }
+
+                        if (!wynik.getString("status").equals("POTWIERDZONA")) {
+
+                            throw new SQLException("Anulować można tylko potwierdzoną rezerwację.");
+                        }
+                    }
+                }
+
+                BigDecimal netto = pobierzNetto(polaczenie, id);
+
+                if (netto.signum() > 0) {
+                    throw new SQLException("Przed anulowaniem zwróć pozostałe środki: " + netto + " zł. Użyj opcji 19."
+                    );
+                }
+
+                if (netto.signum() < 0) {
+                    throw new SQLException("Nieprawidłowe rozliczenie: zwroty przekraczają wpłaty."
+                    );
+                }
+
+                String sqlZmiana = "UPDATE rezerwacje "
+                                + "SET status = 'ANULOWANA' "
+                                + "WHERE id = ?";
+
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlZmiana)) {
+                    zapytanie.setInt(1, id);
+                    zapytanie.executeUpdate();
+                }
+
+                polaczenie.commit();
+
+                return true;
+
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    polaczenie.rollback();
+                } catch (SQLException bladWycofania) {
+                    e.addSuppressed(bladWycofania);
+                }
+
+                throw e;
+            }
         }
     }
     public static ArrayList<Pracownik> pobierzPracownikow() throws SQLException{
@@ -489,6 +537,7 @@ public class BazaDanych {
             polaczenie.setAutoCommit(false);
             try {
                 long pokojID;
+                BigDecimal stawka;
 
                 String sqlPokojID =  "SELECT pokoj_id FROM rezerwacje WHERE id = ?";
                 try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlPokojID)){
@@ -521,8 +570,8 @@ public class BazaDanych {
                     }
 
                 }
-                String sqlRezerwacja = "SELECT status, pokoj_id FROM rezerwacje "
-                        + "WHERE id = ? FOR UPDATE";
+                String sqlRezerwacja = "SELECT status, pokoj_id, cena_za_noc "
+                                + "FROM rezerwacje WHERE id = ? FOR UPDATE";
                 try(PreparedStatement zapytanie = polaczenie.prepareStatement(sqlRezerwacja)) {
                     zapytanie.setInt(1,id);
 
@@ -540,18 +589,32 @@ public class BazaDanych {
 
                         }
 
+                        stawka = wynik.getBigDecimal("cena_za_noc")
+
                     }
 
                 }
-                String sqlPlatnosci = "SELECT id FROM platnosci WHERE rezerwacja_id = ?";
-                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlPlatnosci)){
-                    zapytanie.setInt(1,id);
-                    try (ResultSet wynik = zapytanie.executeQuery()){
-                        if (wynik.next()){
-                            throw new SQLException("Rezerwacja ma płatności.");
-                        }
-                    }
+                long noweNoce = ChronoUnit.DAYS.between(noweOd, noweDo);
 
+                BigDecimal nowaNaleznosc =
+                        stawka.multiply(BigDecimal.valueOf(noweNoce));
+
+                BigDecimal netto = pobierzNetto(polaczenie, id);
+
+                if (netto.signum() < 0) {
+                    throw new SQLException(
+                            "Nieprawidłowe rozliczenie: zwroty przekraczają wpłaty."
+                    );
+                }
+
+                if (netto.compareTo(nowaNaleznosc) > 0) {
+                    BigDecimal nadplata = netto.subtract(nowaNaleznosc);
+
+                    throw new SQLException(
+                            "Nowy pobyt kosztowałby " + nowaNaleznosc
+                                    + " zł. Najpierw zarejestruj zwrot "
+                                    + nadplata + " zł w opcji 19."
+                    );
                 }
                 String sqlDostepnosc = "SELECT id FROM rezerwacje "
                         + "WHERE pokoj_id = ? "
@@ -756,10 +819,10 @@ public class BazaDanych {
                     }
                 }
 
-                // Następnie blokujemy rezerwację.
-                String sqlRezerwacja =
-                        "SELECT pokoj_id, status FROM rezerwacje "
-                                + "WHERE id = ? FOR UPDATE";
+
+                String sqlRezerwacja = "SELECT pokoj_id, status, cena_za_noc, "
+                                + "DATEDIFF(data_do, data_od) AS noce "
+                                + "FROM rezerwacje WHERE id = ? FOR UPDATE";
 
                 try (PreparedStatement zapytanie =
                              polaczenie.prepareStatement(sqlRezerwacja)) {
@@ -774,18 +837,24 @@ public class BazaDanych {
                         }
 
                         if (wynik.getLong("pokoj_id") != pokojId) {
-                            throw new SQLException(
-                                    "Zmieniono pokój rezerwacji. Spróbuj ponownie."
-                            );
+                            throw new SQLException("Zmieniono pokój rezerwacji. Spróbuj ponownie.");
                         }
 
-                        if (!wynik.getString("status")
-                                .equals("ZAMELDOWANA")) {
+                        if (!wynik.getString("status").equals("ZAMELDOWANA")) {
 
-                            throw new SQLException(
-                                    "Wymeldować można tylko "
-                                            + "zameldowaną rezerwację."
-                            );
+                            throw new SQLException("Wymeldować można tylko zameldowaną rezerwację.");
+                        }
+                        BigDecimal naleznosc = wynik.getBigDecimal("cena_za_noc").multiply(BigDecimal.valueOf(wynik.getLong("noce")));
+
+                        BigDecimal zaplacono = pobierzNetto(polaczenie, id);
+                        BigDecimal saldo = naleznosc.subtract(zaplacono);
+
+                        if (saldo.signum() > 0) {
+                            throw new SQLException("Nie można wymeldować. Pozostało do zapłaty: " + saldo + " zł.");
+                        }
+
+                        if (saldo.signum() < 0) {
+                            throw new SQLException("Przed wymeldowaniem zarejestruj zwrot nadpłaty: " + saldo.abs() + " zł.");
                         }
                     }
                 }
@@ -1008,6 +1077,120 @@ public class BazaDanych {
                 throw e;
             }
 
+        }
+    }
+    public static void zapiszZwrot(int rezerwacjaId, BigDecimal kwota, String metoda, long pracownikId) throws SQLException{
+        if (kwota == null
+                || kwota.signum() <= 0
+                || kwota.scale() > 2
+                || kwota.compareTo(new BigDecimal("99999999.99")) > 0) {
+
+            throw new SQLException("Niepoprawna kwota zwrotu.");
+        }
+        if (!"GOTOWKA".equals(metoda)
+                && !"KARTA".equals(metoda)
+                && !"PRZELEW".equals(metoda)) {
+
+            throw new SQLException("Niepoprawna metoda zwrotu.");
+        }
+        try (Connection polaczenie = polacz()){
+
+            polaczenie.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+
+            polaczenie.setAutoCommit(false);
+
+            try {
+                String sqlRezerwacja = "SELECT id FROM rezerwacje "
+                                + "WHERE id = ? FOR UPDATE";
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlRezerwacja)){
+                    zapytanie.setInt(1,rezerwacjaId);
+
+                    try (ResultSet wynik = zapytanie.executeQuery()){
+                        if (!wynik.next()){
+                            throw new SQLException("Nie znaleziono rezerwacji.");
+                        }
+
+                    }
+
+                }
+                String sqlPracownik = "SELECT id FROM pracownicy "
+                                + "WHERE id = ? AND aktywny = TRUE";
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlPracownik)){
+
+                    zapytanie.setLong(1, pracownikId);
+
+                    try (ResultSet wynik = zapytanie.executeQuery()){
+                        if(!wynik.next()){
+                            throw new SQLException("Nie znaleziono aktywnego pracownika.");
+                        }
+
+                    }
+
+                }
+                String sqlSaldo = "SELECT COALESCE(SUM("
+                        + "CASE WHEN rodzaj = 'WPLATA' THEN kwota "
+                        + "ELSE -kwota END), 0) AS netto "
+                        + "FROM platnosci WHERE rezerwacja_id = ?";
+
+                BigDecimal dostepneDoZwrotu;
+
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlSaldo)){
+
+                    zapytanie.setInt(1,rezerwacjaId);
+
+                    try (ResultSet wynik = zapytanie.executeQuery()){
+
+                        wynik.next();
+
+                        dostepneDoZwrotu = wynik.getBigDecimal("netto");
+
+                    }
+
+                }
+                if (kwota.compareTo(dostepneDoZwrotu) > 0){
+                    throw new SQLException("Za duży zwrot. Maksymalnie można zwrócić: " + dostepneDoZwrotu + " zł.");
+
+                }
+                String sqlZapis = "INSERT INTO platnosci "
+                                + "(rezerwacja_id, pracownik_id, kwota, "
+                                + "rodzaj, metoda) "
+                                + "VALUES (?, ?, ?, 'ZWROT', ?)";
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlZapis)){
+                    zapytanie.setInt(1, rezerwacjaId);
+                    zapytanie.setLong(2, pracownikId);
+                    zapytanie.setBigDecimal(3, kwota);
+                    zapytanie.setString(4, metoda);
+
+                    zapytanie.executeUpdate();
+                }
+
+                polaczenie.commit();
+            } catch (SQLException | RuntimeException e){
+                try {
+                    polaczenie.rollback();
+                } catch (SQLException bladWycofania){
+                    e.addSuppressed(bladWycofania);
+                }
+
+                throw e;
+            }
+
+        }
+    }
+    private static BigDecimal pobierzNetto(Connection polaczenie, int rezerwacjaId) throws SQLException {
+        String sql = "SELECT COALESCE(SUM("
+                        + "CASE WHEN rodzaj = 'WPLATA' THEN kwota "
+                        + "ELSE -kwota END), 0) AS netto "
+                        + "FROM platnosci WHERE rezerwacja_id = ?";
+
+        try (PreparedStatement zapytanie = polaczenie.prepareStatement(sql)) {
+
+            zapytanie.setInt(1, rezerwacjaId);
+
+            try (ResultSet wynik = zapytanie.executeQuery()) {
+                wynik.next();
+                return wynik.getBigDecimal("netto");
+            }
         }
     }
 }
