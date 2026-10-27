@@ -68,6 +68,7 @@ public class Main {
             System.out.println("15. Wymelduj gościa");
             System.out.println("16. Oznacz pokój jako posprzątany");
             System.out.println("17. Pokaż rozliczenie rezerwacji");
+            System.out.println("18. Dodaj wpłatę lub zaliczkę");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -132,6 +133,9 @@ public class Main {
                     break;
                 case "17":
                     dziala = pokazRozliczenie();
+                    break;
+                case "18":
+                    dziala = dodajWplate();
                     break;
                 case "0":
                     dziala = false;
@@ -871,6 +875,68 @@ public class Main {
 
         } catch (Exception e) {
             System.out.println("Błąd pobierania rozliczenia: " + e.getMessage());
+        }
+        return true;
+    }
+
+    private static String wybierzMetodePlatnosci(){
+        while (true){
+            System.out.println("1. Gotówka");
+            System.out.println("2. Karta");
+            System.out.println("3. Przelew");
+
+            String wybor = wczytajNiepustyTekst("Metoda płatności: ");
+
+            if (wybor == null) return null;
+
+            switch (wybor){
+                case "1":
+                    return "GOTOWKA";
+                case "2":
+                    return "KARTA";
+                case "3":
+                    return "PRZELEW";
+                default:
+                    System.out.println("Wybierz 1,2 lub 3.");
+            }
+        }
+    }
+
+    private static boolean dodajWplate(){
+
+        Integer id = wczytajLiczbe("ID rezerwacji: ");
+        if (id == null) return false;
+
+        try {
+            Rozliczenie rozliczenie = BazaDanych.pobierzRozliczenie(id);
+
+            if (rozliczenie.status().equals("ANULOWANA")){
+                System.out.println("Nie można wplacać na anulowaną rezerwacje.");
+                return true;
+            }
+            if (rozliczenie.saldo().signum() <= 0){
+                System.out.println("Brak kwoty do dopłaty.");
+                return true;
+            }
+
+            System.out.println("Pozostało do zapłaty: " + rozliczenie.saldo() + " zł");
+        } catch (SQLException e){
+            System.out.println("Błąd odczytu rozliczenia: " + e.getMessage());
+            return true;
+        }
+
+        BigDecimal kwota = wczytajCene("Kwota wpłaty: ");
+        if (kwota == null) return false;
+
+        String metoda = wybierzMetodePlatnosci();
+        if (metoda == null) return false;
+
+        try {
+            BazaDanych.zapiszWplate(id,kwota,metoda,2L);
+            System.out.println("Zapisano wpłatę: " + kwota + " zł.");
+        } catch (SQLException e) {
+            System.out.println("Nie potwierdzono wpłaty: " + e.getMessage());
+            System.out.println("Przed ponowieniem sprawdź historie płatności");
         }
         return true;
     }
