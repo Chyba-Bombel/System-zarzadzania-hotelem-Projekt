@@ -589,7 +589,7 @@ public class BazaDanych {
 
                         }
 
-                        stawka = wynik.getBigDecimal("cena_za_noc")
+                        stawka = wynik.getBigDecimal("cena_za_noc");
 
                     }
 

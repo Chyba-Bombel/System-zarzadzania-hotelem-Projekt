@@ -1,11 +1,29 @@
 public class Pracownik extends Osoba{
-    private String stanowisko;
+    private final long id;
+    private final String login;
+    private final String stanowisko;
+
 
     public Pracownik(String imie, String nazwisko, String stanowisko){
         super(imie, nazwisko);
         this.stanowisko = stanowisko;
     }
+    public Pracownik(long id, String imie, String nazwisko, String login, String rola){
+        super(imie, nazwisko);
+        this.id = id;
+        this.login = login;
+        this.stanowisko = rola;
+    }
+    public long getId(){
+        return id;
+    }
+    public String getLogin(){
+        return login;
+    }
     public String getStanowisko(){
+        return stanowisko;
+    }
+    public String getRola(){
         return stanowisko;
     }
     @Override
