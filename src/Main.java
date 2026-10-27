@@ -61,6 +61,7 @@ public class Main {
             System.out.println("9 Anuluj Rezerwacje");
             System.out.println("10. Edytuj dane gościa");
             System.out.println("11. Dodaj pokój");
+            System.out.println("12. Edytuj pokój");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -107,6 +108,9 @@ public class Main {
                     break;
                 case "11":
                     dziala = dodajPokoj();
+                    break;
+                case "12":
+                    dziala = edytujPokoj();
                     break;
                 case "0":
                     dziala = false;
@@ -514,6 +518,73 @@ public class Main {
         } catch (SQLException e){
             System.out.println("Pokój zapisano ale nie udało sie odświeżyć listy: " + e.getMessage());
             System.out.println("Uruchom program ponownie aby wczytać aktualne dane");
+        }
+        return true;
+    }
+
+    private static boolean edytujPokoj(){
+        try {
+            pokoje = BazaDanych.pobierzPokoje();
+        } catch (SQLException e){
+            System.out.println("Nie udało sie pobrać pokoi: " + e.getMessage());
+        }
+
+        for (Pokoj pokoj : pokoje){
+            pokoj.wyswietlDane();
+        }
+
+        String numer = wczytajNiepustyTekst("Obecny numer pokoju do edycji: ");
+        if (numer == null) return false;
+
+        Pokoj wybranyPokoj = null;
+
+        for (Pokoj pokoj : pokoje){
+            if (pokoj.getNumer().equalsIgnoreCase(numer)){
+                wybranyPokoj = pokoj;
+                break;
+            }
+        }
+        if (wybranyPokoj == null){
+            System.out.println("Nie znaleziono takiego pokoju");
+            return true;
+        }
+        System.out.println("Obecne dane: ");
+        wybranyPokoj.wyswietlDane();
+        System.out.println("Podaj nowe dane. Jeśli numer lub typ mają zostać wpisz je ponownie");
+
+        String nowyNumer = wczytajNiepustyTekst("Nowy numer pokoju: ");
+        if (nowyNumer == null) return false;
+        String nowyTyp = wczytajNiepustyTekst("Typ pokoju, np. Standard: ");
+        if (nowyTyp == null) return false;
+        BigDecimal nowaCena = wczytajCene("Nowa cena za noc: ");
+        if (nowaCena == null) return false;
+        try {
+            boolean zapisano = BazaDanych.edytujPokoj(wybranyPokoj.getId(), nowyNumer, nowyTyp, nowaCena);
+            if(!zapisano){
+                System.out.println("Nie potwierdzono aktualizacji. Sprawdź aktualne dane pokoju.");
+                return true;
+            }
+            System.out.println("Zapisano dane pokoju. ");
+
+        }catch (SQLException e){
+            if (e.getErrorCode() == 1062){
+                System.out.println("Inny pokój ma już podobny numer");
+            } else {
+                System.out.println("Błąd aktualizacji: " + e.getMessage());
+            }
+            return true;
+        }
+        try {
+            pokoje = BazaDanych.pobierzPokoje();
+            goscie = BazaDanych.pobierzGosci();
+
+            rezerwacje = BazaDanych.pobierzRezerwacje(goscie, pokoje);
+
+
+        } catch (SQLException e){
+            System.out.println("Dane zapisano ale nie udalo się odświeżyć list: " + e.getMessage());
+            System.out.println("Uruchom program ponownie.");
+
         }
         return true;
     }
