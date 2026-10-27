@@ -1,18 +1,10 @@
-import com.mysql.cj.protocol.a.SqlDateValueEncoder;
-import com.mysql.cj.protocol.a.TextResultsetReader;
-import com.sun.source.tree.IfTree;
-import com.sun.source.tree.TryTree;
-
-import javax.print.DocFlavor;
-import javax.sound.midi.MidiDevice;
-import java.net.ConnectException;
-import java.security.PublicKey;
+import java.security.GeneralSecurityException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.IllegalFormatCodePointException;
+
 
 public class BazaDanych {
     private static final String URL =
@@ -1191,6 +1183,36 @@ public class BazaDanych {
                 wynik.next();
                 return wynik.getBigDecimal("netto");
             }
+        }
+    }
+    public static Pracownik zaloguj(String login, String haslo) throws SQLException{
+        String sql = "SELECT id, imie, nazwisko, login, hash_hasla, rola "
+                        + "FROM pracownicy "
+                        + "WHERE login = ? AND aktywny = TRUE";
+        try (Connection polaczenie = polacz(); PreparedStatement zapytanie = polaczenie.prepareStatement(sql)){
+            zapytanie.setString(1, login);
+            try (ResultSet wynik = zapytanie.executeQuery()){
+                if (!wynik.next()){
+                    return null;
+                }
+
+                boolean poprawneHaslo;
+
+                try {
+                    poprawneHaslo = Hasla.sprawdz(haslo, wynik.getString("hash_hasla"));
+                } catch (GeneralSecurityException e){
+                    throw new SQLException("Nie udało sie sprawdzić hasła.",e);
+                }
+
+                if (!poprawneHaslo){
+                    return null;
+                }
+
+                return new Pracownik(wynik.getLong("id"), wynik.getString("imie"), wynik.getString("nazwisko"), wynik.getString("login"), wynik.getString("rola"));
+
+
+            }
+
         }
     }
 }
