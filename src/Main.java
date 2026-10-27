@@ -66,6 +66,7 @@ public class Main {
             System.out.println("13. Zmień termin rezerwacji");
             System.out.println("14. Zamelduj gościa");
             System.out.println("15. Wymelduj gościa");
+            System.out.println("16. Oznacz pokój jako posprzątany");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -124,6 +125,9 @@ public class Main {
                     break;
                 case "15":
                     dziala = wymeldujGoscia();
+                    break;
+                case "16":
+                    dziala = oznaczPokojJakoPosprzatany();
                     break;
                 case "0":
                     dziala = false;
@@ -742,6 +746,77 @@ public class Main {
             System.out.println("Uruchom program ponownie");
 
         }
+        return true;
+    }
+
+    private static boolean oznaczPokojJakoPosprzatany(){
+        try {
+            pokoje = BazaDanych.pobierzPokoje();
+        } catch (SQLException e) {
+            System.out.println("Nie udało pobrać pokoi: " + e.getMessage());
+            return true;
+        }
+        boolean znaleziono = false;
+
+        System.out.println("--- POKOJE DO SPRZĄTANIA ---");
+
+        for (Pokoj pokoj : pokoje){
+            if (pokoj.getStan().equals("DO_SPRZATANIA")){
+                pokoj.wyswietlDane();
+                znaleziono = true;
+            }
+        }
+
+        if (!znaleziono){
+            System.out.println("Nie ma pokoi wymagających sprzątania.");
+            return true;
+        }
+
+        String numer = wczytajNiepustyTekst("Numer posprzątanego pokoju: ");
+
+        if (numer == null) return false;
+
+        Pokoj wybranyPokoj = null;
+
+        for (Pokoj pokoj : pokoje){
+            if (pokoj.getNumer().equalsIgnoreCase(numer)){
+                wybranyPokoj = pokoj;
+                break;
+            }
+        }
+
+        if (wybranyPokoj == null){
+            System.out.println("Nie znaleziono takiego pokoju");
+            return true;
+        }
+
+        try {
+            boolean zmieniono = BazaDanych.oznaczPokojJakoPosprzatany(wybranyPokoj.getId());
+
+            if (!zmieniono){
+                System.out.println("Nie zmieniono stanu. Pokój nie wymaga sprzątania jest wyłączony, zajęty lub jego dane zostały zmienione");
+                return true;
+            }
+
+            System.out.println("Pokój " + wybranyPokoj.getNumer() + " oznaczono jako GOTOWY.");
+
+
+
+        } catch (SQLException e){
+            System.out.println("Nie potwierdzono zmiany: " + e.getMessage());
+            System.out.println("Przed ponowieniem sprawdź stan pokoju w bazie");
+            return true;
+        }
+        try {
+            pokoje = BazaDanych.pobierzPokoje();
+            rezerwacje = BazaDanych.pobierzRezerwacje(goscie, pokoje);
+
+        } catch (SQLException e) {
+            System.out.println("Stan zapisano ale nie udało się odświeżyć list: " + e.getMessage());
+
+            System.out.println("Uruchom program ponownie");
+        }
+
         return true;
     }
 
