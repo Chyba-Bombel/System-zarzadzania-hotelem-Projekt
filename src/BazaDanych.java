@@ -831,4 +831,23 @@ public class BazaDanych {
             }
         }
     }
+    public static boolean oznaczPokojJakoPosprzatany(long pokojId) throws SQLException{
+        String sql =
+                "UPDATE pokoje "
+                        + "SET stan = 'GOTOWY' "
+                        + "WHERE id = ? "
+                        + "AND stan = 'DO_SPRZATANIA' "
+                        + "AND NOT EXISTS ("
+                        + "SELECT 1 FROM rezerwacje "
+                        + "WHERE pokoj_id = ? "
+                        + "AND status = 'ZAMELDOWANA'"
+                        + ")";
+        try (Connection polaczenie = polacz(); PreparedStatement zapytanie = polaczenie.prepareStatement(sql)){
+            zapytanie.setLong(1, pokojId);
+            zapytanie.setLong(2, pokojId);
+
+            return zapytanie.executeUpdate() == 1;
+
+        }
+    }
 }

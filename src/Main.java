@@ -65,6 +65,7 @@ public class Main {
             System.out.println("12. Edytuj pokój");
             System.out.println("13. Zmień termin rezerwacji");
             System.out.println("14. Zamelduj gościa");
+            System.out.println("15. Wymelduj gościa");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -120,6 +121,9 @@ public class Main {
                     break;
                 case "14":
                     dziala = zameldujGoscia();
+                    break;
+                case "15":
+                    dziala = wymeldujGoscia();
                     break;
                 case "0":
                     dziala = false;
@@ -690,6 +694,55 @@ public class Main {
         }
         return true;
 
+    }
+
+    private static boolean wymeldujGoscia(){
+        try {
+            goscie = BazaDanych.pobierzGosci();
+            pokoje = BazaDanych.pobierzPokoje();
+
+            rezerwacje = BazaDanych.pobierzRezerwacje(goscie,pokoje);
+        } catch (SQLException e) {
+            System.out.println("Nie udało się pobrać danych: " + e.getMessage());
+            return true;
+        }
+
+        boolean znaleziono = false;
+
+        for (Rezerwacja rezerwacja : rezerwacje){
+            if (rezerwacja.getStatus().equals("ZAMELDOWANA")){
+                rezerwacja.wyswietlDane();
+                znaleziono = true;
+
+            }
+        }
+
+        if (!znaleziono) {
+            System.out.println("Nie ma zameldowanych rezerwacji.");
+            return true;
+        }
+
+        Integer id  = wczytajLiczbe("Id rezereacji do wymeldowania: ");
+        if (id == null) return false;
+        try {
+            BazaDanych.wymeldujGoscia(id);
+
+            System.out.println("Wymeldowano gościa.");
+        } catch (SQLException e){
+            System.out.println("Nie potwierdzono wymeldowania: " + e.getMessage());
+            System.out.println("Przed ponowieniem sprawdź aktualny status w bazie.");
+            return true;
+        }
+        try {
+            pokoje = BazaDanych.pobierzPokoje();
+
+            rezerwacje = BazaDanych.pobierzRezerwacje(goscie, pokoje);
+        } catch (SQLException e) {
+            System.out.println("Wymeldowanie zapisano ale nie udało się odświeżyć danych: " + e.getMessage());
+            System.out.println("Uruchom program ponownie");
+
+        }
+        return true;
     }
 
 
