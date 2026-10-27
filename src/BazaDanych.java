@@ -599,4 +599,108 @@ public class BazaDanych {
         }
 
     }
+    public static void zameldujGoscia(int id) throws SQLException{
+        try (Connection polaczenie = polacz()){
+
+            polaczenie.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+
+            polaczenie.setAutoCommit(false);
+
+            try {
+                long pokojId;
+
+                String sqlPokojId = "SELECT pokoj_id FROM rezerwacje WHERE id = ?";
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlPokojId)){
+                    zapytanie.setInt(1,id);
+                    try(ResultSet wynik = zapytanie.executeQuery()) {
+                        if (!wynik.next()){
+                            throw new SQLException("Nie znaleziono rezerwacji.");
+                        }
+
+                        pokojId = wynik.getLong("pokoj_id");
+
+                    }
+                }
+
+                String sqlPokoj = "SELECT stan FROM pokoje WHERE id = ? FOR UPDATE";
+
+                try (PreparedStatement zapytanie  = polaczenie.prepareStatement(sqlPokoj)){
+                    zapytanie.setLong(1, pokojId);
+
+                    try (ResultSet wynik = zapytanie.executeQuery()){
+                        if (!wynik.next()){
+                            throw new SQLException("Pokój nie istnieje");
+                        }
+
+                        if (!wynik.getString("stan").equals("GOTOWY")){
+                            throw new SQLException("Pokój nie jest gotowy do zameldowania");
+                        }
+                    }
+
+                }
+                String sqlRezerwacja = "SELECT pokoj_id, status, data_od, data_do " + "FROM rezerwacje WHERE id = ? FOR UPDATE";
+
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlRezerwacja)){
+                    zapytanie.setInt(1,id);
+
+                    try (ResultSet wynik = zapytanie.executeQuery()){
+                        if (!wynik.next()){
+                            throw new SQLException("Nie znaleziono rezerwacji.");
+                        }
+                        if (wynik.getLong("pokoj_id") != pokojId){
+                            throw new SQLException("Zmieniono pokój rezerwacji. Spróbuj ponownie.");
+                        }
+                        if (!wynik.getString("status").equals("POTWIERDZONA")){
+                            throw new SQLException("Zameldować można tylko potwierdzoną rezerwację.");
+                        }
+
+                        LocalDate dzis = LocalDate.now();
+                        LocalDate od = wynik.getDate("data_od").toLocalDate();
+                        LocalDate doDnia = wynik.getDate("data_do").toLocalDate();
+
+                        if (dzis.isBefore(od) || !dzis.isBefore(doDnia)){
+                            throw new SQLException("Dzisiejsza data nie przypada w terminie pobytu");
+                        }
+
+                    }
+
+                }
+                String sqlZajety =
+                        "SELECT id FROM rezerwacje " + "WHERE pokoj_id = ? "
+                                + "AND status = 'ZAMELDOWANA' "
+                                + "AND id <> ?";
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlZajety)){
+                    zapytanie.setLong(1,pokojId);
+                    zapytanie.setInt(2,id);
+
+                    try (ResultSet wynik = zapytanie.executeQuery()){
+                        if (wynik.next()){
+                            throw new SQLException("W tym pokoju jest już zameldowany gość");
+                        }
+
+                    }
+
+                }
+                String sqlZmiana =
+                        "UPDATE rezerwacje "
+                                + "SET status = 'ZAMELDOWANA' "
+                                + "WHERE id = ?";
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlZmiana)){
+                    zapytanie.setInt(1,id);
+                    zapytanie.executeUpdate();
+
+
+                }
+                polaczenie.commit();
+            } catch (SQLException | RuntimeException e){
+                try {
+                    polaczenie.rollback();
+                }catch (SQLException bladWycofania){
+                    e.addSuppressed(bladWycofania);
+                }
+                throw e;
+            }
+
+        }
+    }
 }
