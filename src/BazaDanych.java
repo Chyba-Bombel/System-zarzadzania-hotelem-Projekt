@@ -1207,8 +1207,11 @@ public class BazaDanych {
                 if (!poprawneHaslo){
                     return null;
                 }
-
-                return new Pracownik(wynik.getLong("id"), wynik.getString("imie"), wynik.getString("nazwisko"), wynik.getString("login"), wynik.getString("rola"));
+                String rola = wynik.getString("rola");
+                if (!"ADMIN".equals(rola) && !"RECEPCJA".equals(rola)){
+                    return null;
+                }
+                return new Pracownik(wynik.getLong("id"), wynik.getString("imie"), wynik.getString("nazwisko"), wynik.getString("login"), rola);
 
 
             }

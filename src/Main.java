@@ -82,7 +82,9 @@ public class Main {
                     dziala = wyszukajGoscia();
                     break;
                 case "4":
-                    wyswietlPracownikow();
+                    if (wymagaAdministratora()){
+                        wyswietlPracownikow();
+                    }
                     break;
                 case "5":
                     for (Pokoj pokoj : pokoje) pokoj.wyswietlDane();
@@ -108,10 +110,14 @@ public class Main {
                     dziala = edytujGoscia();
                     break;
                 case "11":
-                    dziala = dodajPokoj();
+                    if (wymagaAdministratora()){
+                        dziala = dodajPokoj();
+                    }
                     break;
                 case "12":
-                    dziala = edytujPokoj();
+                    if (czyAdministrator()){
+                        dziala = dodajPokoj();
+                    }
                     break;
                 case "13":
                     dziala = zmienTerminRezerwacji();
@@ -132,7 +138,9 @@ public class Main {
                     dziala = dodajWplate();
                     break;
                 case "19":
-                    dziala = dodajZwrot();
+                    if (wymagaAdministratora()){
+                        dziala = dodajZwrot();
+                    }
                     break;
                 case "20":
                     zalogowanyPracownik = null;
@@ -1026,6 +1034,19 @@ public class Main {
             }
         }
         return null;
+    }
+    private static boolean czyAdministrator(){
+        return zalogowanyPracownik != null && "ADMIN".equals(zalogowanyPracownik.getRola());
+    }
+    private static boolean wymagaAdministratora(){
+
+        if (!czyAdministrator()){
+            System.out.println("Ta operacja wymaga konta administratora");
+
+            return false;
+        }
+
+        return true;
     }
 
 
