@@ -1218,4 +1218,40 @@ public class BazaDanych {
 
         }
     }
+    public static void dodajPracownika(String imie, String nazwisko, String login, String haslo, String rola) throws SQLException{
+        if (imie == null || imie.isBlank() || imie.length() > 60 || nazwisko == null || nazwisko.isBlank() || nazwisko.length() > 80){
+            throw new SQLException("Niepoprawne imię lub nazwisko");
+        }
+        if (login == null || !login.matches("[A-Za-z0-9._-]{3,60}")){
+            throw new SQLException("Login: 3-60 znakow. Dozwolone są litery bez polskich znaków, cyfry, kropka. _ i -.");
+        }
+        if (haslo == null || haslo.length() < 12 || haslo.length() > 128){
+            throw new SQLException("Hasło musi mieć od 12 do 128 znaków.");
+        }
+        if (!"ADMIN".equals(rola) && !"RECEPCJA".equals(rola)){
+            throw new SQLException("Niepoprawna rola.");
+        }
+        String hash;
+
+        try {
+            hash = Hasla.utworzHash(haslo);
+        } catch (GeneralSecurityException e) {
+            throw new SQLException("Nie udało się przygotować hasła.", e);
+
+        }
+        String sql = "INSERT INTO pracownicy "
+                        + "(imie, nazwisko, login, hash_hasla, rola, aktywny) "
+                        + "VALUES (?, ?, ?, ?, ?, TRUE)";
+        try (Connection polaczenie = polacz(); PreparedStatement zapytanie = polaczenie.prepareStatement(sql)){
+            zapytanie.setString(1, imie);
+            zapytanie.setString(2, nazwisko);
+            zapytanie.setString(3, login);
+            zapytanie.setString(4, hash);
+            zapytanie.setString(5, rola);
+
+            zapytanie.executeUpdate();
+        }
+    }
+
+
 }

@@ -4,6 +4,7 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Base64;
+import java.security.SecureRandom;
 
 public class Hasla {
     public static boolean sprawdz(String wpisaneHaslo, String zapisanyHash) throws GeneralSecurityException{
@@ -49,5 +50,24 @@ public class Hasla {
             Arrays.fill(znakiHasla, '\0');
         }
 
+    }
+    public static String utworzHash(String haslo)throws GeneralSecurityException{
+        byte[] sol = new byte[16];
+        new SecureRandom().nextBytes(sol);
+
+        int iteracje = 600_000;
+        char[] znakiHasla = haslo.toCharArray();
+
+        PBEKeySpec ustawienia = new PBEKeySpec(znakiHasla, sol,iteracje,256);
+        try {
+            SecretKeyFactory generator = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+
+            byte[] hash = generator.generateSecret(ustawienia).getEncoded();
+
+            return "pbkdf2_sha256$" + iteracje + "$" + Base64.getEncoder().encodeToString(sol) + "$" + Base64.getEncoder().encodeToString(hash);
+        } finally {
+            ustawienia.clearPassword();
+            Arrays.fill(znakiHasla, '\0');
+        }
     }
 }
