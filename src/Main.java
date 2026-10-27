@@ -64,6 +64,7 @@ public class Main {
             System.out.println("11. Dodaj pokój");
             System.out.println("12. Edytuj pokój");
             System.out.println("13. Zmień termin rezerwacji");
+            System.out.println("14. Zamelduj gościa");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -116,6 +117,9 @@ public class Main {
                     break;
                 case "13":
                     dziala = zmienTerminRezerwacji();
+                    break;
+                case "14":
+                    dziala = zameldujGoscia();
                     break;
                 case "0":
                     dziala = false;
@@ -646,6 +650,46 @@ public class Main {
             System.out.println("Uruchom program ponownie.");
         }
         return true;
+    }
+    private static boolean zameldujGoscia(){
+        try {
+            goscie = BazaDanych.pobierzGosci();
+            pokoje = BazaDanych.pobierzPokoje();
+
+            rezerwacje = BazaDanych.pobierzRezerwacje(goscie,pokoje);
+
+
+        }catch (SQLException e){
+            System.out.println("Błąd pobierania danych: " + e.getMessage());
+            return true;
+        }
+
+        for (Rezerwacja rezerwacja : rezerwacje){
+            if (rezerwacja.getStatus().equals("POTWIERDZONA")){
+                rezerwacja.wyswietlDane();
+            }
+        }
+
+        Integer id = wczytajLiczbe("ID rezerwacji do zameldowania: ");
+        if (id == null) return false;
+
+        try {
+            BazaDanych.zameldujGoscia(id);
+
+            System.out.println("Zameldowano gościa.");
+        } catch (SQLException e) {
+            System.out.println("Nie powierdzono zameldowania: " + e.getMessage());
+            System.out.println("Przed ponowieniem sprawdź aktualny status w bazie.");
+            return true;
+        }
+        try {
+            rezerwacje = BazaDanych.pobierzRezerwacje(goscie, pokoje);
+        } catch (SQLException e) {
+            System.out.println("Zamledowanie zapisano ale nie udało sie odświeżyć listy: " + e.getMessage());
+            System.out.println("Uruchom program ponownie.");
+        }
+        return true;
+
     }
 
 
