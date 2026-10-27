@@ -703,4 +703,132 @@ public class BazaDanych {
 
         }
     }
+    public static void wymeldujGoscia(int id)
+            throws SQLException {
+
+        try (Connection polaczenie = polacz()) {
+
+            polaczenie.setTransactionIsolation(
+                    Connection.TRANSACTION_READ_COMMITTED
+            );
+
+            polaczenie.setAutoCommit(false);
+
+            try {
+                long pokojId;
+
+                String sqlPokojId =
+                        "SELECT pokoj_id FROM rezerwacje WHERE id = ?";
+
+                try (PreparedStatement zapytanie =
+                             polaczenie.prepareStatement(sqlPokojId)) {
+
+                    zapytanie.setInt(1, id);
+
+                    try (ResultSet wynik = zapytanie.executeQuery()) {
+                        if (!wynik.next()) {
+                            throw new SQLException(
+                                    "Nie znaleziono rezerwacji."
+                            );
+                        }
+
+                        pokojId = wynik.getLong("pokoj_id");
+                    }
+                }
+
+                // Najpierw blokujemy pokój.
+                String sqlPokoj =
+                        "SELECT stan FROM pokoje WHERE id = ? FOR UPDATE";
+
+                String stanPokoju;
+
+                try (PreparedStatement zapytanie =
+                             polaczenie.prepareStatement(sqlPokoj)) {
+
+                    zapytanie.setLong(1, pokojId);
+
+                    try (ResultSet wynik = zapytanie.executeQuery()) {
+                        if (!wynik.next()) {
+                            throw new SQLException("Pokój nie istnieje.");
+                        }
+
+                        stanPokoju = wynik.getString("stan");
+                    }
+                }
+
+                // Następnie blokujemy rezerwację.
+                String sqlRezerwacja =
+                        "SELECT pokoj_id, status FROM rezerwacje "
+                                + "WHERE id = ? FOR UPDATE";
+
+                try (PreparedStatement zapytanie =
+                             polaczenie.prepareStatement(sqlRezerwacja)) {
+
+                    zapytanie.setInt(1, id);
+
+                    try (ResultSet wynik = zapytanie.executeQuery()) {
+                        if (!wynik.next()) {
+                            throw new SQLException(
+                                    "Nie znaleziono rezerwacji."
+                            );
+                        }
+
+                        if (wynik.getLong("pokoj_id") != pokojId) {
+                            throw new SQLException(
+                                    "Zmieniono pokój rezerwacji. Spróbuj ponownie."
+                            );
+                        }
+
+                        if (!wynik.getString("status")
+                                .equals("ZAMELDOWANA")) {
+
+                            throw new SQLException(
+                                    "Wymeldować można tylko "
+                                            + "zameldowaną rezerwację."
+                            );
+                        }
+                    }
+                }
+
+                String sqlZakonczenie =
+                        "UPDATE rezerwacje "
+                                + "SET status = 'ZAKONCZONA' "
+                                + "WHERE id = ?";
+
+                try (PreparedStatement zapytanie =
+                             polaczenie.prepareStatement(sqlZakonczenie)) {
+
+                    zapytanie.setInt(1, id);
+                    zapytanie.executeUpdate();
+                }
+
+
+                if (!stanPokoju.equals("WYLACZONY")) {
+
+                    String sqlSprzatanie =
+                            "UPDATE pokoje "
+                                    + "SET stan = 'DO_SPRZATANIA' "
+                                    + "WHERE id = ?";
+
+                    try (PreparedStatement zapytanie =
+                                 polaczenie.prepareStatement(sqlSprzatanie)) {
+
+                        zapytanie.setLong(1, pokojId);
+                        zapytanie.executeUpdate();
+                    }
+                }
+
+                polaczenie.commit();
+
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    polaczenie.rollback();
+                } catch (SQLException bladWycofania) {
+                    e.addSuppressed(bladWycofania);
+                }
+
+                throw e;
+            }
+        }
+    }
 }
