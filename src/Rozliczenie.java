@@ -14,4 +14,7 @@ public record Rozliczenie (
     public BigDecimal zaplaconoNetto(){
         return wplaty.subtract(zwroty);
     }
+    public BigDecimal saldo(){
+        return naleznosc.subtract(zaplaconoNetto());
+    }
 }

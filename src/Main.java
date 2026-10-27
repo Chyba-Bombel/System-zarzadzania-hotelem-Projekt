@@ -67,6 +67,7 @@ public class Main {
             System.out.println("14. Zamelduj gościa");
             System.out.println("15. Wymelduj gościa");
             System.out.println("16. Oznacz pokój jako posprzątany");
+            System.out.println("17. Pokaż rozliczenie rezerwacji");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -128,6 +129,9 @@ public class Main {
                     break;
                 case "16":
                     dziala = oznaczPokojJakoPosprzatany();
+                    break;
+                case "17":
+                    dziala = pokazRozliczenie();
                     break;
                 case "0":
                     dziala = false;
@@ -817,6 +821,57 @@ public class Main {
             System.out.println("Uruchom program ponownie");
         }
 
+        return true;
+    }
+    private static boolean pokazRozliczenie(){
+        Integer id = wczytajLiczbe("ID rezerwacji do rozliczenia: ");
+        if (id == null) return false;
+
+        try {
+            Rozliczenie rozliczenie = BazaDanych.pobierzRozliczenie(id);
+            System.out.println("\n--- ROZLICZENIE ---");
+
+            System.out.println("Rezerwacja: " + rozliczenie.rezerwacjaId());
+
+            System.out.println("Status: " + rozliczenie.status());
+
+            System.out.println("Cena pobytu: " + rozliczenie.cenaPobytu() + " zł");
+
+            System.out.println("Wpłaty: " + rozliczenie.wplaty() + " zł");
+
+            System.out.println("Zapłacono netto: " + rozliczenie.zaplaconoNetto() + " zł");
+
+            BigDecimal saldo = rozliczenie.saldo();
+
+            if (saldo.signum() > 0){
+                System.out.println("Do dopłaty: " + saldo + " zł");
+
+            } else if (saldo.signum() < 0) {
+                System.out.println("Do zwrotu: " + saldo.abs() + " zł");
+
+            }else {
+                System.out.println("Rezerwacja rozliczona.");
+            }
+
+            System.out.println("\n--- HISTORIA PŁATNOŚCI ---");
+            if (rozliczenie.platnosci().isEmpty()){
+                System.out.println("Brak płatności.");
+            }
+
+
+            for (Platnosc platnosc : rozliczenie.platnosci()){
+                System.out.println(
+                        "ID: " + platnosc.id()
+                                + " | " + platnosc.rodzaj()
+                                + " | " + platnosc.kwota() + " zł"
+                                + " | " + platnosc.metoda()
+                                + " | " + platnosc.data()
+                );
+            }
+
+        } catch (Exception e) {
+            System.out.println("Błąd pobierania rozliczenia: " + e.getMessage());
+        }
         return true;
     }
 
