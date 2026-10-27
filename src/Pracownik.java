@@ -5,8 +5,7 @@ public class Pracownik extends Osoba{
 
 
     public Pracownik(String imie, String nazwisko, String stanowisko){
-        super(imie, nazwisko);
-        this.stanowisko = stanowisko;
+        this(0,imie,nazwisko,"",stanowisko);
     }
     public Pracownik(long id, String imie, String nazwisko, String login, String rola){
         super(imie, nazwisko);

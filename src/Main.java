@@ -1,15 +1,9 @@
-import com.mysql.cj.protocol.a.SqlDateValueEncoder;
-
-import javax.swing.plaf.InsetsUIResource;
 import java.math.BigDecimal;
-import java.net.IDN;
-import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
-import java.sql.Connection;
 import java.sql.SQLException;
 public class Main {
     //Listy przechowujące obiekty podczas gdy program działa
@@ -19,37 +13,35 @@ public class Main {
     private static ArrayList<Rezerwacja> rezerwacje = new ArrayList<>();
     //Scanner i sixseven
     private static Scanner scanner = new Scanner(System.in);
+    private static Pracownik zalogowanyPracownik;
 
     public static void main(String[] args){
-        try {
-            goscie = BazaDanych.pobierzGosci();
-            pokoje = BazaDanych.pobierzPokoje();
-            rezerwacje = BazaDanych.pobierzRezerwacje(
-                    goscie,
-                    pokoje
-            );
-            pracownicy = BazaDanych.pobierzPracownikow();
-
-
-            System.out.println(
-                    "Wczytano gości z bazy: " + goscie.size()
-            );
-            System.out.println("Wczytano pokoje: " + pokoje.size());
-            System.out.println("Wczytano rezerwacji: " + rezerwacje.size());
-            System.out.println("Wczytano pracowników: " + pracownicy.size());
-        } catch (SQLException e) {
-            System.out.println(
-                    "Nie udało się wczytać gości: "
-                            + e.getMessage()
-            );
-            return;
-        }
-
         boolean dziala = true;
 
         System.out.println("Witaj w obsłudze hotelu!");
 
         while (dziala){
+            if (zalogowanyPracownik == null){
+                zalogowanyPracownik = zalogujPracownika();
+
+                if (zalogowanyPracownik == null){
+                    break;
+                }
+
+                try {
+                    goscie = BazaDanych.pobierzGosci();
+                    pokoje = BazaDanych.pobierzPokoje();
+                    pracownicy = BazaDanych.pobierzPracownikow();
+
+                    rezerwacje = BazaDanych.pobierzRezerwacje(goscie, pokoje);
+                } catch (SQLException e){
+                    System.out.println("Nie udało się wczytać danych: " + e.getMessage());
+
+                    zalogowanyPracownik = null;
+                    break;
+                }
+                System.out.println("Zalogowano: " + zalogowanyPracownik.getImie() + zalogowanyPracownik.getNazwisko() + " | Rola: " + zalogowanyPracownik.getRola());
+            }
             System.out.println("\n--- MENU HOTELU ---");
             System.out.println("1. Wyświetl gości");
             System.out.println("2. Dodaj gościa");
@@ -70,6 +62,7 @@ public class Main {
             System.out.println("17. Pokaż rozliczenie rezerwacji");
             System.out.println("18. Dodaj wpłatę lub zaliczkę");
             System.out.println("19. Zarejestruj zwrot");
+            System.out.println("20. Wyloguj");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -140,6 +133,16 @@ public class Main {
                     break;
                 case "19":
                     dziala = dodajZwrot();
+                    break;
+                case "20":
+                    zalogowanyPracownik = null;
+
+                    rezerwacje.clear();
+                    goscie.clear();
+                    pokoje.clear();
+                    pracownicy.clear();
+
+                    System.out.println("Wylogowano.");
                     break;
                 case "0":
                     dziala = false;
@@ -360,7 +363,7 @@ public class Main {
         if (doDnia == null) return false;
         if (!poprawnyTermin(od,doDnia)) return true;
         try {
-            long pracownikId = 2;
+            long pracownikId = zalogowanyPracownik.getId();
 
             Rezerwacja nowa = BazaDanych.zapiszRezerwacje(
                     wybranyGosc,
@@ -936,7 +939,7 @@ public class Main {
         if (metoda == null) return false;
 
         try {
-            BazaDanych.zapiszWplate(id,kwota,metoda,2L);
+            BazaDanych.zapiszWplate(id,kwota,metoda,zalogowanyPracownik.getId());
             System.out.println("Zapisano wpłatę: " + kwota + " zł.");
         } catch (SQLException e) {
             System.out.println("Nie potwierdzono wpłaty: " + e.getMessage());
@@ -982,7 +985,7 @@ public class Main {
             return true;
         }
         try {
-            BazaDanych.zapiszZwrot(id, kwota, metoda, 2L);
+            BazaDanych.zapiszZwrot(id, kwota, metoda, zalogowanyPracownik.getId());
 
             System.out.println("Zarejestrowano zwrot " + kwota + " zł.");
         } catch (SQLException e){
@@ -991,6 +994,38 @@ public class Main {
             System.out.println("Przed ponowieniem sprawdź historię płatności w opcji 17.");
         }
         return true;
+    }
+    private static Pracownik zalogujPracownika(){
+        System.out.println("--- LOGOWANIE ---");
+
+        for (int proba = 1; proba <=3; proba++){
+            String login = wczytajNiepustyTekst("Login: ");
+            if (login == null) return null;
+
+            System.out.println("Hasło: ");
+
+            if (!scanner.hasNextLine()){
+                return null;
+            }
+            String haslo = scanner.nextLine();
+
+            try {
+                Pracownik pracownik = BazaDanych.zaloguj(login,haslo);
+
+                if (pracownik != null){
+                    return pracownik;
+                }
+                System.out.println("Nieprawidłowy login lub hasło albo nieaktywne konto.");
+
+                System.out.println("Pozostało prób: " + (3 - proba));
+
+            }catch (SQLException e){
+                System.out.println("Błąd logowania: " + e.getMessage());
+
+                return null;
+            }
+        }
+        return null;
     }
 
 
