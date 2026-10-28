@@ -1253,5 +1253,26 @@ public class BazaDanych {
         }
     }
 
+    public static ArrayList<KontoPracownika> pobierzKontaPracownikow() throws SQLException{
+        ArrayList<KontoPracownika> lista = new ArrayList<>();
+
+        String sql = "SELECT id, imie, nazwisko, login, rola, aktywny " + "FROM pracownicy ORDER BY id";
+
+        try (Connection polaczenie = polacz(); PreparedStatement zapytanie = polaczenie.prepareStatement(sql); ResultSet wynik = zapytanie.executeQuery()){
+            while (wynik.next()){
+                lista.add(new KontoPracownika(
+                   wynik.getLong("id"),
+                   wynik.getString("imie"),
+                   wynik.getString("nazwisko"),
+                   wynik.getString("login"),
+                   wynik.getString("rola"),
+                   wynik.getBoolean("aktywny")
+                ));
+            }
+
+        }
+        return lista;
+    }
+
 
 }
