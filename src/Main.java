@@ -71,6 +71,7 @@ public class Main {
             System.out.println("20. Wyloguj");
             if (czyAdministrator()){
                 System.out.println("21. Dodaj konto pracownika ");
+                System.out.println("22. Dezaktywuj konto pracownika");
             }
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
@@ -166,6 +167,11 @@ public class Main {
                         dziala = dodajPracownika();
                     }
                     break;
+                case "22":
+                    if (wymagaAdministratora()){
+                        dziala = dezaktywujPracownika();
+                        break;
+                    }
                 case "0":
                     dziala = false;
                     break;
@@ -1125,6 +1131,48 @@ public class Main {
 
 
 
+
+    }
+    public static boolean dezaktywujPracownika(){
+        if (!wymagaAdministratora()){
+            return true;
+        }
+        try {
+            ArrayList<KontoPracownika> konta = BazaDanych.pobierzKontaPracownikow();
+
+            for (KontoPracownika konto : konta){
+                konto.wyswietlDane();
+            }
+        }catch (SQLException e){
+            System.out.println("Nie udało sie pobrać konto: " + e.getMessage());
+            return true;
+        }
+        Integer id = wczytajLiczbe("ID Pracownika do dezaktywacji: ");
+        if (id == null) return false;
+
+        String potwierdzenie = wczytajNiepustyTekst("Dezaktywować Konto o ID " + id + "? (t/n: ");
+
+        if (potwierdzenie == null) return false;
+
+        if (!potwierdzenie.equalsIgnoreCase("t")){
+            System.out.println("Zrezygnowano z operacji");
+            return true;
+        }
+        try {
+            BazaDanych.dezaktywujPracownika(id,zalogowanyPracownik.getId());
+
+            System.out.println("Dezaktywacja konta przebiegła pomyślnie.");
+        } catch (SQLException e) {
+            System.out.println("Nie potwierdzono dezaktywacji: " +e.getMessage());
+            System.out.println("Przed ponowną próbą sprawdź stan konta");
+            return true;
+        }
+        try {
+            pracownicy = BazaDanych.pobierzPracownikow();
+        } catch (SQLException e) {
+            System.out.println("Konto dezaktywowano, ale nie odświeżono listy: " + e.getMessage());
+        }
+        return true;
 
     }
 

@@ -1273,6 +1273,98 @@ public class BazaDanych {
         }
         return lista;
     }
+    public static void dezaktywujPracownika(
+            long kontoId,
+            long administratorId
+    ) throws SQLException {
+
+        if (kontoId == administratorId) {
+            throw new SQLException("Nie możesz dezaktywować własnego konta.");
+        }
+
+        try (Connection polaczenie = polacz()) {
+
+            polaczenie.setTransactionIsolation(
+                    Connection.TRANSACTION_READ_COMMITTED
+            );
+
+            polaczenie.setAutoCommit(false);
+
+            try {
+                boolean administratorUprawniony = false;
+                boolean znalezionoKonto = false;
+                boolean kontoAktywne = false;
+                String rolaKonta = null;
+                int aktywniAdministratorzy = 0;
+
+                String sqlKonta = "SELECT id, rola, aktywny FROM pracownicy " + "ORDER BY id FOR UPDATE";
+
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlKonta); ResultSet wynik = zapytanie.executeQuery()) {
+                    while (wynik.next()) {
+                        long id = wynik.getLong("id");
+                        String rola = wynik.getString("rola");
+                        boolean aktywny = wynik.getBoolean("aktywny");
+
+                        if (aktywny && rola.equals("ADMIN")) {
+                            aktywniAdministratorzy++;
+                        }
+
+                        if (id == administratorId && aktywny && rola.equals("ADMIN")) {
+                            administratorUprawniony = true;
+                        }
+
+                        if (id == kontoId) {
+                            znalezionoKonto = true;
+                            kontoAktywne = aktywny;
+                            rolaKonta = rola;
+                        }
+                    }
+                }
+
+                if (!administratorUprawniony) {
+                    throw new SQLException(
+                            "Operacja wymaga aktywnego konta administratora."
+                    );
+                }
+
+                if (!znalezionoKonto) {
+                    throw new SQLException(
+                            "Nie znaleziono konta o podanym ID."
+                    );
+                }
+
+                if (!kontoAktywne) {
+                    throw new SQLException(
+                            "To konto jest już nieaktywne."
+                    );
+                }
+
+                if ("ADMIN".equals(rolaKonta) && aktywniAdministratorzy <= 1) {
+                    throw new SQLException("Nie można dezaktywować ostatniego " + "aktywnego administratora.");
+                }
+
+                String sqlZmiana = "UPDATE pracownicy " + "SET aktywny = FALSE WHERE id = ?";
+
+                try (PreparedStatement zapytanie =
+                             polaczenie.prepareStatement(sqlZmiana)) {
+
+                    zapytanie.setLong(1, kontoId);
+                    zapytanie.executeUpdate();
+                }
+
+                polaczenie.commit();
+
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    polaczenie.rollback();
+                } catch (SQLException bladWycofania) {
+                    e.addSuppressed(bladWycofania);
+                }
+
+                throw e;
+            }
+        }
+    }
 
 
 }
