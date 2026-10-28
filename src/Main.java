@@ -73,6 +73,7 @@ public class Main {
                 System.out.println("21. Dodaj konto pracownika ");
                 System.out.println("22. Dezaktywuj konto pracownika");
             }
+            System.out.println("23. Zmień własne hasło");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -172,6 +173,9 @@ public class Main {
                         dziala = dezaktywujPracownika();
                         break;
                     }
+                case "23":
+                    dziala = zmienWlasneHaslo();
+                    break;
                 case "0":
                     dziala = false;
                     break;
@@ -1171,6 +1175,37 @@ public class Main {
             pracownicy = BazaDanych.pobierzPracownikow();
         } catch (SQLException e) {
             System.out.println("Konto dezaktywowano, ale nie odświeżono listy: " + e.getMessage());
+        }
+        return true;
+
+    }
+    private static boolean zmienWlasneHaslo(){
+        if (zalogowanyPracownik == null){
+            System.out.println("Najpierw zaloguj sie");
+            return true;
+        }
+        String obecneHaslo = wczytajNiepustyTekst("Obecne hasło: ");
+        if (obecneHaslo == null) return false;
+        String noweHaslo = wczytajNiepustyTekst("Nowe hasło (12-128 znaków)");
+
+        if (noweHaslo == null) return false;
+
+        String powtorzoneHaslo = wczytajNiepustyTekst("Powtórz nowe haslo: ");
+
+        if (powtorzoneHaslo == null) return false;
+
+        if (!noweHaslo.equals(powtorzoneHaslo)) {
+            System.out.println("Nowe hasła różnią się.");
+            return true;
+        }
+
+        try {
+            BazaDanych.zmienHaslo(zalogowanyPracownik.getId(), obecneHaslo, noweHaslo);
+            System.out.println("Zmieniono hasło. Przy następnym logowaniu użyj nowego hasła.");
+        } catch (SQLException e) {
+            System.out.println("Nie potwierdzono zmiany hasła: " + e.getMessage());
+
+            System.out.println("Jeżeli utracono połączenie podczas zapisu, hasło mogło zostać zmienione.");
         }
         return true;
 
