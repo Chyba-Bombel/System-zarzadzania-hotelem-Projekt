@@ -46,23 +46,32 @@ public class Main {
             System.out.println("1. Wyświetl gości");
             System.out.println("2. Dodaj gościa");
             System.out.println("3. Wyszukaj gościa po nazwisku");
-            System.out.println("4. Wyświetl pracowników");
+            if (czyAdministrator()){
+                System.out.println("4. Wyświetl pracowników");
+            }
             System.out.println("5. Wyświetl pokoje");
             System.out.println("6.Sprawdź wolne pokoje");
             System.out.println("7.Dodaj Rezerwacje");
             System.out.println("8.Wyświetl rezerwacje");
             System.out.println("9 Anuluj Rezerwacje");
             System.out.println("10. Edytuj dane gościa");
-            System.out.println("11. Dodaj pokój");
-            System.out.println("12. Edytuj pokój");
+            if (czyAdministrator()){
+                System.out.println("11. Dodaj pokój");
+                System.out.println("12. Edytuj pokój");
+            }
             System.out.println("13. Zmień termin rezerwacji");
             System.out.println("14. Zamelduj gościa");
             System.out.println("15. Wymelduj gościa");
             System.out.println("16. Oznacz pokój jako posprzątany");
             System.out.println("17. Pokaż rozliczenie rezerwacji");
             System.out.println("18. Dodaj wpłatę lub zaliczkę");
-            System.out.println("19. Zarejestruj zwrot");
+            if (czyAdministrator()){
+                System.out.println("19. Zarejestruj zwrot");
+            }
             System.out.println("20. Wyloguj");
+            if (czyAdministrator()){
+                System.out.println("21. Dodaj konto pracownika ");
+            }
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -151,6 +160,11 @@ public class Main {
                     pracownicy.clear();
 
                     System.out.println("Wylogowano.");
+                    break;
+                case "21":
+                    if (wymagaAdministratora()){
+                        dziala = dodajPracownika();
+                    }
                     break;
                 case "0":
                     dziala = false;
@@ -1047,6 +1061,71 @@ public class Main {
         }
 
         return true;
+    }
+    private static boolean dodajPracownika(){
+        if (!wymagaAdministratora()){
+            return true;
+        }
+        String imie = wczytajNiepustyTekst("Imię pracownika: ");
+        if (imie == null) return false;
+
+        String nazwisko = wczytajNiepustyTekst("Nazwisko: ");
+        if (nazwisko == null) return false;
+
+        String login = wczytajNiepustyTekst("Login: ");
+        if (login == null) return false;
+
+        System.out.println("Hasło(12-128 znaków): ");
+        if (!scanner.hasNextLine()) return false;
+        String haslo = scanner.nextLine();
+
+        System.out.println("Powtórz hasło: ");
+        if(!scanner.hasNextLine()) return false;
+
+        String powtorzoneHaslo = scanner.nextLine();
+
+        if(!haslo.equals(powtorzoneHaslo)){
+            System.out.println("Hasła różnią się.");
+            return true;
+        }
+        String rola;
+        while (true){
+            System.out.println("1. Recepcjonista");
+            System.out.println("2. Admnistrator");
+            String wybor = wczytajNiepustyTekst("Wybierz rolę: ");
+            if (wybor == null) return false;
+
+            if (wybor.equals("1")){
+                rola = "RECEPCJA";
+                break;
+            }
+            if (wybor.equals("2")){
+                rola = "ADMIN";
+                break;
+            }
+            System.out.println("Wybierz 1 lub 2");
+        }
+        try {
+            BazaDanych.dodajPracownika(imie,nazwisko,login,haslo,rola);
+            System.out.println("Utworzono konto pracownika.");
+        }catch (SQLException e){
+            if (e.getErrorCode() == 1062){
+                System.out.println("Podany login jest już zajęty.");
+            } else {
+                System.out.println("Nie potwierdzono utworzenia konta: " + e.getMessage());
+            }
+            return true;
+        }
+        try {
+            pracownicy = BazaDanych.pobierzPracownikow();
+        } catch (SQLException e) {
+            System.out.println("Konto utworzono lecz nie oświeżono listy: " + e.getMessage());
+        }
+        return true;
+
+
+
+
     }
 
 
