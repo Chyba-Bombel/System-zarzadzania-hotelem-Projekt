@@ -11,6 +11,7 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 - [Możliwości aplikacji](#możliwości-aplikacji)
 - [Technologie i wymagania](#technologie-i-wymagania)
 - [Uruchomienie na Windows](#uruchomienie-na-windows)
+- [Uruchomienie na Linuxie](#uruchomienie-na-linuxie)
 - [Baza danych: nowa instalacja lub aktualizacja](#baza-danych-nowa-instalacja-lub-aktualizacja)
 - [Uruchomienie przez IntelliJ IDEA i Maven](#uruchomienie-przez-intellij-idea-i-maven)
 - [Konta i uprawnienia](#konta-i-uprawnienia)
@@ -78,6 +79,131 @@ password=HotelDemo2026!
 Dostosuj adres serwera, port, nazwę bazy, użytkownika i hasło do własnej instalacji. To **konto techniczne MySQL**, a nie konto pracownika wpisywane w oknie logowania.
 
 Konfiguracja demonstracyjna służy do nauki lokalnej. Przy udostępnianiu projektu nie publikuj własnych haseł do bazy.
+
+## Uruchomienie na Linuxie
+
+Na Linuxie uruchamiaj projekt przez **Maven**. Nie uruchamiaj `uruchom_windows.bat` i nie używaj bibliotek z `lib/javafx-win` — są przeznaczone dla Windows. Maven pobierze zależności JavaFX odpowiednie dla platformy.
+
+Poniższe polecenia instalacji dotyczą **Ubuntu 24.04 LTS, x86_64, z pulpitem graficznym**. W innych dystrybucjach zainstaluj odpowiedniki: JDK 17, Maven i biblioteki GTK 3. Sama aplikacja korzysta z tego samego `pom.xml` i tych samych źródeł.
+
+### 1. Zainstaluj JDK, Maven i GTK
+
+W terminalu wykonaj:
+
+```bash
+sudo apt update
+sudo apt install openjdk-17-jdk maven libgtk-3-0t64
+```
+
+Sprawdź instalację:
+
+```bash
+java -version
+javac -version
+mvn -version
+```
+
+Java i kompilator powinny mieć wersję co najmniej 17. Sprawdź także wersję Javy wskazaną przez Maven. W Ubuntu 22.04 odpowiednikiem pakietu GTK jest `libgtk-3-0`; nie kopiuj nazwy pakietu z innej wersji systemu bez sprawdzenia jej dostępności.
+
+### 2. Rozpakuj projekt i przejdź do jego folderu
+
+Przykładowo, jeśli rozpakowałeś projekt do katalogu `Projekty`:
+
+```bash
+cd ~/Projekty/Hotel_GUI
+ls pom.xml db.properties
+```
+
+Oba pliki powinny być widoczne. Jeśli polecenie zgłasza ich brak, przejdź do właściwego folderu. Linux rozróżnia wielkie i małe litery w nazwach plików.
+
+### 3. Przygotuj MySQL
+
+**Jeśli korzystasz z działającego serwera i istniejącej bazy**, nie instaluj drugiego serwera i nie importuj pełnych danych demonstracyjnych. Przejdź do konfiguracji połączenia. Starsza baza może wymagać tylko pliku `db/aktualizacja_uczestnicy.sql`, zgodnie z rozdziałem o aktualizacji.
+
+**Dla nowej, lokalnej instalacji na Ubuntu**:
+
+```bash
+sudo apt install mysql-server
+sudo systemctl start mysql
+systemctl status mysql
+```
+
+Wykonaj pełny skrypt bazy **jednorazowo**, z głównego katalogu projektu:
+
+```bash
+sudo mysql < db/HotelManager_baza.sql
+```
+
+Polecenie zakłada lokalny dostęp administratora MySQL przez `sudo`. Jeśli serwer wymaga hasła administratora, zamiast niego użyj:
+
+```bash
+mysql -u root -p < db/HotelManager_baza.sql
+```
+
+Dla wcześniejszej bazy bez tabeli dodatkowych gości wykonaj **wyłącznie migrację**:
+
+```bash
+sudo mysql < db/aktualizacja_uczestnicy.sql
+```
+
+Na serwerze z logowaniem hasłem użyj analogicznie `mysql -u root -p` zamiast `sudo mysql`. Pełny import i migracja to dwa różne warianty — nowa instalacja zawiera już tabelę uczestników. Nie wykonuj pełnego importu na swojej dotychczasowej bazie.
+
+### 4. Ustaw połączenie
+
+Otwórz plik w dowolnym edytorze, np.:
+
+```bash
+nano db.properties
+```
+
+Dla lokalnej bazy demonstracyjnej ustaw:
+
+```properties
+url=jdbc:mysql://localhost:3306/hotel_manager?sslMode=DISABLED&allowPublicKeyRetrieval=true&connectTimeout=5000&socketTimeout=10000
+user=hotel_app
+password=HotelDemo2026!
+```
+
+W `nano` zapisz zmiany skrótem **Ctrl+O**, potwierdź Enterem i zamknij edytor przez **Ctrl+X**. Jeśli używasz własnego konta, portu lub hasła, zachowaj swoje wartości.
+
+Możesz sprawdzić lokalne połączenie niezależnie od aplikacji:
+
+```bash
+mysql -h 127.0.0.1 -P 3306 -u hotel_app -p hotel_manager
+```
+
+Po zalogowaniu wpisz `SHOW TABLES;`, a następnie `EXIT;`. Hasło podajesz dopiero po wyświetleniu pytania przez klienta MySQL.
+
+### 5. Uruchom okno aplikacji
+
+Z folderu zawierającego `pom.xml` i `db.properties` wykonaj:
+
+```bash
+mvn clean javafx:run
+```
+
+Pierwsze uruchomienie wymaga internetu do pobrania zależności. Maven kompiluje projekt, kopiuje zasoby i uruchamia GUI. Kolejne uruchomienia mogą korzystać z:
+
+```bash
+mvn javafx:run
+```
+
+W oknie aplikacji użyj konta pracownika, np. demonstracyjnego `admin` / `Admin123!`. Aplikację uruchamiaj na zwykłym koncie użytkownika; `sudo` jest potrzebne przy instalacji pakietów i ewentualnie administracji MySQL.
+
+### Problemy typowe dla Linuxa
+
+| Komunikat / objaw | Rozwiązanie |
+| --- | --- |
+| `mvn: command not found` | Zainstaluj Maven i otwórz ponownie terminal. |
+| `release version 17 not supported` | Sprawdź `mvn -version`. Maven korzysta ze zbyt starego JDK. |
+| Maven używa innej Javy niż `java -version` | Sprawdź `JAVA_HOME`. Dla JDK 17 z pakietu Ubuntu x86_64 możesz w bieżącym terminalu ustawić `export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64`, a następnie sprawdzić `mvn -version`. |
+| Brak GTK / `Unable to load glass GTK library` | Zainstaluj biblioteki GTK 3 właściwe dla swojej dystrybucji; dla Ubuntu 24.04 polecenie znajduje się w kroku 1. |
+| `Unable to open DISPLAY` | Uruchom program z terminala otwartego w sesji graficznej. Zwykła sesja SSH lub serwer bez pulpitu nie udostępnia okna aplikacji. |
+| `Communications link failure` / odmowa połączenia | Sprawdź `systemctl status mysql` oraz adres i port w `db.properties`. |
+| `Access denied for user 'hotel_app'` | Sprawdź hasło i istnienie konta na wybranym serwerze. Nie zastępuj danych pracownika danymi MySQL. |
+| Brak `db.properties` lub `pom.xml` | Przejdź do głównego folderu projektu przed uruchomieniem Maven. |
+
+Oficjalne materiały: [JavaFX z Maven](https://openjfx.io/openjfx-docs/maven), [instalacja MySQL na Ubuntu](https://documentation.ubuntu.com/server/how-to/databases/install-mysql/) oraz [pakiet GTK dla Ubuntu 24.04](https://packages.ubuntu.com/noble/libgtk-3-0t64).
 
 ## Baza danych: nowa instalacja lub aktualizacja
 
