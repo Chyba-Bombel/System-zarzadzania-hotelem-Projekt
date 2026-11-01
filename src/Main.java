@@ -126,8 +126,8 @@ public class Main {
                     }
                     break;
                 case "12":
-                    if (czyAdministrator()){
-                        dziala = dodajPokoj();
+                    if (wymagaAdministratora()){
+                        dziala = edytujPokoj();
                     }
                     break;
                 case "13":
@@ -171,8 +171,8 @@ public class Main {
                 case "22":
                     if (wymagaAdministratora()){
                         dziala = dezaktywujPracownika();
-                        break;
                     }
+                    break;
                 case "23":
                     dziala = zmienWlasneHaslo();
                     break;

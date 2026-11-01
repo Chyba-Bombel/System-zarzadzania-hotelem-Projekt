@@ -1,10 +1,17 @@
-import java.lang.classfile.attribute.LocalVariableTableAttribute;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.logging.Logger;
 
 public class Rezerwacja {
+    private java.util.List<Uczestnik> uczestnicy = java.util.List.of();
+    public java.util.List<Uczestnik> getUczestnicy() { return uczestnicy; }
+    public void ustawUczestnikow(java.util.List<Uczestnik> osoby) { uczestnicy = java.util.List.copyOf(osoby); }
+    public String getGosciePobytu() {
+        String nazwy = gosc.getImie() + " " + gosc.getNazwisko();
+        for (Uczestnik u : uczestnicy) nazwy += ", " + u;
+        int brak = liczbaOsob - 1 - uczestnicy.size();
+        return nazwy + (brak > 0 ? " (brak danych " + brak + " os.)" : "");
+    }
     private final int id;
     private final Gosc gosc;
     private final Pokoj pokoj;
@@ -71,4 +78,10 @@ public class Rezerwacja {
         System.out.println("Rezerwacja " + id + " | " + gosc.getImie() + " " + gosc.getNazwisko() + " | Pokoj " + pokoj.getNumer() + " | " + od + " -> " + doDnia + " | Osoby: " + liczbaOsob + " | Noce: " + liczbaNocy() + " | Cena " + obliczCene() + "zł | " + status);
     }
 
+    public Gosc getGosc() { return gosc; }
+    public Pokoj getPokoj() { return pokoj; }
+    public LocalDate getOd() { return od; }
+    public LocalDate getDoDnia() { return doDnia; }
+    public int getLiczbaOsob() { return liczbaOsob; }
+    public BigDecimal getCenaZaNoc() { return cenaZaNoc; }
 }

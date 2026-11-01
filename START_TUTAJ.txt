@@ -1,0 +1,120 @@
+NOWOŚĆ: RAPORTY
+==============
+W menu „Raporty” wybierz datę od/do (oba dni włącznie, maks. 366 dni).
+Kliknij „Generuj raport”, a następnie wybierz zakładkę:
+podsumowanie, rezerwacje i goście, obłożenie pokoi lub płatności.
+„Zapisz tabelę CSV” zapisuje wybraną zakładkę do Excela (UTF-8, średnik).
+„Zapisz cały raport HTML / PDF” zapisuje wszystkie zakładki w jednym pliku HTML.
+Otwórz HTML w przeglądarce i kliknij „Drukuj / zapisz jako PDF”; w drukowaniu
+wybierz „Zapisz jako PDF” lub „Microsoft Print to PDF”.
+Raport pokazuje dane z chwili wygenerowania. Po zmianie dat trzeba wygenerować
+go ponownie. Nowe transakcje pojawią się po ponownym generowaniu.
+Wpłaty i zwroty są filtrowane po dacie transakcji, pobyty po terminie pobytu.
+Szczegółowe zasady obliczania obłożenia opisano na ekranie i w raporcie HTML.
+Samo dodanie raportów nie wymaga nowej migracji SQL. Jeżeli jednak nie wykonano
+jeszcze aktualizacji uczestników z poprzedniej wersji, wykonaj ją według opisu niżej.
+
+AKTUALIZACJA: WIELU GOŚCI W REZERWACJI
+===================================
+Jeżeli korzystasz z poprzedniej wersji, zamknij program, a w MySQL Workbench
+wykonaj plik db/aktualizacja_uczestnicy.sql na swojej bazie hotel_manager.
+Nie importuj ponownie pełnej bazy — zachowasz obecnych gości i rezerwacje.
+Potem uruchom uruchom_windows.bat z nowej paczki.
+Zachowaj swoją konfigurację db.properties (adres, użytkownik, hasło).
+
+Nowa rezerwacja: wybierz głównego gościa, pokój i liczbę osób. Przy 2 osobach
+pojawi się para pól imię/nazwisko dla osoby nr 2, przy 3 — również dla nr 3 itd.
+Przykład: główny gość Błażej Wencel, liczba osób 3; dodatkowo Anna Nowak
+i Jan Kowalski. Wszystkie osoby dotyczą tego samego pokoju i terminu.
+
+Istniejący pobyt: Rezerwacje -> wybierz wiersz -> Goście pobytu.
+Wpisz dane dodatkowych osób i zapisz. Dla dawnych rezerwacji program pokazuje
+„brak danych”, dopóki nie uzupełnisz nazwisk. Danych historycznych nie wymyślamy.
+Dane osób można edytować w potwierdzonym lub zameldowanym pobycie;
+w zakończonym/anulowanym można je oglądać. Wyszukiwarka znajduje również
+dodatkowych gości. Nie trzeba tworzyć im osobnej kartoteki z telefonem i e-mailem.
+To dane uczestników pobytu, a nie współdzielenie pokoju między rezerwacjami.
+
+Brak tabeli uczestnicy_rezerwacji oznacza, że nie wykonano aktualizacji SQL.
+Dla nowej instalacji pełny db/HotelManager_baza.sql zawiera już nową tabelę.
+
+SYSTEM ZARZĄDZANIA HOTELEM — WERSJA OKIENKOWA JAVAFX
+
+NAJPROŚCIEJ NA WINDOWS
+1. Rozpakuj całą paczkę do nowego folderu, np. C:\Projekty\Hotel_GUI.
+2. Przygotuj JDK 17 lub nowszy (Windows x64) z poleceniami java i javac w PATH.
+3. Uruchom serwer MySQL używany przez Twój dotychczasowy projekt.
+4. Otwórz db.properties i sprawdź URL, port, login i hasło MySQL.
+5. Dwukrotnie kliknij uruchom_windows.bat.
+
+Biblioteki JavaFX dla Windows x64 i sterownik JDBC są już w paczce.
+Skrypt kompiluje kod i otwiera okno. Nie wymaga Maven ani pobierania bibliotek.
+Pozostaw obok siebie src, resources, lib, db.properties i skrypt uruchomienia.
+
+TWOJA DOTYCHCZASOWA BAZA
+Program korzysta z bazy hotel_manager i jej istniejącego schematu.
+Jeśli baza już działa, NIE IMPORTUJ jej ponownie. Twoje dane zostaną odczytane.
+Operacje w GUI zapisują zmiany w tej samej bazie co wersja konsolowa.
+Nie trzeba dodawać kolumn ani kasować tabel.
+
+NOWA INSTALACJA BAZY
+Tylko gdy nie masz tej bazy: uruchom db/HotelManager_baza.sql jako administrator
+MySQL 8.0.16+. Skrypt tworzy tabele, fikcyjne rekordy i konto hotel_app.
+Import wykonaj jednorazowo. Nie nadpisuj nim swojej działającej bazy.
+
+KONFIGURACJA
+W db.properties domyślnie zapisano:
+URL: jdbc:mysql://localhost:3306/hotel_manager...
+user: hotel_app
+password: HotelDemo2026!
+Jeśli zmieniałeś hasło albo port, wpisz swoje wartości.
+To konto techniczne MySQL, a nie login pracownika.
+
+LOGOWANIE W OKNIE
+Dla oryginalnych, niezmienionych kont demonstracyjnych:
+admin / Admin123!
+recepcja / Recepcja123!
+Jeżeli zmieniłeś hasło wcześniej, użyj aktualnego hasła.
+Po 3 błędnych próbach uruchom program ponownie. To limit uruchomienia, nie blokada konta w bazie.
+
+INTELLIJ IDEA — MAVEN
+1. Otwórz plik pom.xml jako projekt (Open as Project).
+2. Ustaw Project SDK i Maven Runner JRE na JDK 17 lub nowszy.
+3. Poczekaj na zaimportowanie zależności Maven (wymaga internetu za pierwszym razem).
+4. W oknie Maven uruchom Plugins -> javafx -> javafx:run.
+   Alternatywnie w terminalu projektu: mvn javafx:run
+5. Katalog roboczy musi zawierać db.properties.
+   Launcher.java uruchamia GUI. Main.java pozostaje wejściem wersji konsolowej.
+
+Linux/macOS: użyj Maven, który pobierze biblioteki właściwe dla systemu.
+Nie używaj dołączonych bibliotek javafx-win na innym systemie.
+Na komputerze musi być dostępne środowisko graficzne i biblioteki systemowe JavaFX.
+
+JAK UŻYWAĆ
+- Pulpit: liczniki, przyjazdy na dziś i dzisiejsze/zaległe wyjazdy.
+- Goście: wyszukaj osobę, dodaj lub edytuj dane kontaktowe.
+- Pokoje: wyszukaj, sprawdź wolny termin i oznacz pokój jako posprzątany.
+  Administrator może też dodawać i edytować pokoje.
+- Rezerwacje: zaznacz wiersz i wybierz zmianę dat, zameldowanie,
+  wymeldowanie lub anulowanie. Nową rezerwację utworzysz formularzem.
+- Płatności: zaznacz rezerwację, pobierz rozliczenie, zarejestruj wpłatę.
+  Zwroty dostępne są dla administratora.
+- Pracownicy (administrator): nowe konto, lista kont i dezaktywacja.
+- Moje konto: zmiana własnego hasła.
+- Odśwież dane: pobranie aktualnych danych MySQL.
+- Wyloguj się: powrót do ekranu logowania.
+
+Po wybraniu innego wiersza na ekranie płatności ponownie kliknij Pokaż rozliczenie.
+Wyszukiwanie i sortowanie w tabelach działają na ostatnio odczytanych danych.
+Przy zmianach wykonanych przez inną osobę kliknij Odśwież dane.
+GUI ponownie sprawdza konto i rolę przed zapytaniami. Dezaktywowane konto
+zostanie wylogowane przy następnej operacji na bazie.
+
+NAJCZĘSTSZE PROBLEMY
+- Brak javac: potrzebny JDK, nie samo JRE; sprawdź PATH albo użyj IntelliJ.
+- Nie znaleziono db.properties: uruchom z głównego folderu paczki.
+- Access denied: popraw konto MySQL w db.properties.
+- Nie można połączyć: sprawdź uruchomienie MySQL i port.
+- Baza/tabela nie istnieje: skontroluj jednorazowy import na właściwym serwerze.
+- Po błędzie sieci przy zapisie najpierw odśwież dane. Serwer mógł zapisać
+  zmianę przed utratą odpowiedzi — nie ponawiaj wpłaty w ciemno.

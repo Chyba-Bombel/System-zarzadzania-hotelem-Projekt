@@ -7,22 +7,23 @@ import java.time.temporal.ChronoUnit;
 
 
 public class BazaDanych {
-    private static final String URL =
-            "jdbc:mysql://localhost:3306/hotel_manager"
-                    + "?sslMode=DISABLED"
-                    + "&allowPublicKeyRetrieval=true"
-                    + "&connectTimeout=5000"
-                    + "&socketTimeout=10000";
-
-    private static final String UZYTKOWNIK = "hotel_app";
-    private static final String HASLO = "HotelDemo2026!";
-
-    public static Connection polacz() throws SQLException{
-        return DriverManager.getConnection(
-                URL,
-                UZYTKOWNIK,
-                HASLO
-        );
+    // GUI i wersja konsolowa korzystają z tej samej konfiguracji.
+    // Wczytywana przy każdym połączeniu: zmiany w pliku nie wymagają kompilacji.
+    public static Connection polacz() throws SQLException {
+        java.util.Properties p = new java.util.Properties();
+        java.nio.file.Path plik = java.nio.file.Path.of(
+                System.getProperty("hotel.config", "db.properties"));
+        try (java.io.Reader r = java.nio.file.Files.newBufferedReader(
+                plik, java.nio.charset.StandardCharsets.UTF_8)) {
+            p.load(r);
+        } catch (java.io.IOException e) {
+            throw new SQLException("Nie można odczytać " + plik.toAbsolutePath()
+                    + ". Sprawdź katalog roboczy programu.", e);
+        }
+        for (String klucz : new String[]{"url", "user", "password"}) {
+            if (!p.containsKey(klucz)) throw new SQLException("Brak pola " + klucz + " w db.properties.");
+        }
+        return DriverManager.getConnection(p.getProperty("url"), p.getProperty("user"), p.getProperty("password"));
     }
     public static ArrayList<Gosc> pobierzGosci()
             throws SQLException {
@@ -190,6 +191,16 @@ public class BazaDanych {
             }
 
         }
+        java.util.Map<Integer, Rezerwacja> mapa = new java.util.HashMap<>();
+        for (Rezerwacja r : lista) mapa.put(r.getId(), r);
+        java.util.Map<Integer, ArrayList<Uczestnik>> osoby = new java.util.HashMap<>();
+        try (Connection c = polacz(); PreparedStatement p = c.prepareStatement(
+                "SELECT rezerwacja_id, imie, nazwisko FROM uczestnicy_rezerwacji ORDER BY rezerwacja_id, pozycja");
+             ResultSet r = p.executeQuery()) {
+            while (r.next()) osoby.computeIfAbsent(r.getInt("rezerwacja_id"), k -> new ArrayList<>())
+                    .add(new Uczestnik(r.getString("imie"), r.getString("nazwisko")));
+        }
+        osoby.forEach((id, listaOsob) -> { if (mapa.containsKey(id)) mapa.get(id).ustawUczestnikow(listaOsob); });
         return lista;
     }
     public static Rezerwacja zapiszRezerwacje(
@@ -200,6 +211,14 @@ public class BazaDanych {
             int liczbaOsob,
             long pracownikId
     ) throws SQLException {
+        return zapiszRezerwacje(gosc, pokoj, od, doDnia, liczbaOsob, pracownikId, null);
+    }
+    public static Rezerwacja zapiszRezerwacje(Gosc gosc, Pokoj pokoj, LocalDate od,
+            LocalDate doDnia, int liczbaOsob, long pracownikId,
+            java.util.List<Uczestnik> uczestnicy) throws SQLException {
+        java.util.List<Uczestnik> osoby = uczestnicy == null ? null : java.util.List.copyOf(uczestnicy);
+        if (osoby != null && osoby.size() != liczbaOsob - 1)
+            throw new IllegalArgumentException("Uzupełnij dane wszystkich dodatkowych osób.");
         if(od.isBefore(LocalDate.now()) || !doDnia.isAfter(od) || ChronoUnit.DAYS.between(od, doDnia) > 30 ){
             throw new SQLException("Pobyt nie może trwać więcej niż 30 nocy i nie może zaczynać sie w przeszłości");
         }
@@ -312,6 +331,10 @@ public class BazaDanych {
                                 "POTWIERDZONA"
                         );
 
+                        if (osoby != null) {
+                            zapiszUczestnikow(polaczenie, (int) idZbazy, osoby);
+                            nowa.ustawUczestnikow(osoby);
+                        }
                         polaczenie.commit();
                         return nowa;
 
@@ -471,7 +494,7 @@ public class BazaDanych {
             throw new SQLException("Pokój musi mieć od 1 do 10 miejsc.");
         }
 
-        if (cena.signum() <= 0 || cena.compareTo(new BigDecimal(99999999.99)) > 0 || cena.scale() > 2){
+        if (cena.signum() <= 0 || cena.compareTo(new BigDecimal("99999999.99")) > 0 || cena.scale() > 2){
 
             throw new SQLException("Podaj dodatnią cenę z maksymalnie dwoma miejscami po przecinku.");
         }
@@ -500,7 +523,7 @@ public class BazaDanych {
             throw new SQLException("Typ pokoju musi mięc od 1 do 40 znaków");
         }
 
-        if (cena.signum() <= 0 || cena.compareTo(new BigDecimal(99999999.99)) > 0 || cena.scale() > 2){
+        if (cena.signum() <= 0 || cena.compareTo(new BigDecimal("99999999.99")) > 0 || cena.scale() > 2){
 
             throw new SQLException("Podaj dodatnią cenę z maksymalnie dwoma miejscami po przecinku.");
         }
@@ -974,7 +997,7 @@ public class BazaDanych {
             String metoda,
             long pracownikId
     ) throws SQLException{
-        if (kwota == null || kwota.signum() <= 0 || kwota.scale() > 2 || kwota.compareTo(new BigDecimal("9999999.99")) > 0){
+        if (kwota == null || kwota.signum() <= 0 || kwota.scale() > 2 || kwota.compareTo(new BigDecimal("99999999.99")) > 0){
             throw new SQLException("Niepoprawna kwota wpłaty.");
         }
         if (!"GOTOWKA".equals(metoda) && !"KARTA".equals(metoda) && !"PRZELEW".equals(metoda)){
@@ -1445,4 +1468,42 @@ public class BazaDanych {
     }
 
 
+    /** Wywoływane w tej samej transakcji co rezerwacja. */
+    private static void zapiszUczestnikow(Connection c, int id, java.util.List<Uczestnik> osoby) throws SQLException {
+        try (PreparedStatement p = c.prepareStatement("DELETE FROM uczestnicy_rezerwacji WHERE rezerwacja_id=?")) {
+            p.setInt(1, id); p.executeUpdate();
+        }
+        try (PreparedStatement p = c.prepareStatement(
+                "INSERT INTO uczestnicy_rezerwacji (rezerwacja_id, pozycja, imie, nazwisko) VALUES (?, ?, ?, ?)")) {
+            int pozycja = 1;
+            for (Uczestnik u : osoby) {
+                p.setInt(1,id); p.setInt(2,pozycja++); p.setString(3,u.imie()); p.setString(4,u.nazwisko()); p.addBatch();
+            }
+            p.executeBatch();
+        }
+    }
+
+    public static void zmienUczestnikow(int id, java.util.List<Uczestnik> uczestnicy) throws SQLException {
+        java.util.List<Uczestnik> osoby = java.util.List.copyOf(uczestnicy);
+        try (Connection c = polacz()) {
+            c.setAutoCommit(false);
+            try {
+                try (PreparedStatement p = c.prepareStatement("SELECT liczba_osob, status FROM rezerwacje WHERE id=? FOR UPDATE")) {
+                    p.setInt(1,id);
+                    try (ResultSet r = p.executeQuery()) {
+                        if (!r.next()) throw new SQLException("Nie znaleziono rezerwacji.");
+                        if (!java.util.Set.of("POTWIERDZONA", "ZAMELDOWANA").contains(r.getString("status")))
+                            throw new SQLException("Możesz zmieniać osoby tylko w potwierdzonym lub zameldowanym pobycie.");
+                        if (osoby.size() != r.getInt("liczba_osob") - 1)
+                            throw new SQLException("Liczba osób rezerwacji uległa zmianie. Odśwież dane.");
+                    }
+                }
+                zapiszUczestnikow(c,id,osoby);
+                c.commit();
+            } catch (SQLException | RuntimeException e) {
+                try { c.rollback(); } catch (SQLException rollback) { e.addSuppressed(rollback); }
+                throw e;
+            }
+        }
+    }
 }

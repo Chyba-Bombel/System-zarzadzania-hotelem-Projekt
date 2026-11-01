@@ -1,0 +1,10 @@
+/** Imię i nazwisko dodatkowej osoby w konkretnym pobycie. */
+public record Uczestnik(String imie, String nazwisko) {
+    public Uczestnik {
+        imie = imie == null ? "" : imie.trim();
+        nazwisko = nazwisko == null ? "" : nazwisko.trim();
+        if (imie.isEmpty() || imie.length() > 60 || nazwisko.isEmpty() || nazwisko.length() > 80)
+            throw new IllegalArgumentException("Podaj imię (do 60 znaków) i nazwisko (do 80 znaków) każdej dodatkowej osoby.");
+    }
+    public String toString() { return imie + " " + nazwisko; }
+}

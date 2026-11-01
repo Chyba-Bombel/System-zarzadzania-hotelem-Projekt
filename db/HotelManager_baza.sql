@@ -38,6 +38,16 @@ CREATE TABLE rezerwacje (
  INDEX idx_dostepnosc(pokoj_id,status,data_od,data_do),
  INDEX idx_termin(data_od,data_do)
 ) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS uczestnicy_rezerwacji (
+ rezerwacja_id BIGINT NOT NULL,
+ pozycja INT NOT NULL,
+ imie VARCHAR(60) NOT NULL,
+ nazwisko VARCHAR(80) NOT NULL,
+ PRIMARY KEY (rezerwacja_id, pozycja),
+ CONSTRAINT fk_uczestnik_rezerwacja FOREIGN KEY (rezerwacja_id)
+   REFERENCES rezerwacje(id) ON DELETE CASCADE,
+ CONSTRAINT chk_uczestnik_pozycja CHECK (pozycja BETWEEN 1 AND 9)
+) ENGINE=InnoDB;
 CREATE TABLE platnosci (
  id BIGINT PRIMARY KEY AUTO_INCREMENT, rezerwacja_id BIGINT NOT NULL, pracownik_id BIGINT NOT NULL,
  kwota DECIMAL(10,2) NOT NULL, rodzaj ENUM('WPLATA','ZWROT') NOT NULL,
