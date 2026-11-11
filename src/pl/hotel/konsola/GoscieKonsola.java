@@ -5,7 +5,6 @@ import pl.hotel.baza.BazaDanych;
 import java.util.Locale;
 import java.sql.SQLException;
 
-/** Obsługa konsoli: GoscieKonsola. */
 final class GoscieKonsola {
     private GoscieKonsola() {}
 
@@ -39,13 +38,11 @@ final class GoscieKonsola {
             System.out.println("Zapisano gościa w bazie");
             nowyGosc.wyswietlDane();
         } catch (SQLException e){
-            System.out.println("Bład podczas zapisywania: " + e.getMessage());
+            System.out.println("Bład podczas zapisywania: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Przed ponowną próba sprawdź czy gośc pojawił sie w bazie danych");
         }
 
         return true;
-
-
 
     }
 
@@ -85,7 +82,7 @@ final class GoscieKonsola {
         try {
             StanKonsoli.goscie = BazaDanych.pobierzGosci();
         } catch (SQLException e){
-            System.out.println("Nie udało sie pobrać gości: " + e.getMessage());
+            System.out.println("Nie udało sie pobrać gości: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             return true;
         }
         wyswietlGosci();
@@ -144,7 +141,7 @@ final class GoscieKonsola {
                 return true;
             }
         }catch (SQLException e){
-            System.out.println("Błąd aktualizacji: " + e.getMessage());
+            System.out.println("Błąd aktualizacji: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             return true;
         }
 
@@ -155,13 +152,11 @@ final class GoscieKonsola {
                     StanKonsoli.pokoje
             );
         } catch (SQLException e){
-            System.out.println("Dane zapisano, anie udało się odświeżyć list" + e.getMessage());
+            System.out.println("Dane zapisano, anie udało się odświeżyć list" + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Uruchom program ponownie, aby wczytać aktualne dane.");
         }
 
         return true;
-
-
 
     }
 }

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Uzupełnienia potrzebne interfejsowi; właściwe operacje hotelowe wykonuje BazaDanych. */
 public final class GuiRepository {
     private GuiRepository() {}
 
@@ -16,24 +15,8 @@ public final class GuiRepository {
                        ArrayList<Rezerwacja> rezerwacje, ArrayList<KontoPracownika> konta,
                        Map<Long, String> typy) {}
 
-    public static final class SesjaWygasla extends SecurityException {
-        public SesjaWygasla(String tekst) { super(tekst); }
-    }
-
-    // Sprawdzamy aktualną aktywność i rolę w bazie, nie tylko obiekt w pamięci.
     public static void sprawdzSesje(Pracownik pracownik, boolean admin) throws SQLException {
-        if (pracownik == null) throw new SesjaWygasla("Zaloguj się ponownie.");
-        try (Connection c = BazaDanych.polacz(); PreparedStatement p = c.prepareStatement(
-                "SELECT rola, aktywny FROM pracownicy WHERE id=?")) {
-            p.setLong(1, pracownik.getId());
-            try (ResultSet r = p.executeQuery()) {
-                if (!r.next() || !r.getBoolean("aktywny")
-                        || !r.getString("rola").equals(pracownik.getRola()))
-                    throw new SesjaWygasla("Konto lub jego uprawnienia uległy zmianie. Zaloguj się ponownie.");
-                if (admin && !r.getString("rola").equals("ADMIN"))
-                    throw new SecurityException("Ta operacja wymaga administratora.");
-            }
-        }
+        BazaDanych.sprawdzSesje(pracownik,admin);
     }
 
     public static Dane pobierz(Pracownik pracownik) throws SQLException {
@@ -43,11 +26,7 @@ public final class GuiRepository {
         ArrayList<Rezerwacja> rezerwacje = BazaDanych.pobierzRezerwacje(goscie, pokoje);
         ArrayList<KontoPracownika> konta = pracownik.getRola().equals("ADMIN")
                 ? BazaDanych.pobierzKontaPracownikow() : new ArrayList<>();
-        Map<Long, String> typy = new HashMap<>();
-        try (Connection c = BazaDanych.polacz(); PreparedStatement p = c.prepareStatement(
-                "SELECT id, typ FROM pokoje"); ResultSet r = p.executeQuery()) {
-            while (r.next()) typy.put(r.getLong("id"), r.getString("typ"));
-        }
+        Map<Long,String> typy = BazaDanych.pobierzTypyPokoi();
         return new Dane(goscie, pokoje, rezerwacje, konta, typy);
     }
 

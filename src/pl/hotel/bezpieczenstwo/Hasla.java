@@ -10,7 +10,7 @@ import java.security.SecureRandom;
 
 public class Hasla {
     public static boolean sprawdz(String wpisaneHaslo, String zapisanyHash) throws GeneralSecurityException{
-        if (wpisaneHaslo == null || zapisanyHash == null){
+        if (wpisaneHaslo == null || wpisaneHaslo.length() > 128 || zapisanyHash == null || zapisanyHash.length() > 255){
             return false;
         }
         String[] czesci = zapisanyHash.split("\\$", -1);
@@ -31,7 +31,7 @@ public class Hasla {
         } catch (IllegalArgumentException e){
             return false;
         }
-        if (iteracje < 1 || iteracje > 1_000_000 || sol.length < 16 || oczekawianyHash.length != 32){
+        if (iteracje < 600_000 || iteracje > 1_000_000 || sol.length < 16 || sol.length > 32 || oczekawianyHash.length != 32){
             return false;
         }
         char[] znakiHasla = wpisaneHaslo.toCharArray();
@@ -54,6 +54,7 @@ public class Hasla {
 
     }
     public static String utworzHash(String haslo)throws GeneralSecurityException{
+        if (haslo == null || haslo.length() < 12 || haslo.length() > 128) throw new IllegalArgumentException("Hasło musi mieć od 12 do 128 znaków.");
         byte[] sol = new byte[16];
         new SecureRandom().nextBytes(sol);
 

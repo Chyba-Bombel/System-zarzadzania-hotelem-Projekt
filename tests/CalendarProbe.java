@@ -4,7 +4,6 @@ import java.time.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-/** Granice nocy, statusy, konflikty, luty i końce miesiąca, niezależnie od JavaFX/MySQL. */
 public class CalendarProbe {
     static void check(boolean ok,String opis) { if (!ok) throw new AssertionError(opis); }
     static Rezerwacja r(int id, Pokoj p, LocalDate od, LocalDate koniec, String status) {

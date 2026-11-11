@@ -10,7 +10,6 @@ import javafx.scene.layout.*;
 import java.math.BigDecimal;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Kontroler: EkranPlatnosci. */
 final class EkranPlatnosci {
     private final HotelGUI app;
     EkranPlatnosci(HotelGUI app) { this.app = app; }

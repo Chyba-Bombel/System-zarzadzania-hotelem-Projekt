@@ -1,4 +1,3 @@
-/** Punkt wejścia zachowanej wersji konsolowej. */
 public final class Main {
     private Main() {}
     public static void main(String[] args) {

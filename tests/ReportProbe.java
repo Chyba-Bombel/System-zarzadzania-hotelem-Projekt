@@ -10,17 +10,18 @@ import java.sql.*;
 import java.time.*;
 import java.util.*;
 
-/** Testuje granice okresu, wycenę, brak mnożenia kwot przez gości oraz oba eksporty. */
 public class ReportProbe {
     static void check(boolean ok,String m) { if(!ok)throw new AssertionError(m); }
     static String wsk(Raporty.Raport r,String key) { return r.tabele().get(0).wiersze().stream().filter(w->w.get(0).equals(key)).findFirst().orElseThrow().get(1); }
     static Pokoj pokoj(String n) throws Exception { return BazaDanych.pobierzPokoje().stream().filter(p->p.getNumer().equals(n)).findFirst().orElseThrow(); }
     static void platnosc(int rez,String data,String rodzaj,String kwota) throws Exception {
-        try(var c=BazaDanych.polacz();var p=c.prepareStatement("INSERT INTO platnosci(rezerwacja_id,pracownik_id,kwota,rodzaj,metoda,data_platnosci) VALUES (?,1,?,?,'KARTA',?)")) {
+        try(var c=TestDatabase.polacz();var p=c.prepareStatement("INSERT INTO platnosci(rezerwacja_id,pracownik_id,kwota,rodzaj,metoda,data_platnosci) VALUES (?,1,?,?,'KARTA',?)")) {
             p.setInt(1,rez);p.setBigDecimal(2,new BigDecimal(kwota));p.setString(3,rodzaj);p.setTimestamp(4,Timestamp.valueOf(data));p.executeUpdate();
         }
     }
     public static void main(String[] args) throws Exception {
+        TestDatabase.wymagajTestowejBazy();
+        BazaDanych.zaloguj("admin","Admin123!");
         LocalDate d=LocalDate.of(2040,2,10);
         Gosc g=BazaDanych.zapiszGoscia("Łukasz","Raportowy","111222333","raport@example.com");
         for(String n:List.of("R100","R101","R102"))BazaDanych.dodajPokoj(n,"Test raportu",4,new BigDecimal("100"));
@@ -52,11 +53,12 @@ public class ReportProbe {
         try{Raporty.generuj(d,d.plusDays(366));throw new AssertionError("Za długi okres przyjęty");}catch(IllegalArgumentException ok){}
         Path dir=Files.createTempDirectory("hotel-report-test-");
         try {
-            var tabela=new Raporty.Tabela("Eksport",List.of("Nazwa","Kwota"),List.of(List.of("=HYPERLINK(\"x\")","-10,00"),List.of("Łódź; \"test\"\n<script>alert(1)</script>","20,50")));
+            var tabela=new Raporty.Tabela("Eksport",List.of("Nazwa","Kwota"),List.of(List.of("=HYPERLINK(\"x\")","-10,00"),List.of("\uFEFF=1+1","1,00"),List.of("\t+SUM(1;1)","2,00"),List.of("Łódź; \"test\"\n<script>alert(1)</script>","20,50")));
             Path csv=dir.resolve("raport.csv"),html=dir.resolve("raport.html");
             Raporty.zapiszCsv(tabela,csv);Raporty.zapiszHtml(new Raporty.Raport(d,d,LocalDateTime.now(),List.of(tabela)),html);
             String tekst=Files.readString(csv,StandardCharsets.UTF_8);
-            check(tekst.startsWith("\uFEFF"),"BOM UTF-8");check(tekst.contains("\"'=HYPERLINK(\"\"x\"\")\""),"Neutralizacja formuł CSV");
+            check(tekst.startsWith("\uFEFF"),"BOM UTF-8");
+            check(tekst.contains("\"'\uFEFF=1+1\"") && tekst.contains("\"'\t+SUM(1;1)\""),"Formuły ukryte za BOM i tabulatorem");check(tekst.contains("\"'=HYPERLINK(\"\"x\"\")\""),"Neutralizacja formuł CSV");
             check(tekst.contains("\"-10,00\""),"Ujemne kwoty pozostają liczbami");
             check(tekst.contains("Łódź; \"\"test\"\"\n"),"Cytowanie separatora, cudzysłowu i nowej linii");
             String h=Files.readString(html);check(!h.contains("<script>"),"Kod użytkownika nie jest HTML");check(h.contains("&lt;script&gt;"),"Kodowanie HTML");

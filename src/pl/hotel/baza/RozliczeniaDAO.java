@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-/** Operacje obszaru: RozliczeniaDAO. */
 final class RozliczeniaDAO {
     private RozliczeniaDAO() {}
 

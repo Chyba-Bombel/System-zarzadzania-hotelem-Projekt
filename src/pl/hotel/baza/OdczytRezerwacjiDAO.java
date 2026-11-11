@@ -4,7 +4,6 @@ import pl.hotel.model.*;
 import java.sql.*;
 import java.util.ArrayList;
 
-/** Operacje obszaru: OdczytRezerwacjiDAO. */
 final class OdczytRezerwacjiDAO {
     private OdczytRezerwacjiDAO() {}
 

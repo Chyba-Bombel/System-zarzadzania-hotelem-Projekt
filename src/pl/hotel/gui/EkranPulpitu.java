@@ -8,7 +8,6 @@ import javafx.scene.layout.*;
 import java.time.LocalDate;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Kontroler: EkranPulpitu. */
 final class EkranPulpitu {
     private final HotelGUI app;
     EkranPulpitu(HotelGUI app) { this.app = app; }

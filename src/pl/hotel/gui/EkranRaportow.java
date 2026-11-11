@@ -10,7 +10,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Kontroler: EkranRaportow. */
 final class EkranRaportow {
     private final HotelGUI app;
     EkranRaportow(HotelGUI app) { this.app = app; }

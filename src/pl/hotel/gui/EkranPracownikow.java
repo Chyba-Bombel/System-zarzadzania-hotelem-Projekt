@@ -7,7 +7,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Kontroler: EkranPracownikow. */
 final class EkranPracownikow {
     private final HotelGUI app;
     EkranPracownikow(HotelGUI app) { this.app = app; }

@@ -6,13 +6,11 @@ import java.security.GeneralSecurityException;
 import java.sql.*;
 import java.util.ArrayList;
 
-/** Operacje obszaru: PracownicyDAO. */
 final class PracownicyDAO {
     private PracownicyDAO() {}
 
     public static ArrayList<Pracownik> pobierzPracownikow() throws SQLException{
         ArrayList<Pracownik> lista = new ArrayList<>();
-
 
         String sql =
                 "SELECT imie, nazwisko, rola "
@@ -36,10 +34,11 @@ final class PracownicyDAO {
         }
         return lista;
 
-
     }
 
     public static void dodajPracownika(String imie, String nazwisko, String login, String haslo, String rola) throws SQLException{
+        pl.hotel.walidacja.Dane.tekst(imie,60,"Imię");
+        pl.hotel.walidacja.Dane.tekst(nazwisko,80,"Nazwisko");
         if (imie == null || imie.isBlank() || imie.length() > 60 || nazwisko == null || nazwisko.isBlank() || nazwisko.length() > 80){
             throw new SQLException("Niepoprawne imię lub nazwisko");
         }

@@ -3,7 +3,6 @@ package pl.hotel.baza;
 import java.sql.*;
 import java.math.BigDecimal;
 
-/** Operacje obszaru: ZwrotyDAO. */
 final class ZwrotyDAO {
     private ZwrotyDAO() {}
 
@@ -42,7 +41,7 @@ final class ZwrotyDAO {
 
                 }
                 String sqlPracownik = "SELECT id FROM pracownicy "
-                                + "WHERE id = ? AND aktywny = TRUE";
+                                + "WHERE id = ? AND aktywny = TRUE AND rola = 'ADMIN'";
                 try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlPracownik)){
 
                     zapytanie.setLong(1, pracownikId);

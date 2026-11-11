@@ -5,7 +5,6 @@ import pl.hotel.baza.BazaDanych;
 import java.time.LocalDate;
 import java.sql.SQLException;
 
-/** Obsługa konsoli: RezerwacjeKonsola. */
 final class RezerwacjeKonsola {
     private RezerwacjeKonsola() {}
 
@@ -77,7 +76,7 @@ final class RezerwacjeKonsola {
             System.out.println("Pomyślnie zapisano rezerwacje");
             nowa.wyswietlDane();
         } catch (SQLException e){
-            System.out.println("Błąd zapisu rezerwacji: " + e.getMessage());
+            System.out.println("Błąd zapisu rezerwacji: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Przed ponowną próbą sprawdź liste rezerwacji");
         }
         return true;
@@ -102,7 +101,7 @@ final class RezerwacjeKonsola {
                 System.out.println("Nie anulowano rezerwacji; nie istniję bądź nie ma statusu Potwierdzona lub ma przypisane płatności");
             }
         } catch (SQLException e){
-            System.out.println("Błąd anulowania: " + e.getMessage());
+            System.out.println("Błąd anulowania: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Przed ponowieniem sprawdź status rezerwacji");
         }
         return true;
@@ -116,7 +115,7 @@ final class RezerwacjeKonsola {
             StanKonsoli.rezerwacje = BazaDanych.pobierzRezerwacje(StanKonsoli.goscie, StanKonsoli.pokoje);
 
         } catch (SQLException e){
-            System.out.println("Nie udało się pobrać danych: " + e.getMessage());
+            System.out.println("Nie udało się pobrać danych: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             return true;
         }
         if (StanKonsoli.rezerwacje.isEmpty()){
@@ -142,7 +141,7 @@ final class RezerwacjeKonsola {
             System.out.println("Zapisano nowy termin rezeracji.");
 
         }catch (SQLException e){
-            System.out.println("Nie potwierdzono zmiany terminu: " + e.getMessage());
+            System.out.println("Nie potwierdzono zmiany terminu: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Przed ponowienie sprawdź aktualne dane rezerwacji.");
             return true;
         }
@@ -157,7 +156,7 @@ final class RezerwacjeKonsola {
                 }
             }
         } catch (SQLException e){
-            System.out.println("Termin zapisano, ale nie udało się odświeżyć listy: " + e.getMessage());
+            System.out.println("Termin zapisano, ale nie udało się odświeżyć listy: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Uruchom program ponownie.");
         }
         return true;

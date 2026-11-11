@@ -67,12 +67,10 @@ public class Rezerwacja {
         return ChronoUnit.DAYS.between(od, doDnia);
     }
 
-
     public boolean kolidacja(String numerPokoju, LocalDate poczatek, LocalDate koniec) {
         boolean blokuePokoj = status.equals("POTWIERDZONA") || status.equals("ZAMELDOWANA");
 
         return blokuePokoj && pokoj.getNumer().equalsIgnoreCase(numerPokoju) && poczatek.isBefore(doDnia) && koniec.isAfter(od);
-
 
     }
 

@@ -4,7 +4,6 @@ import pl.hotel.model.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-/** Dane bieżącej sesji wcześniejszej wersji konsolowej. */
 final class StanKonsoli {
     private StanKonsoli() {}
     static ArrayList<Gosc> goscie = new ArrayList<>();

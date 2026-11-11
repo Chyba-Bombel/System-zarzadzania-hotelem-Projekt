@@ -5,7 +5,6 @@ import pl.hotel.baza.BazaDanych;
 import java.util.ArrayList;
 import java.sql.SQLException;
 
-/** Obsługa konsoli: KontaKonsola. */
 final class KontaKonsola {
     private KontaKonsola() {}
 
@@ -42,7 +41,7 @@ final class KontaKonsola {
                 System.out.println("Pozostało prób: " + (3 - proba));
 
             }catch (SQLException e){
-                System.out.println("Błąd logowania: " + e.getMessage());
+                System.out.println("Błąd logowania: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
 
                 return null;
             }
@@ -115,19 +114,16 @@ final class KontaKonsola {
             if (e.getErrorCode() == 1062){
                 System.out.println("Podany login jest już zajęty.");
             } else {
-                System.out.println("Nie potwierdzono utworzenia konta: " + e.getMessage());
+                System.out.println("Nie potwierdzono utworzenia konta: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             }
             return true;
         }
         try {
             StanKonsoli.pracownicy = BazaDanych.pobierzPracownikow();
         } catch (SQLException e) {
-            System.out.println("Konto utworzono lecz nie oświeżono listy: " + e.getMessage());
+            System.out.println("Konto utworzono lecz nie oświeżono listy: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
         }
         return true;
-
-
-
 
     }
 
@@ -142,7 +138,7 @@ final class KontaKonsola {
                 konto.wyswietlDane();
             }
         }catch (SQLException e){
-            System.out.println("Nie udało sie pobrać konto: " + e.getMessage());
+            System.out.println("Nie udało sie pobrać konto: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             return true;
         }
         Integer id = WejscieKonsoli.wczytajLiczbe("ID Pracownika do dezaktywacji: ");
@@ -161,14 +157,14 @@ final class KontaKonsola {
 
             System.out.println("Dezaktywacja konta przebiegła pomyślnie.");
         } catch (SQLException e) {
-            System.out.println("Nie potwierdzono dezaktywacji: " +e.getMessage());
+            System.out.println("Nie potwierdzono dezaktywacji: " +pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Przed ponowną próbą sprawdź stan konta");
             return true;
         }
         try {
             StanKonsoli.pracownicy = BazaDanych.pobierzPracownikow();
         } catch (SQLException e) {
-            System.out.println("Konto dezaktywowano, ale nie odświeżono listy: " + e.getMessage());
+            System.out.println("Konto dezaktywowano, ale nie odświeżono listy: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
         }
         return true;
 
@@ -198,7 +194,7 @@ final class KontaKonsola {
             BazaDanych.zmienHaslo(StanKonsoli.zalogowanyPracownik.getId(), obecneHaslo, noweHaslo);
             System.out.println("Zmieniono hasło. Przy następnym logowaniu użyj nowego hasła.");
         } catch (SQLException e) {
-            System.out.println("Nie potwierdzono zmiany hasła: " + e.getMessage());
+            System.out.println("Nie potwierdzono zmiany hasła: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
 
             System.out.println("Jeżeli utracono połączenie podczas zapisu, hasło mogło zostać zmienione.");
         }

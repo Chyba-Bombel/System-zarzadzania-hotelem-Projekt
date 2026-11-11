@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Kontroler: EkranPokoi. */
 final class EkranPokoi {
     private final HotelGUI app;
     EkranPokoi(HotelGUI app) { this.app = app; }

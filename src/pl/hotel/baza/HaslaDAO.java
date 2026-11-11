@@ -4,7 +4,6 @@ import pl.hotel.bezpieczenstwo.Hasla;
 import java.security.GeneralSecurityException;
 import java.sql.*;
 
-/** Operacje obszaru: HaslaDAO. */
 final class HaslaDAO {
     private HaslaDAO() {}
 
@@ -14,7 +13,7 @@ final class HaslaDAO {
             String noweHaslo
     ) throws SQLException {
 
-        if (obecneHaslo == null || noweHaslo == null) {
+        if (obecneHaslo == null || obecneHaslo.length() > 128 || noweHaslo == null) {
             throw new SQLException("Nie podano hasła.");
         }
 

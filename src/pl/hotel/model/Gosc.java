@@ -1,6 +1,5 @@
 package pl.hotel.model;
 
-
 public class Gosc extends Osoba{
     private int id;
     private String telefon;

@@ -4,7 +4,6 @@ import pl.hotel.model.*;
 import java.sql.*;
 import java.util.ArrayList;
 
-/** Operacje obszaru: GoscieDAO. */
 final class GoscieDAO {
     private GoscieDAO() {}
 
@@ -57,6 +56,7 @@ final class GoscieDAO {
     }
 
     public static Gosc zapiszGoscia(String imie, String nazwisko, String telefon, String email) throws SQLException{
+        pl.hotel.walidacja.Dane.gosc(imie,nazwisko,telefon,email);
         String sql = "INSERT INTO goscie (imie, nazwisko, telefon, email) "
                 + "VALUES (?, ?, ?, ?)";
 
@@ -86,7 +86,6 @@ final class GoscieDAO {
 
             }
 
-
         }
 
         throw new SQLException(
@@ -101,9 +100,7 @@ final class GoscieDAO {
             String telefon,
             String email
     )throws SQLException{
-        if (imie.length() > 60 || nazwisko.length() > 80 || telefon.length() > 30 || email.length() > 120){
-            throw new SQLException("Przekroczono maksymalną długość danych.");
-        }
+        pl.hotel.walidacja.Dane.gosc(imie,nazwisko,telefon,email);
         String sql =
                 "UPDATE goscie "
                         + "SET imie = ?, nazwisko = ?, telefon = ?, email = ? "

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
-/** Obsługa konsoli: WejscieKonsoli. */
 final class WejscieKonsoli {
     private WejscieKonsoli() {}
 

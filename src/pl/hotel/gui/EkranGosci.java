@@ -9,7 +9,6 @@ import javafx.scene.layout.*;
 import java.sql.SQLException;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Kontroler: EkranGosci. */
 final class EkranGosci {
     private final HotelGUI app;
     EkranGosci(HotelGUI app) { this.app = app; }

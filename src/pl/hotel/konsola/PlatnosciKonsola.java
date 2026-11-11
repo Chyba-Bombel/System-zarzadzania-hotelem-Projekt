@@ -5,7 +5,6 @@ import pl.hotel.baza.BazaDanych;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 
-/** Obsługa konsoli: PlatnosciKonsola. */
 final class PlatnosciKonsola {
     private PlatnosciKonsola() {}
 
@@ -44,7 +43,6 @@ final class PlatnosciKonsola {
                 System.out.println("Brak płatności.");
             }
 
-
             for (Platnosc platnosc : rozliczenie.platnosci()){
                 System.out.println(
                         "ID: " + platnosc.id()
@@ -56,7 +54,7 @@ final class PlatnosciKonsola {
             }
 
         } catch (Exception e) {
-            System.out.println("Błąd pobierania rozliczenia: " + e.getMessage());
+            System.out.println("Błąd pobierania rozliczenia: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
         }
         return true;
     }
@@ -103,7 +101,7 @@ final class PlatnosciKonsola {
 
             System.out.println("Pozostało do zapłaty: " + rozliczenie.saldo() + " zł");
         } catch (SQLException e){
-            System.out.println("Błąd odczytu rozliczenia: " + e.getMessage());
+            System.out.println("Błąd odczytu rozliczenia: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             return true;
         }
 
@@ -117,7 +115,7 @@ final class PlatnosciKonsola {
             BazaDanych.zapiszWplate(id,kwota,metoda,StanKonsoli.zalogowanyPracownik.getId());
             System.out.println("Zapisano wpłatę: " + kwota + " zł.");
         } catch (SQLException e) {
-            System.out.println("Nie potwierdzono wpłaty: " + e.getMessage());
+            System.out.println("Nie potwierdzono wpłaty: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Przed ponowieniem sprawdź historie płatności");
         }
         return true;
@@ -142,7 +140,7 @@ final class PlatnosciKonsola {
 
             }
         } catch (SQLException e) {
-            System.out.println("Błąd odczytu rozliczenia: " + e.getMessage());
+            System.out.println("Błąd odczytu rozliczenia: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             return true;
 
         }
@@ -164,7 +162,7 @@ final class PlatnosciKonsola {
 
             System.out.println("Zarejestrowano zwrot " + kwota + " zł.");
         } catch (SQLException e){
-            System.out.println("Nie potwierdzono zwrotu: " + e.getMessage());
+            System.out.println("Nie potwierdzono zwrotu: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
 
             System.out.println("Przed ponowieniem sprawdź historię płatności w opcji 17.");
         }

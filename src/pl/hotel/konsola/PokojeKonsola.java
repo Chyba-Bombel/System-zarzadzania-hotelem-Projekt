@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.sql.SQLException;
 
-/** Obsługa konsoli: PokojeKonsola. */
 final class PokojeKonsola {
     private PokojeKonsola() {}
 
@@ -71,14 +70,14 @@ final class PokojeKonsola {
             if (e.getErrorCode() == 1062){
                 System.out.println("Pokój o takim numerze już istnieje");
             } else {
-                System.out.println("Błąd zapisu " + e.getMessage());
+                System.out.println("Błąd zapisu " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             }
             return true;
         }
         try {
             StanKonsoli.pokoje = BazaDanych.pobierzPokoje();
         } catch (SQLException e){
-            System.out.println("Pokój zapisano ale nie udało sie odświeżyć listy: " + e.getMessage());
+            System.out.println("Pokój zapisano ale nie udało sie odświeżyć listy: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Uruchom program ponownie aby wczytać aktualne dane");
         }
         return true;
@@ -88,7 +87,7 @@ final class PokojeKonsola {
         try {
             StanKonsoli.pokoje = BazaDanych.pobierzPokoje();
         } catch (SQLException e){
-            System.out.println("Nie udało sie pobrać pokoi: " + e.getMessage());
+            System.out.println("Nie udało sie pobrać pokoi: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
         }
 
         for (Pokoj pokoj : StanKonsoli.pokoje){
@@ -132,7 +131,7 @@ final class PokojeKonsola {
             if (e.getErrorCode() == 1062){
                 System.out.println("Inny pokój ma już podobny numer");
             } else {
-                System.out.println("Błąd aktualizacji: " + e.getMessage());
+                System.out.println("Błąd aktualizacji: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             }
             return true;
         }
@@ -142,9 +141,8 @@ final class PokojeKonsola {
 
             StanKonsoli.rezerwacje = BazaDanych.pobierzRezerwacje(StanKonsoli.goscie, StanKonsoli.pokoje);
 
-
         } catch (SQLException e){
-            System.out.println("Dane zapisano ale nie udalo się odświeżyć list: " + e.getMessage());
+            System.out.println("Dane zapisano ale nie udalo się odświeżyć list: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Uruchom program ponownie.");
 
         }
@@ -155,7 +153,7 @@ final class PokojeKonsola {
         try {
             StanKonsoli.pokoje = BazaDanych.pobierzPokoje();
         } catch (SQLException e) {
-            System.out.println("Nie udało pobrać pokoi: " + e.getMessage());
+            System.out.println("Nie udało pobrać pokoi: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             return true;
         }
         boolean znaleziono = false;
@@ -202,10 +200,8 @@ final class PokojeKonsola {
 
             System.out.println("Pokój " + wybranyPokoj.getNumer() + " oznaczono jako GOTOWY.");
 
-
-
         } catch (SQLException e){
-            System.out.println("Nie potwierdzono zmiany: " + e.getMessage());
+            System.out.println("Nie potwierdzono zmiany: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Przed ponowieniem sprawdź stan pokoju w bazie");
             return true;
         }
@@ -214,7 +210,7 @@ final class PokojeKonsola {
             StanKonsoli.rezerwacje = BazaDanych.pobierzRezerwacje(StanKonsoli.goscie, StanKonsoli.pokoje);
 
         } catch (SQLException e) {
-            System.out.println("Stan zapisano ale nie udało się odświeżyć list: " + e.getMessage());
+            System.out.println("Stan zapisano ale nie udało się odświeżyć list: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
 
             System.out.println("Uruchom program ponownie");
         }

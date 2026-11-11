@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Kontroler: TabeleGUI. */
 final class TabeleGUI {
     private final HotelGUI app;
     TabeleGUI(HotelGUI app) { this.app = app; }
@@ -53,7 +52,7 @@ final class TabeleGUI {
         app.stan.widoczneRezerwacje.setPredicate(r -> pasuje(app.stan.szukajRezerwacji.getText(), r.getId() + " " + r.getGosciePobytu() + " " + r.getPokoj().getNumer())
                 && (app.stan.statusRezerwacji.getValue() == null || app.stan.statusRezerwacji.getValue().equals("Wszystkie statusy") || r.getStatus().equals(app.stan.statusRezerwacji.getValue())));
         app.stan.widoczneKonta.setPredicate(k -> pasuje(app.stan.szukajKonta.getText(), k.id() + " " + k.imie() + " " + k.nazwisko() + " " + k.login()));
-        // Używamy ostatnio zatwierdzonych wartości DatePicker. Walidacja następuje przed włączeniem filtra.
+
         LocalDate od = app.stan.filtrOd, koniec = app.stan.filtrDo; int osoby = app.stan.filtrOsoby;
         app.stan.widocznePokoje.setPredicate(p -> {
             if (!pasuje(app.stan.szukajPokoju.getText(), p.getNumer() + " " + app.stan.typy.getOrDefault(p.getId(),""))) return false;

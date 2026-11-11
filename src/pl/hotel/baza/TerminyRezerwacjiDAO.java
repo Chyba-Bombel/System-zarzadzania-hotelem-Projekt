@@ -5,11 +5,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-/** Operacje obszaru: TerminyRezerwacjiDAO. */
 final class TerminyRezerwacjiDAO {
     private TerminyRezerwacjiDAO() {}
 
     public static void zmienTerminRezerwacji(int id, LocalDate noweOd, LocalDate noweDo) throws SQLException {
+        if (noweOd==null || noweDo==null) throw new SQLException("Podaj obie daty pobytu.");
         if (noweOd.isBefore(LocalDate.now()) || !noweDo.isAfter(noweOd) || ChronoUnit.DAYS.between(noweOd, noweDo) > 30){
             throw new SQLException("Pobyt musi trwać do 30 nocy i nie może zaczynać sie w przeszłości");
         }
@@ -30,7 +30,6 @@ final class TerminyRezerwacjiDAO {
 
                         }
                         pokojID = wynik.getLong("pokoj_id");
-
 
                     }
 
@@ -138,7 +137,6 @@ final class TerminyRezerwacjiDAO {
                 }
                 throw e;
             }
-
 
         }
 

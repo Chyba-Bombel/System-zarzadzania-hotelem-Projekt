@@ -4,7 +4,6 @@ import pl.hotel.model.*;
 import pl.hotel.baza.BazaDanych;
 import java.sql.SQLException;
 
-/** Obsługa konsoli: MenuKonsoli. */
 public final class MenuKonsoli {
     private MenuKonsoli() {}
 
@@ -14,6 +13,12 @@ public final class MenuKonsoli {
         System.out.println("Witaj w obsłudze hotelu!");
 
         while (dziala){
+            try {
+            if (StanKonsoli.zalogowanyPracownik != null) {
+                try { BazaDanych.sprawdzSesje(StanKonsoli.zalogowanyPracownik,false); }
+                catch (SecurityException e) { StanKonsoli.zalogowanyPracownik=null; StanKonsoli.goscie.clear(); StanKonsoli.pokoje.clear(); StanKonsoli.rezerwacje.clear(); StanKonsoli.pracownicy.clear(); System.out.println(pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e)); }
+                catch (SQLException e) { System.out.println("Nie udało się sprawdzić sesji."); break; }
+            }
             if (StanKonsoli.zalogowanyPracownik == null){
                 StanKonsoli.zalogowanyPracownik = KontaKonsola.zalogujPracownika();
 
@@ -24,11 +29,11 @@ public final class MenuKonsoli {
                 try {
                     StanKonsoli.goscie = BazaDanych.pobierzGosci();
                     StanKonsoli.pokoje = BazaDanych.pobierzPokoje();
-                    StanKonsoli.pracownicy = BazaDanych.pobierzPracownikow();
+                    StanKonsoli.pracownicy = KontaKonsola.czyAdministrator() ? BazaDanych.pobierzPracownikow() : new java.util.ArrayList<>();
 
                     StanKonsoli.rezerwacje = BazaDanych.pobierzRezerwacje(StanKonsoli.goscie, StanKonsoli.pokoje);
                 } catch (SQLException e){
-                    System.out.println("Nie udało się wczytać danych: " + e.getMessage());
+                    System.out.println("Nie udało się wczytać danych: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
 
                     StanKonsoli.zalogowanyPracownik = null;
                     break;
@@ -70,7 +75,6 @@ public final class MenuKonsoli {
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
-            //warunek sprawdza czy coś wprowadziliśmy do scannera
             if (!StanKonsoli.scanner.hasNextLine()){
                 break;
             }
@@ -147,6 +151,7 @@ public final class MenuKonsoli {
                     }
                     break;
                 case "20":
+                    BazaDanych.wyloguj();
                     StanKonsoli.zalogowanyPracownik = null;
 
                     StanKonsoli.rezerwacje.clear();
@@ -175,11 +180,14 @@ public final class MenuKonsoli {
                 default:
                     System.out.println("Nie ma takiej opcji. Wybierz numer podany w menu.");
             }
+            } catch (SecurityException e) {
+                System.out.println(pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
+                if (e instanceof pl.hotel.bezpieczenstwo.SesjaWygasla) StanKonsoli.zalogowanyPracownik=null;
+            }
         }
+        BazaDanych.wyloguj();
         System.out.println("Program zakońcozny. Do zobaczenia!");
         StanKonsoli.scanner.close();
-
-
 
     }
 }

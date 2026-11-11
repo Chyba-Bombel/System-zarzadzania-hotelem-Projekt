@@ -3,7 +3,6 @@ package pl.hotel.baza;
 import java.sql.*;
 import java.math.BigDecimal;
 
-/** Operacje obszaru: WplatyDAO. */
 final class WplatyDAO {
     private WplatyDAO() {}
 
@@ -42,7 +41,6 @@ final class WplatyDAO {
                         }
 
                         naleznosc = wynik.getBigDecimal("cena_za_noc").multiply(BigDecimal.valueOf(wynik.getLong("noce")));
-
 
                     }
 

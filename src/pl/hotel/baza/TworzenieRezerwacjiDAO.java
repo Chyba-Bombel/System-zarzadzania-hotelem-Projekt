@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-/** Operacje obszaru: TworzenieRezerwacjiDAO. */
 final class TworzenieRezerwacjiDAO {
     private TworzenieRezerwacjiDAO() {}
 
@@ -24,6 +23,7 @@ final class TworzenieRezerwacjiDAO {
     public static Rezerwacja zapiszRezerwacje(Gosc gosc, Pokoj pokoj, LocalDate od,
             LocalDate doDnia, int liczbaOsob, long pracownikId,
             java.util.List<Uczestnik> uczestnicy) throws SQLException {
+        if (gosc==null || pokoj==null || od==null || doDnia==null) throw new SQLException("Podaj gościa, pokój i obie daty pobytu.");
         java.util.List<Uczestnik> osoby = uczestnicy == null ? null : java.util.List.copyOf(uczestnicy);
         if (osoby != null && osoby.size() != liczbaOsob - 1)
             throw new IllegalArgumentException("Uzupełnij dane wszystkich dodatkowych osób.");
@@ -156,7 +156,6 @@ final class TworzenieRezerwacjiDAO {
                 }
                 throw e;
             }
-
 
         }
     }

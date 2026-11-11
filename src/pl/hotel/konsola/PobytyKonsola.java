@@ -4,7 +4,6 @@ import pl.hotel.model.*;
 import pl.hotel.baza.BazaDanych;
 import java.sql.SQLException;
 
-/** Obsługa konsoli: PobytyKonsola. */
 final class PobytyKonsola {
     private PobytyKonsola() {}
 
@@ -15,9 +14,8 @@ final class PobytyKonsola {
 
             StanKonsoli.rezerwacje = BazaDanych.pobierzRezerwacje(StanKonsoli.goscie,StanKonsoli.pokoje);
 
-
         }catch (SQLException e){
-            System.out.println("Błąd pobierania danych: " + e.getMessage());
+            System.out.println("Błąd pobierania danych: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             return true;
         }
 
@@ -35,14 +33,14 @@ final class PobytyKonsola {
 
             System.out.println("Zameldowano gościa.");
         } catch (SQLException e) {
-            System.out.println("Nie powierdzono zameldowania: " + e.getMessage());
+            System.out.println("Nie powierdzono zameldowania: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Przed ponowieniem sprawdź aktualny status w bazie.");
             return true;
         }
         try {
             StanKonsoli.rezerwacje = BazaDanych.pobierzRezerwacje(StanKonsoli.goscie, StanKonsoli.pokoje);
         } catch (SQLException e) {
-            System.out.println("Zamledowanie zapisano ale nie udało sie odświeżyć listy: " + e.getMessage());
+            System.out.println("Zamledowanie zapisano ale nie udało sie odświeżyć listy: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Uruchom program ponownie.");
         }
         return true;
@@ -56,7 +54,7 @@ final class PobytyKonsola {
 
             StanKonsoli.rezerwacje = BazaDanych.pobierzRezerwacje(StanKonsoli.goscie,StanKonsoli.pokoje);
         } catch (SQLException e) {
-            System.out.println("Nie udało się pobrać danych: " + e.getMessage());
+            System.out.println("Nie udało się pobrać danych: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             return true;
         }
 
@@ -82,7 +80,7 @@ final class PobytyKonsola {
 
             System.out.println("Wymeldowano gościa.");
         } catch (SQLException e){
-            System.out.println("Nie potwierdzono wymeldowania: " + e.getMessage());
+            System.out.println("Nie potwierdzono wymeldowania: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Przed ponowieniem sprawdź aktualny status w bazie.");
             return true;
         }
@@ -91,7 +89,7 @@ final class PobytyKonsola {
 
             StanKonsoli.rezerwacje = BazaDanych.pobierzRezerwacje(StanKonsoli.goscie, StanKonsoli.pokoje);
         } catch (SQLException e) {
-            System.out.println("Wymeldowanie zapisano ale nie udało się odświeżyć danych: " + e.getMessage());
+            System.out.println("Wymeldowanie zapisano ale nie udało się odświeżyć danych: " + pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));
             System.out.println("Uruchom program ponownie");
 
         }

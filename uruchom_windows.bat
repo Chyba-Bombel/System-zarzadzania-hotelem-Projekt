@@ -8,7 +8,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-if not exist "lib\javafx-win\javafx-controls-17.0.18-win.jar" (
+if not exist "lib\javafx-win\javafx-controls-17.0.21-win.jar" (
   echo Brak bibliotek JavaFX dla Windows. Rozpakuj cala paczke ZIP.
   pause
   exit /b 1
@@ -21,7 +21,7 @@ if not exist "out-gui" mkdir "out-gui"
   endlocal
 )) > ".sources-gui.txt"
 echo Kompilowanie programu...
-javac -encoding UTF-8 --release 17 --module-path "lib\javafx-win" --add-modules javafx.controls -cp "lib\mysql-connector-j-9.2.0.jar" -d "out-gui" @.sources-gui.txt
+javac -encoding UTF-8 --release 17 --module-path "lib\javafx-win" --add-modules javafx.controls -cp "lib\mysql-connector-j-9.7.0.jar" -d "out-gui" @.sources-gui.txt
 if errorlevel 1 (
   echo Nie udalo sie skompilowac programu. Sprawdz komunikaty powyzej.
   del ".sources-gui.txt" >nul 2>nul
@@ -30,6 +30,6 @@ if errorlevel 1 (
 )
 del ".sources-gui.txt" >nul 2>nul
 copy /Y "resources\hotel.css" "out-gui\hotel.css" >nul
-java --module-path "lib\javafx-win" --add-modules javafx.controls -cp "out-gui;lib\mysql-connector-j-9.2.0.jar" Launcher
+java --module-path "lib\javafx-win" --add-modules javafx.controls -cp "out-gui;lib\mysql-connector-j-9.7.0.jar" Launcher
 if errorlevel 1 pause
 endlocal

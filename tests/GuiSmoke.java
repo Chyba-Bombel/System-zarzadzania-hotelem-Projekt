@@ -17,7 +17,6 @@ import java.nio.file.*;
 import java.util.concurrent.*;
 import java.util.function.BooleanSupplier;
 
-/** Uruchamiany w izolowanej bazie przez skrypt weryfikacyjny; nie dotyka bazy użytkownika. */
 public class GuiSmoke extends Application {
     static HotelGUI app;
     static Stage okno;
@@ -74,23 +73,25 @@ public class GuiSmoke extends Application {
         wpisz("guest-first-name","GUI");wpisz("guest-last-name","Testowy");wpisz("guest-phone","500123456");wpisz("guest-email","gui@example.com");
         klik("form-save");czekaj();
         if(fx(() -> pole("aktywnyDialog"))!=null)throw new AssertionError("Formularz nie zamknął się po zapisie");
+        BazaDanych.zaloguj("admin","Admin123!");
         if(BazaDanych.pobierzGosci().stream().noneMatch(g -> g.getEmail().equals("gui@example.com")))throw new AssertionError("Brak zapisu gościa");
         klik("nav-rezerwacje"); klik("add-booking");czekaj();
         fx(() -> {
-            ((ComboBox<?>)node("booking-room")).getSelectionModel().select(3); // 104: dwie osoby, wolny dzisiaj
+            ((ComboBox<?>)node("booking-room")).getSelectionModel().select(3);
             ((Spinner<Integer>)node("booking-people")).getValueFactory().setValue(2); return null;
         });
         klik("form-save");
         if(fx(() -> pole("aktywnyDialog"))==null)throw new AssertionError("Przyjęto puste nazwiska");
         wpisz("participant-first-1","Błażej"); wpisz("participant-last-1","Wencel");
-        // Zmniejszenie i zwiększenie liczby osób nie usuwa wcześniej wpisanych danych.
+
         fx(() -> { ((Spinner<Integer>)node("booking-people")).getValueFactory().setValue(1);
             ((Spinner<Integer>)node("booking-people")).getValueFactory().setValue(2); return null; });
         if(!fx(() -> ((TextField)node("participant-first-1")).getText()).equals("Błażej"))throw new AssertionError("Utrata wpisów");
         screen("04-formularz-rezerwacji");
-        // Domyślnie: pierwszy gość, pokój 101 i dzisiejszy termin; test DB przygotowuje go jako wolny.
+
         klik("form-save");czekaj();
         if(fx(() -> pole("aktywnyDialog"))!=null)throw new AssertionError("Rezerwacja nie została zapisana");
+        BazaDanych.zaloguj("admin","Admin123!");
         var zapisane = BazaDanych.pobierzRezerwacje(BazaDanych.pobierzGosci(),BazaDanych.pobierzPokoje());
         var ostatnia=zapisane.get(zapisane.size()-1);
         if(!ostatnia.getUczestnicy().equals(java.util.List.of(new Uczestnik("Błażej","Wencel"))))throw new AssertionError("Brak trwałego zapisu uczestnika z GUI");
@@ -115,7 +116,7 @@ public class GuiSmoke extends Application {
         screen("08-raport-rezerwacje");
         fx(() -> { ((DatePicker)node("report-from")).getEditor().setText(java.time.LocalDate.now().minusDays(1).toString());return null; });
         if(!fx(() -> ((Button)node("report-csv")).isDisabled()))throw new AssertionError("Zmiana okresu nie unieważniła raportu");
-        // Kalendarz: szczegóły, zmiana miesiąca, filtr i utworzenie rezerwacji z wybranej nocy.
+
         klik("nav-kalendarz");
         screen("09-kalendarz");
         int dni=java.time.YearMonth.now().lengthOfMonth();
@@ -124,7 +125,7 @@ public class GuiSmoke extends Application {
         if(fx(() -> ((TableView<?>)node("calendar-table")).getColumns().size())!=java.time.YearMonth.now().plusMonths(1).lengthOfMonth()+1)
             throw new AssertionError("Zmiana miesiąca nie przebudowała kolumn");
         klik("calendar-today");
-        // Pokój 103 ma zameldowany pobyt w dzisiejszej nocy.
+
         screen("10-kalendarz-dzisiaj");
         klik("calendar-cell-3-"+java.time.LocalDate.now());
         if(!fx(() -> ((Label)node("calendar-details")).getText()).contains("Rezerwacja #3"))throw new AssertionError("Brak szczegółów rezerwacji");
@@ -142,14 +143,14 @@ public class GuiSmoke extends Application {
         if(poKalendarzu.stream().noneMatch(r->r.getPokoj().getId()==1&&r.getOd().equals(java.time.LocalDate.now())&&r.getStatus().equals("POTWIERDZONA")))
             throw new AssertionError("Rezerwacja z kalendarza nie zapisana");
         screen("12-kalendarz-zapis");
-        // Wylogowanie bez potwierdzenia modalnego: bezpośrednio wywołujemy tę samą zmianę widoku.
+
         fx(() -> { var m=HotelGUI.class.getDeclaredMethod("pokazLogowanie");m.setAccessible(true);m.invoke(app);return null; });
         loguj("recepcja","Recepcja123!");
         boolean ukryte=fx(() -> okno.getScene().lookup("#nav-pracownicy")==null);
         if(!ukryte)throw new AssertionError("Recepcja widzi administrację");
         screen("06-recepcja");
-        // Wygaszenie konta w DB musi blokować kolejną operację GUI.
-        try(var c=BazaDanych.polacz();var p=c.prepareStatement("UPDATE pracownicy SET aktywny=FALSE WHERE login='recepcja'")){p.executeUpdate();}
+
+        try(var c=TestDatabase.polacz();var p=c.prepareStatement("UPDATE pracownicy SET aktywny=FALSE WHERE login='recepcja'")){p.executeUpdate();}
         klik("refresh");
         for(int i=0;i<100;i++){
             boolean error=fx(() -> Window.getWindows().stream().anyMatch(w -> w.isShowing() && w!=okno && w.getScene().getRoot() instanceof DialogPane));

@@ -1,5 +1,3 @@
--- Wykonaj raz na swojej istniejącej bazie przed uruchomieniem nowej wersji.
--- Nie usuwa ani nie zmienia dotychczasowych rekordów.
 USE hotel_manager;
 SET NAMES utf8mb4;
 CREATE TABLE IF NOT EXISTS uczestnicy_rezerwacji (

@@ -1,0 +1,16 @@
+REVOKE ALL PRIVILEGES ON hotel_manager.* FROM 'hotel_app'@'localhost';
+REVOKE ALL PRIVILEGES ON hotel_manager.* FROM 'hotel_app'@'127.0.0.1';
+GRANT SELECT ON hotel_manager.* TO 'hotel_app'@'localhost';
+GRANT INSERT,UPDATE ON hotel_manager.goscie TO 'hotel_app'@'localhost';
+GRANT INSERT,UPDATE ON hotel_manager.pokoje TO 'hotel_app'@'localhost';
+GRANT INSERT,UPDATE ON hotel_manager.pracownicy TO 'hotel_app'@'localhost';
+GRANT INSERT,UPDATE ON hotel_manager.rezerwacje TO 'hotel_app'@'localhost';
+GRANT INSERT ON hotel_manager.platnosci TO 'hotel_app'@'localhost';
+GRANT INSERT,DELETE ON hotel_manager.uczestnicy_rezerwacji TO 'hotel_app'@'localhost';
+GRANT SELECT ON hotel_manager.* TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT,UPDATE ON hotel_manager.goscie TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT,UPDATE ON hotel_manager.pokoje TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT,UPDATE ON hotel_manager.pracownicy TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT,UPDATE ON hotel_manager.rezerwacje TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT ON hotel_manager.platnosci TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT,DELETE ON hotel_manager.uczestnicy_rezerwacji TO 'hotel_app'@'127.0.0.1';

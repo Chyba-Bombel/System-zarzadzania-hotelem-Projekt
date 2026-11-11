@@ -5,7 +5,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.math.BigDecimal;
 
-/** Operacje obszaru: PokojeDAO. */
 final class PokojeDAO {
     private PokojeDAO() {}
 
@@ -42,17 +41,19 @@ final class PokojeDAO {
             BigDecimal cena
     )throws SQLException{
 
-        if (numer.isBlank() || numer.length() > 10){
+        pl.hotel.walidacja.Dane.tekst(numer,10,"Numer pokoju");
+        pl.hotel.walidacja.Dane.tekst(typ,40,"Typ pokoju");
+        if (numer == null || numer.isBlank() || numer.length() > 10){
             throw new SQLException("Numer pokoju musi mięc od 1 do 10 znaków.");
         }
-        if (typ.isBlank() || typ.length() > 40){
+        if (typ == null || typ.isBlank() || typ.length() > 40){
             throw new SQLException("Typ pokoju musi mięc od 1 do 40 znaków");
         }
         if (liczbaMiejsc < 1 || liczbaMiejsc > 10){
             throw new SQLException("Pokój musi mieć od 1 do 10 miejsc.");
         }
 
-        if (cena.signum() <= 0 || cena.compareTo(new BigDecimal("99999999.99")) > 0 || cena.scale() > 2){
+        if (cena == null || cena.signum() <= 0 || cena.compareTo(new BigDecimal("99999999.99")) > 0 || cena.scale() > 2){
 
             throw new SQLException("Podaj dodatnią cenę z maksymalnie dwoma miejscami po przecinku.");
         }
@@ -74,15 +75,17 @@ final class PokojeDAO {
     }
 
     public static boolean edytujPokoj(long id, String numer, String typ, BigDecimal cena)throws SQLException{
-        if (numer.isBlank() || numer.length() > 10){
+        pl.hotel.walidacja.Dane.tekst(numer,10,"Numer pokoju");
+        pl.hotel.walidacja.Dane.tekst(typ,40,"Typ pokoju");
+        if (numer == null || numer.isBlank() || numer.length() > 10){
             throw new SQLException("Numer pokoju musi mięc od 1 do 10 znaków.");
         }
 
-        if (typ.isBlank() || typ.length() > 40){
+        if (typ == null || typ.isBlank() || typ.length() > 40){
             throw new SQLException("Typ pokoju musi mięc od 1 do 40 znaków");
         }
 
-        if (cena.signum() <= 0 || cena.compareTo(new BigDecimal("99999999.99")) > 0 || cena.scale() > 2){
+        if (cena == null || cena.signum() <= 0 || cena.compareTo(new BigDecimal("99999999.99")) > 0 || cena.scale() > 2){
 
             throw new SQLException("Podaj dodatnią cenę z maksymalnie dwoma miejscami po przecinku.");
         }
@@ -121,5 +124,12 @@ final class PokojeDAO {
             return zapytanie.executeUpdate() == 1;
 
         }
+    }
+    static java.util.Map<Long,String> pobierzTypy() throws SQLException {
+        java.util.Map<Long,String> typy = new java.util.HashMap<>();
+        try (Connection c=PolaczenieBazy.polacz(); PreparedStatement p=c.prepareStatement("SELECT id,typ FROM pokoje"); ResultSet r=p.executeQuery()) {
+            while(r.next()) typy.put(r.getLong("id"),r.getString("typ"));
+        }
+        return typy;
     }
 }

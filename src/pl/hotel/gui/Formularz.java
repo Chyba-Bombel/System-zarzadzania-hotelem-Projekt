@@ -33,8 +33,8 @@ final class Formularz {
             dialog.setOnHidden(e -> { if (app.stan.aktywnyDialog == dialog) app.stan.aktywnyDialog = null; });
         }
         void dodaj(String opis, Control pole) { pole.setMaxWidth(Double.MAX_VALUE); grid.add(etykieta(opis,"form-label"),0,row); grid.add(pole,1,row++); }
-        TextField tekst(String opis, String wartosc) { TextField t = new TextField(wartosc); dodaj(opis,t); return t; }
-        PasswordField haslo(String opis) { PasswordField p = new PasswordField(); dodaj(opis,p); return p; }
+        TextField tekst(String opis, String wartosc) { TextField t = new TextField(wartosc); ogranicz(t,256); dodaj(opis,t); return t; }
+        PasswordField haslo(String opis) { PasswordField p = new PasswordField(); ogranicz(p,128); dodaj(opis,p); return p; }
         void notatka(String tekst) { Label l = etykieta(tekst,"muted"); l.setWrapText(true); l.setMaxWidth(480); grid.add(l,0,row++,2,1); }
         void pokaz(Runnable zapis) {
             dialog.getDialogPane().lookupButton(zapisz).addEventFilter(javafx.event.ActionEvent.ACTION,e -> {

@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Stan jednej instancji aplikacji. Kontrolery współdzielą go przez HotelGUI. */
 final class StanGUI {
     Stage stage;
     StackPane root;

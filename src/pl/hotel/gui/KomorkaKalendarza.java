@@ -6,7 +6,6 @@ import javafx.scene.control.*;
 import java.time.LocalDate;
 import java.util.function.Consumer;
 
-/** Jedna komórka planu; resetuje stan przy ponownym użyciu przez TableView. */
 final class KomorkaKalendarza extends TableCell<Pokoj, PoleDnia> {
     private final Consumer<PoleDnia> klik;
     KomorkaKalendarza(Consumer<PoleDnia> klik) { this.klik = klik; getStyleClass().add("calendar-cell"); }

@@ -4,7 +4,6 @@ import java.sql.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** Operacje obszaru: PobytyDAO. */
 final class PobytyDAO {
     private PobytyDAO() {}
 
@@ -98,7 +97,6 @@ final class PobytyDAO {
                     zapytanie.setInt(1,id);
                     zapytanie.executeUpdate();
 
-
                 }
                 polaczenie.commit();
             } catch (SQLException | RuntimeException e){
@@ -146,7 +144,6 @@ final class PobytyDAO {
                     }
                 }
 
-                // Najpierw blokujemy pokój.
                 String sqlPokoj =
                         "SELECT stan FROM pokoje WHERE id = ? FOR UPDATE";
 
@@ -165,7 +162,6 @@ final class PobytyDAO {
                         stanPokoju = wynik.getString("stan");
                     }
                 }
-
 
                 String sqlRezerwacja = "SELECT pokoj_id, status, cena_za_noc, "
                                 + "DATEDIFF(data_do, data_od) AS noce "
@@ -217,7 +213,6 @@ final class PobytyDAO {
                     zapytanie.setInt(1, id);
                     zapytanie.executeUpdate();
                 }
-
 
                 if (!stanPokoju.equals("WYLACZONY")) {
 

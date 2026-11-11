@@ -6,7 +6,8 @@ CREATE TABLE pracownicy (
  id BIGINT PRIMARY KEY AUTO_INCREMENT,
  imie VARCHAR(60) NOT NULL, nazwisko VARCHAR(80) NOT NULL,
  login VARCHAR(60) NOT NULL UNIQUE, hash_hasla VARCHAR(255) NOT NULL,
- rola ENUM('ADMIN','RECEPCJA') NOT NULL, aktywny BOOLEAN NOT NULL DEFAULT TRUE
+ rola ENUM('ADMIN','RECEPCJA') NOT NULL, aktywny BOOLEAN NOT NULL DEFAULT TRUE,
+ nieudane_logowania INT NOT NULL DEFAULT 0, blokada_do DATETIME NULL
 ) ENGINE=InnoDB;
 CREATE TABLE goscie (
  id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -129,10 +130,19 @@ COMMIT;
 
 SELECT 'goscie' tabela,COUNT(*) rekordy FROM goscie UNION ALL SELECT 'pokoje',COUNT(*) FROM pokoje UNION ALL SELECT 'pracownicy',COUNT(*) FROM pracownicy UNION ALL SELECT 'rezerwacje',COUNT(*) FROM rezerwacje UNION ALL SELECT 'platnosci',COUNT(*) FROM platnosci;
 
-
--- Uruchom jako administrator MySQL po 01_baza_i_dane.sql.
--- Jeżeli te konta już istnieją, wybierz inną nazwę i zmień config/db.properties.
 CREATE USER 'hotel_app'@'localhost' IDENTIFIED BY 'HotelDemo2026!';
 CREATE USER 'hotel_app'@'127.0.0.1' IDENTIFIED BY 'HotelDemo2026!';
-GRANT SELECT,INSERT,UPDATE,DELETE ON hotel_manager.* TO 'hotel_app'@'localhost';
-GRANT SELECT,INSERT,UPDATE,DELETE ON hotel_manager.* TO 'hotel_app'@'127.0.0.1';
+GRANT SELECT ON hotel_manager.* TO 'hotel_app'@'localhost';
+GRANT INSERT,UPDATE ON hotel_manager.goscie TO 'hotel_app'@'localhost';
+GRANT INSERT,UPDATE ON hotel_manager.pokoje TO 'hotel_app'@'localhost';
+GRANT INSERT,UPDATE ON hotel_manager.pracownicy TO 'hotel_app'@'localhost';
+GRANT INSERT,UPDATE ON hotel_manager.rezerwacje TO 'hotel_app'@'localhost';
+GRANT INSERT ON hotel_manager.platnosci TO 'hotel_app'@'localhost';
+GRANT INSERT,DELETE ON hotel_manager.uczestnicy_rezerwacji TO 'hotel_app'@'localhost';
+GRANT SELECT ON hotel_manager.* TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT,UPDATE ON hotel_manager.goscie TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT,UPDATE ON hotel_manager.pokoje TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT,UPDATE ON hotel_manager.pracownicy TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT,UPDATE ON hotel_manager.rezerwacje TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT ON hotel_manager.platnosci TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT,DELETE ON hotel_manager.uczestnicy_rezerwacji TO 'hotel_app'@'127.0.0.1';

@@ -45,9 +45,9 @@ Tabele umożliwiają sortowanie. Na ekranach obsługi gości, pokoi i rezerwacji
 | Element | Wersja / zastosowanie |
 | --- | --- |
 | Java | JDK 17 lub nowszy; kompilacja do wersji 17. |
-| JavaFX | 17.0.18 — interfejs okienkowy i CSS. |
+| JavaFX | 17.0.21 — interfejs okienkowy i CSS. |
 | MySQL | 8.0.16 lub nowszy — baza danych i transakcje InnoDB. |
-| JDBC | MySQL Connector/J 9.2.0 — komunikacja aplikacji z bazą. |
+| JDBC | MySQL Connector/J 9.7.0 — komunikacja aplikacji z bazą. |
 | Maven | Opcjonalny przy uruchamianiu skryptem Windows; potrzebny do uruchomienia przez `mvn javafx:run`. |
 
 Paczka zawiera biblioteki **JavaFX dla Windows x64** i sterownik JDBC. Na Linux/macOS użyj Maven, który dobiera biblioteki dla systemu. Potrzebne jest środowisko graficzne oraz systemowe biblioteki wymagane przez JavaFX.
@@ -229,7 +229,7 @@ Jeśli Twoja baza nie ma tabeli `uczestnicy_rezerwacji`, wykonaj jako administra
 -- db/aktualizacja_uczestnicy.sql
 ```
 
-Ten plik dodaje tabelę dodatkowych osób i zachowuje dotychczasowe rekordy. Dla innej nazwy bazy zmień zawarte w nim `USE hotel_manager;`. Jeśli aktualizacja została już wykonana, nie potrzebujesz kolejnej migracji. **Moduł raportów nie dodaje nowych tabel.**
+Ten plik dodaje tabelę dodatkowych osób i zachowuje dotychczasowe rekordy. Dla innej nazwy bazy zmień zawarte w nim `USE hotel_manager;`. Jeśli aktualizacja została już wykonana, nie potrzebujesz kolejnej migracji. **Moduł raportów nie dodaje nowych tabel.** Aktualizacja bezpieczeństwa wymaga jednak dwóch pól logowania opisanych poniżej.
 
 Przy aktualizacji programu zachowaj własny plik `db.properties`. Starsze rezerwacje mogą pokazywać komunikat o brakujących danych dodatkowych osób — uzupełnisz je przez **„Goście pobytu”** w potwierdzonej lub zameldowanej rezerwacji.
 
@@ -247,6 +247,41 @@ Przy aktualizacji programu zachowaj własny plik `db.properties`. Starsze rezerw
 
 Katalog roboczy musi zawierać `db.properties`. **`Launcher` uruchamia GUI**, natomiast `Main` pozostaje punktem wejścia wcześniejszej wersji konsolowej.
 
+## Aktualizacja bezpieczeństwa
+
+Przed uruchomieniem tej wersji na starej bazie wykonaj jako administrator MySQL
+**`db/aktualizacja_bezpieczenstwo.sql`**. Skrypt dodaje licznik prób i czas blokady
+do `pracownicy`, bez usuwania danych; można wykonać go ponownie. Jeżeli nazwa
+Twojej bazy jest inna, dostosuj `USE hotel_manager;`. Nowa instalacja z pełnego
+skryptu zawiera już te pola. Nie importuj ponownie rekordów demonstracyjnych.
+
+Rozpakuj program do nowego folderu, przenieś własny `db.properties` i użyj nowego
+skryptu Windows — zawiera nowe nazwy plików JAR. Zachowano zgodność z MySQL 8.0;
+sterownik JDBC zaktualizowano do 9.7.0, a JavaFX do 17.0.21.
+
+Opcjonalny **`db/ogranicz_uprawnienia.sql`** ogranicza uprawnienia demonstracyjnych
+kont technicznych `hotel_app@localhost` i `hotel_app@127.0.0.1`. Wykonaj go tylko,
+jeśli używasz tych kont i schematu. Nie jest przeznaczony dla konta `root` ani
+innego wspólnego użytkownika; własne konta wymagają dopasowania grantów.
+Nowe instalacje otrzymują już taki ograniczony zestaw uprawnień.
+
+Połączenie z serwerem innym niż loopback wymaga `sslMode=VERIFY_IDENTITY` oraz
+zaufanego certyfikatu serwera; wyłącz `allowPublicKeyRetrieval` w takim URL.
+Konfiguracja demonstracyjna z wyłączonym TLS jest dopuszczana tylko dla loopback.
+Dane można podać także przez `HOTEL_DB_URL`, `HOTEL_DB_USER` i `HOTEL_DB_PASSWORD`,
+które zastępują wartości z pliku. Nie publikuj własnego `db.properties`.
+`.gitignore` nie usuwa plików już śledzonych przez Git ani wcześniejszych haseł
+z historii. Ujawnione hasło trzeba zmienić.
+
+Publiczne metody bazy wymagają wcześniejszego `BazaDanych.zaloguj(...)` w tym samym
+wątku. GUI wykonuje logowanie i dalsze operacje na swoim jednym wątku roboczym,
+a konsola na wątku menu. Nie można zastąpić logowania konstruktorem `Pracownik`.
+`BazaDanych.polacz()` usunięto z publicznego API. Testy używają osobnej, jawnie
+zabezpieczonej klasy fixture zamiast otwierać połączenia przez aplikację.
+
+Komentarze usunięto ze źródeł Java, testów, CSS, SQL, XML i konfiguracji;
+wyjaśnienia pozostają w dokumentacji Markdown i `START_TUTAJ.txt`.
+
 ## Konta i uprawnienia
 
 Po zaimportowaniu niezmienionych danych demonstracyjnych:
@@ -260,7 +295,7 @@ Jeżeli hasła zostały już zmienione, użyj aktualnych. Po trzech nieudanych p
 
 Recepcjonista obsługuje gości, rezerwacje, pobyty, sprzątanie, wpłaty i raporty. Administrator ma również możliwość dodawania i edycji pokoi, zarządzania kontami oraz rejestrowania zwrotów.
 
-Hasła pracowników są przechowywane jako skróty PBKDF2 z solą. Aktywność konta i jego rola są ponownie sprawdzane przed operacjami GUI korzystającymi z bazy. Dezaktywacja konta powoduje zakończenie jego sesji przy następnej takiej operacji.
+Po pięciu nieudanych logowaniach konto jest blokowane na pięć minut. Licznik jest w bazie, więc restart aplikacji nie usuwa blokady. Hasła pracowników są przechowywane jako skróty PBKDF2 z losową solą i 600 000 iteracji. Aktywność konta i jego rola są ponownie sprawdzane przed operacjami GUI korzystającymi z bazy. Dezaktywacja konta powoduje zakończenie jego sesji przy następnej takiej operacji.
 
 ## Przykładowa obsługa pobytu
 
@@ -343,7 +378,9 @@ Wartość noclegów korzysta ze stawki zapisanej przy rezerwacji i obejmuje tylk
 | `src/Main.java` | Krótki punkt wejścia zachowanej wersji konsolowej. |
 | `src/pl/hotel/model/` | Modele: gość, pokój, rezerwacja, uczestnik, pracownik i płatność. |
 | `src/pl/hotel/baza/BazaDanych.java` | Publiczne API bazy: przekazuje wywołania do odpowiednich klas DAO. |
-| `src/pl/hotel/baza/PolaczenieBazy.java` | Odczyt `db.properties` i tworzenie połączenia JDBC. |
+| `src/pl/hotel/baza/PolaczenieBazy.java` | Konfiguracja JDBC, ograniczenia funkcji sterownika, timeouty i TLS dla zdalnej bazy. |
+| `src/pl/hotel/baza/KontrolaDostepu.java` | Uwierzytelniony kontekst wątku i sprawdzanie aktualnych uprawnień konta. |
+| `src/pl/hotel/baza/RaportDAO.java` | Odczyt danych raportu bez udostępniania surowego połączenia innym pakietom. |
 | `src/pl/hotel/baza/*DAO.java` | Zapytania i transakcje podzielone według obszaru: goście, pokoje, rezerwacje, pobyty, rozliczenia, konta. |
 | `src/pl/hotel/konsola/` | Osobno menu, odczyt danych od użytkownika, stan konsoli oraz obsługa poszczególnych obszarów. |
 | `src/pl/hotel/gui/HotelGUI.java` | Cykl życia okna i nawigacja między ekranami. |
@@ -355,7 +392,8 @@ Wartość noclegów korzysta ze stawki zapisanej przy rezerwacji i obejmuje tylk
 | `src/pl/hotel/gui/ZadaniaGUI.java`, `KomunikatyGUI.java` | Zadania w tle, odświeżanie i obsługa błędów. |
 | `src/pl/hotel/serwis/GuiRepository.java` | Odczyt zestawu danych dla GUI i weryfikacja sesji. |
 | `src/pl/hotel/raporty/Raporty.java` | Generowanie raportu i eksport CSV oraz HTML. |
-| `src/pl/hotel/bezpieczenstwo/Hasla.java` | Tworzenie i sprawdzanie skrótów haseł. |
+| `src/pl/hotel/bezpieczenstwo/` | Skróty haseł, błąd wygasłej sesji oraz bezpieczne komunikaty błędów. |
+| `src/pl/hotel/walidacja/Dane.java` | Walidacja wymaganych danych także przy wywołaniu bez GUI. |
 | `resources/hotel.css` | Wygląd interfejsu. |
 | `db/HotelManager_baza.sql` | Pełna baza z fikcyjnymi rekordami dla nowej instalacji. |
 | `db/aktualizacja_uczestnicy.sql` | Aktualizacja wcześniejszej bazy o dodatkowych gości. |
@@ -403,8 +441,8 @@ Dodatkowi goście są przypisani do **konkretnego pobytu**, nie na stałe do pok
 - Wymeldowanie wymaga zerowego salda. Przed anulowaniem należy zwrócić pozostałe wpłacone środki.
 - Wpłaty i zwroty są ewidencją w bazie — aplikacja nie jest połączona z bankiem ani terminalem płatniczym.
 - Transakcje i blokady `FOR UPDATE` chronią operacje wymagające spójnych danych, w tym sprawdzanie dostępności przy zapisie rezerwacji.
-- Przy zmianach wykonanych na innym stanowisku należy odświeżyć listy. Sama zmiana hasła nie zamyka automatycznie już otwartych sesji.
-- Role pracowników są kontrolowane przez aplikację; połączenia JDBC korzystają ze wspólnego konta technicznego MySQL.
+- Przy zmianach wykonanych na innym stanowisku należy odświeżyć listy. Zmiana hasła, roli lub dezaktywacja konta wymaga ponownego logowania przy kolejnej operacji chronionej.
+- Role i tożsamość pracownika są sprawdzane w publicznej warstwie operacji, niezależnie od widoczności przycisków. Wewnętrzne DAO i połączenia JDBC nie są publicznym API. Połączenia korzystają jednak ze wspólnego konta technicznego MySQL, co ogranicza izolację między rolami na poziomie samego serwera.
 
 ## Weryfikacja
 
@@ -414,6 +452,8 @@ Sprawdzono kompilację na JDK 17 oraz scenariusze na rzeczywistym MySQL 8.0.46 w
 | --- | --- |
 | `IntegrationProbe` | Rezerwacje, konflikty terminów, płatności, rozliczanie pobytu, konta, role, równoczesne próby rezerwacji oraz zapis i edycja uczestników z wycofaniem błędnych zmian. |
 | `GuiSmoke` / `GuiSmokeLauncher` | Logowanie, ekrany, formularze, zapis gościa i rezerwacji, edycja dodatkowych osób, rozliczenie, raporty i zakończenie sesji nieaktywnego konta. |
+| `SecurityProbe` | Odmowa nieuprawnionych operacji, SQL injection, blokada logowania między procesami, wygaszenie sesji, równoległe wpłaty i zwroty, limity danych oraz ustawienia JDBC. |
+| `PrivilegeProbe` | Działanie programu na ograniczonym koncie technicznym i odmowa DDL oraz modyfikacji/usuwania płatności. |
 | `CalendarProbe` | Noc przyjazdu i wyjazdu, zmiana miesiąca, luty przestępny, anulowania, zakończone pobyty, wyłączenie pokoju i konflikty. |
 | `ReportProbe` | Granice okresu, obłożenie, wycena noclegów, płatności, dodatkowi goście oraz eksport CSV i HTML. |
 
@@ -432,5 +472,7 @@ Sprawdzono kompilację na JDK 17 oraz scenariusze na rzeczywistym MySQL 8.0.46 w
 | Nie można zapisać rezerwacji | Sprawdź daty, liczbę osób, pojemność pokoju i konflikt z innymi rezerwacjami. |
 | Raport jest nieaktualny | Wygeneruj go ponownie; eksport korzysta z danych widocznych w podglądzie. |
 | Błąd sieci podczas zapisu | Najpierw odśwież dane. Serwer mógł zapisać zmianę przed utratą odpowiedzi; sprawdź wynik przed ponowieniem operacji, szczególnie wpłaty. |
+
+Opis audytu, wyników oraz ograniczeń: **[`RAPORT_BEZPIECZENSTWA/README.md`](RAPORT_BEZPIECZENSTWA/README.md)**. Instrukcja uruchomienia scenariuszy: **[`TESTOWANIE.md`](TESTOWANIE.md)**.
 
 Dodatkowe wskazówki uruchomienia i aktualizacji znajdują się w **[`START_TUTAJ.txt`](START_TUTAJ.txt)**.

@@ -18,7 +18,6 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.function.Function;
 
-/** Wspólne formatowanie, kontrolki i walidacja formularzy. */
 final class NarzedziaGUI {
     private NarzedziaGUI() {}
 
@@ -32,7 +31,7 @@ final class NarzedziaGUI {
 
     static boolean pasuje(String szukane, String tekst) { return tekst.toLowerCase(Locale.ROOT).contains(szukane.trim().toLowerCase(Locale.ROOT)); }
 
-    static TextField pole(String podpowiedz) { TextField t = new TextField(); t.setPromptText(podpowiedz); t.setPrefWidth(280); return t; }
+    static TextField pole(String podpowiedz) { TextField t = new TextField(); ogranicz(t,256); t.setPromptText(podpowiedz); t.setPrefWidth(280); return t; }
 
     static Label etykieta(String tekst, String styl) { Label l = new Label(tekst); l.getStyleClass().add(styl); return l; }
 
@@ -94,5 +93,8 @@ final class NarzedziaGUI {
         if (a == b) return 0; if (a == null) return -1; if (b == null) return 1;
         if (a instanceof Comparable && a.getClass().isInstance(b)) return ((Comparable)a).compareTo(b);
         return a.toString().compareToIgnoreCase(b.toString());
+    }
+    static void ogranicz(TextInputControl pole,int maks) {
+        pole.setTextFormatter(new TextFormatter<String>(zmiana -> zmiana.getControlNewText().length() <= maks ? zmiana : null));
     }
 }

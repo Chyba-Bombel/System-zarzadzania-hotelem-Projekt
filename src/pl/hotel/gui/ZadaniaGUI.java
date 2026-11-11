@@ -9,7 +9,6 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Kontroler: ZadaniaGUI. */
 final class ZadaniaGUI {
     private final HotelGUI app;
     ZadaniaGUI(HotelGUI app) { this.app = app; }
@@ -35,7 +34,7 @@ final class ZadaniaGUI {
         task.setOnSucceeded(e -> { app.stan.busy.set(false); sukces.accept(task.getValue()); });
         task.setOnFailed(e -> {
             app.stan.busy.set(false); Throwable blad = task.getException();
-            if (blad instanceof GuiRepository.SesjaWygasla) {
+            if (blad instanceof pl.hotel.bezpieczenstwo.SesjaWygasla) {
                 if (app.stan.aktywnyDialog != null) app.stan.aktywnyDialog.close();
                 app.ekranLogowania.pokazLogowanie();
             }

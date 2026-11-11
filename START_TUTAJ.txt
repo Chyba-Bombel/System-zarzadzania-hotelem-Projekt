@@ -1,3 +1,25 @@
+WAŻNE: AKTUALIZACJA BEZPIECZEŃSTWA
+================================
+1. Zamknij program i rozpakuj nową paczkę do osobnego folderu.
+2. Na DOTYCHCZASOWEJ bazie wykonaj jako administrator MySQL:
+   db/aktualizacja_bezpieczenstwo.sql
+   Skrypt dodaje dwa pola logowania i zachowuje dane. Dostosuj nazwę bazy,
+   jeśli jest inna niż hotel_manager. Nie importuj ponownie pełnej bazy demo.
+3. Przenieś swój db.properties do nowego folderu.
+4. Uruchom nowy uruchom_windows.bat albo mvn javafx:run.
+
+Nowa instalacja z pełnego SQL ma już nowe pola.
+Po 5 nieudanych logowaniach konto jest blokowane na 5 minut; restart nie resetuje
+blokady. Po zmianie hasła lub uprawnień otwarte sesje wymagają nowego logowania
+przy następnej operacji. Konta demonstracyjne nadal wymagają zmiany haseł
+przed wykorzystaniem poza nauką lokalną.
+
+Dla serwera poza localhost/127.0.0.1/::1 konieczny jest zweryfikowany TLS
+(sslMode=VERIFY_IDENTITY, zaufany certyfikat, allowPublicKeyRetrieval=false).
+Sterownik MySQL to 9.7.0, JavaFX 17.0.21. Nie kopiuj starych bibliotek do nowej paczki.
+Komentarze z plików źródłowych usunięto; opis działania jest w README i MAPA_KODU.
+Wyniki audytu: RAPORT_BEZPIECZENSTWA/README.md. Uruchamianie prób: TESTOWANIE.md.
+
 NOWOŚĆ: KALENDARZ REZERWACJI — ETAP 1
 ===================================
 1. Zaloguj się i wybierz „Kalendarz” z menu.

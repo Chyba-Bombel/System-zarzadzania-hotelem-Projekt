@@ -3,7 +3,6 @@ package pl.hotel.baza;
 import java.sql.*;
 import java.math.BigDecimal;
 
-/** Operacje obszaru: AnulowanieRezerwacjiDAO. */
 final class AnulowanieRezerwacjiDAO {
     private AnulowanieRezerwacjiDAO() {}
 

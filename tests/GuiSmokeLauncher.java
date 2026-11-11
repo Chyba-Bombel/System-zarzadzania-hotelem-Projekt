@@ -4,5 +4,5 @@ import pl.hotel.gui.HotelGUI;
 import pl.hotel.serwis.GuiRepository;
 import pl.hotel.raporty.Raporty;
 public class GuiSmokeLauncher {
-    public static void main(String[] args) { javafx.application.Application.launch(GuiSmoke.class,args); }
+    public static void main(String[] args) throws Exception { TestDatabase.wymagajTestowejBazy(); javafx.application.Application.launch(GuiSmoke.class,args); }
 }

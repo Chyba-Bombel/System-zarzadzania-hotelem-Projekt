@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
 
-/** Miesięczny indeks noclegów. Bez JavaFX i zapytań SQL; dzień wyjazdu jest wyłączony. */
 public final class PlanKalendarza {
     public record PoleDnia(Pokoj pokoj, LocalDate data, List<Rezerwacja> rezerwacje) {
         public PoleDnia { rezerwacje = List.copyOf(rezerwacje); }

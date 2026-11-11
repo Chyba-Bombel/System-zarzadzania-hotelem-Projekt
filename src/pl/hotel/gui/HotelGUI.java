@@ -12,7 +12,6 @@ import javafx.stage.Stage;
 import java.util.function.Consumer;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Cykl życia okna i nawigacja. Ekrany, tabele i zadania mają osobne klasy. */
 public final class HotelGUI extends Application {
     final StanGUI stan = new StanGUI();
     final EkranLogowania ekranLogowania = new EkranLogowania(this);

@@ -5,7 +5,6 @@ public class Pracownik extends Osoba{
     private final String login;
     private final String stanowisko;
 
-
     public Pracownik(String imie, String nazwisko, String stanowisko){
         this(0,imie,nazwisko,"",stanowisko);
     }

@@ -40,7 +40,9 @@ GUI i konsola nadal wywołują `BazaDanych.pobierzGosci()`, ale właściwe zapyt
 | `WplatyDAO` | Rejestracja wpłat i kontrola maksymalnej kwoty. |
 | `ZwrotyDAO` | Rejestracja zwrotów i kontrola dostępnych środków. |
 | `PracownicyDAO` | Odczyt pracowników i kont, tworzenie oraz dezaktywacja kont. |
-| `LogowanieDAO` | Sprawdzenie danych logowania. |
+| `LogowanieDAO` | Logowanie oraz trwały licznik prób z blokadą czasową. |
+| `KontrolaDostepu` | Zalogowany kontekst wątku, identyfikacja pracownika i sprawdzenie aktualnej roli, aktywności oraz hasha hasła. |
+| `RaportDAO` | Zapytania raportu z zachowaniem transakcji odczytowej. |
 | `HaslaDAO` | Zmiana hasła pracownika w bazie. |
 
 ### Transakcje pozostały wspólne
@@ -98,7 +100,7 @@ Stan GUI jest **instancyjny**. Nie zmieniono go na globalne pola statyczne. Oper
 - `pl.hotel.model`: `Osoba`, `Gosc`, `Pracownik`, `Pokoj`, `Rezerwacja`, `Uczestnik`, `Platnosc`, `Rozliczenie` i `KontoPracownika`.
 - `pl.hotel.bezpieczenstwo.Hasla`: algorytm tworzenia i sprawdzania skrótów; nie wykonuje operacji JDBC.
 - `pl.hotel.serwis.GuiRepository`: wczytanie zestawu danych na potrzeby ekranów i kontrola aktywnego konta.
-- `pl.hotel.raporty.Raporty`: obliczenia raportu oraz eksport CSV i HTML; wybór pliku w oknie należy do `EkranRaportow`.
+- `pl.hotel.raporty.Raporty`: model raportu i eksport CSV/HTML; odczyt danych i agregacja są w `baza/RaportDAO`; wybór pliku w oknie należy do `EkranRaportow`.
 
 ### Plan miesięczny — `pl.hotel.kalendarz`
 
@@ -142,4 +144,14 @@ import pl.hotel.model.Gosc;
 import pl.hotel.model.Rezerwacja;
 ```
 
-`BazaDanych` zachowuje nazwy, argumenty i wyniki publicznych metod. Podział nie dodaje nowych funkcji i nie zastępuje wymaganej wcześniej migracji uczestników, jeśli Twoja stara baza jeszcze jej nie zawiera.
+Publiczne operacje `BazaDanych` zachowują dotychczasowe argumenty i wyniki, ale wymagają rzeczywistego logowania w tym samym wątku. Surowe `polacz()` nie jest już publiczne; raporty czytają bazę przez `RaportDAO`. Podział nie dodaje nowych funkcji i nie zastępuje wymaganej wcześniej migracji uczestników, jeśli Twoja stara baza jeszcze jej nie zawiera.
+
+## Aktualizacja bezpieczeństwa
+
+Fasada wymaga logowania, a metody z ID wykonującego pracownika porównują je
+z tożsamością rzeczywistej sesji. Nie przekazuje się sesji jako dowolnego obiektu
+`Pracownik`: powstaje wewnętrznie dopiero po sprawdzeniu hasła.
+Własny wątek wykonujący operacje musi sam się zalogować.
+Zmiana roli, aktywności lub hasła powoduje błąd `SesjaWygasla` przy kolejnym użyciu.
+Dwa pola blokady logowania dodaje `db/aktualizacja_bezpieczenstwo.sql`.
+Komentarze przeniesiono do dokumentacji — źródła nie mają komentarzy.

@@ -3,7 +3,6 @@ package pl.hotel.baza;
 import pl.hotel.model.*;
 import java.sql.*;
 
-/** Operacje obszaru: UczestnicyDAO. */
 final class UczestnicyDAO {
     private UczestnicyDAO() {}
 

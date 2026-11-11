@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Kontroler: EkranRezerwacji. */
 final class EkranRezerwacji {
     private final HotelGUI app;
     EkranRezerwacji(HotelGUI app) { this.app = app; }
@@ -35,7 +34,7 @@ final class EkranRezerwacji {
     void formularzRezerwacji() { formularzRezerwacji(null, LocalDate.now()); }
 
     void formularzRezerwacji(Long pokojId, LocalDate przyjazd) {
-        // Przed otwarciem formularza pobieramy najnowsze dane.
+
         app.zadaniaGUI.odswiezPo("Przygotowanie rezerwacji", () -> {
             if (app.stan.goscie.isEmpty() || app.stan.pokoje.isEmpty()) { app.komunikatyGUI.blad("Najpierw dodaj gościa i pokój."); return; }
             Pokoj wybrany = pokojId == null ? null : app.stan.pokoje.stream().filter(p -> p.getId() == pokojId).findFirst().orElse(null);

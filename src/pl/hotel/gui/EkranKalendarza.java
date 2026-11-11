@@ -15,7 +15,6 @@ import java.time.format.*;
 import java.util.Locale;
 import static pl.hotel.gui.NarzedziaGUI.*;
 
-/** Nawigacja po miesiącach i podgląd planu pokoi. Zapis pozostaje w istniejącym formularzu. */
 final class EkranKalendarza {
     private final HotelGUI app;
     private YearMonth miesiac = YearMonth.now();
