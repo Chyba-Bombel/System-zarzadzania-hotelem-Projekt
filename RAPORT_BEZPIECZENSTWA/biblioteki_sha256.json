@@ -1,0 +1,6 @@
+{
+  "lib/mysql-connector-j-9.7.0.jar": "0353648eaa1c91e0f4020c959abf756bc866ffd583df22ae6b6f6e0cbd43eb44",
+  "lib/javafx-win/javafx-graphics-17.0.21-win.jar": "126f5f80ff6f64eb81fcb97e1594351e81ca836eaa0e4942ca10e44579adef22",
+  "lib/javafx-win/javafx-base-17.0.21-win.jar": "4faa6d4f2a3bbc7649596eedc7d2db179cec3fa876de30f12005442fcba12adf",
+  "lib/javafx-win/javafx-controls-17.0.21-win.jar": "ab429fb4a1ecf53e73ff7793b135c5c22f59fb1c47b57f32a0ed0d5bbe035ed6"
+}

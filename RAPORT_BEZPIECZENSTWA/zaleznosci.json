@@ -1,0 +1,78 @@
+{
+  "data": "2026-11-11",
+  "zrodlo": "https://api.osv.dev/v1/querybatch",
+  "zakres": "Classpath weryfikacyjny Maven, także zależności testowe.",
+  "pakiety": [
+    {
+      "zapytanie": {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.openjfx:javafx-controls"
+        },
+        "version": "17.0.21"
+      },
+      "wynik": {}
+    },
+    {
+      "zapytanie": {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.openjfx:javafx-graphics"
+        },
+        "version": "17.0.21"
+      },
+      "wynik": {}
+    },
+    {
+      "zapytanie": {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.openjfx:javafx-base"
+        },
+        "version": "17.0.21"
+      },
+      "wynik": {}
+    },
+    {
+      "zapytanie": {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.mysql:mysql-connector-j"
+        },
+        "version": "9.7.0"
+      },
+      "wynik": {}
+    },
+    {
+      "zapytanie": {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.protobuf:protobuf-java"
+        },
+        "version": "4.31.1"
+      },
+      "wynik": {}
+    },
+    {
+      "zapytanie": {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.openjfx:javafx-swing"
+        },
+        "version": "17.0.21"
+      },
+      "wynik": {}
+    },
+    {
+      "zapytanie": {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.testfx:openjfx-monocle"
+        },
+        "version": "17.0.10"
+      },
+      "wynik": {}
+    }
+  ],
+  "uwaga": "Wynik OSV nie stanowi gwarancji. Oracle wskazał CVE-2025-30706 dla starego 9.2.0 mimo pustego wyniku OSV; sterownik zaktualizowano."
+}
