@@ -59,6 +59,21 @@ CREATE TABLE platnosci (
  CONSTRAINT chk_kwota CHECK(kwota>0), INDEX idx_plat_data(data_platnosci)
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS historia_rezerwacji (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT,
+ rezerwacja_id BIGINT NOT NULL,
+ pracownik_id BIGINT NOT NULL,
+ login_pracownika VARCHAR(60) NOT NULL,
+ akcja VARCHAR(32) NOT NULL,
+ przed TEXT NULL,
+ po TEXT NOT NULL,
+ utworzono DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+ CONSTRAINT fk_historia_rezerwacja FOREIGN KEY(rezerwacja_id) REFERENCES rezerwacje(id) ON DELETE RESTRICT,
+ CONSTRAINT fk_historia_pracownik FOREIGN KEY(pracownik_id) REFERENCES pracownicy(id) ON DELETE RESTRICT,
+ CONSTRAINT chk_historia_akcja CHECK(akcja IN ('UTWORZENIE','ZMIANA_TERMINU','ZMIANA_POKOJU','ZAMELDOWANIE','WYMELDOWANIE','ANULOWANIE')),
+ INDEX idx_historia_rezerwacja(rezerwacja_id,id)
+) ENGINE=InnoDB;
+
 START TRANSACTION;
 SET @dzis=CURDATE();
 INSERT INTO pracownicy(id,imie,nazwisko,login,hash_hasla,rola) VALUES
@@ -146,3 +161,5 @@ GRANT INSERT,UPDATE ON hotel_manager.pracownicy TO 'hotel_app'@'127.0.0.1';
 GRANT INSERT,UPDATE ON hotel_manager.rezerwacje TO 'hotel_app'@'127.0.0.1';
 GRANT INSERT ON hotel_manager.platnosci TO 'hotel_app'@'127.0.0.1';
 GRANT INSERT,DELETE ON hotel_manager.uczestnicy_rezerwacji TO 'hotel_app'@'127.0.0.1';
+GRANT INSERT ON hotel_manager.historia_rezerwacji TO 'hotel_app'@'localhost';
+GRANT INSERT ON hotel_manager.historia_rezerwacji TO 'hotel_app'@'127.0.0.1';

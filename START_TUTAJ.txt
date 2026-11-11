@@ -1,13 +1,18 @@
-NOWY ETAP: ZMIANA POKOJU
-Rezerwacje -> zaznacz pobyt -> Zmień pokój -> wybierz -> Zmień pokój.
-W konsoli: opcja 24.
-Cena, wpłaty, daty i lista osób pozostają bez zmian.
-Przeniesienie zameldowanych gości oznacza stary pokój jako wymagający sprzątania.
-Przypisanie pokoju zmienia się dla całego pobytu; nie ma historii noclegów w różnych pokojach.
-Ten etap nie wymaga zmian bazy po wcześniejszej aktualizacji bezpieczeństwa.
-Rozpakuj do nowego folderu i przenieś własny db.properties.
-Skrypt Windows wskazuje dokładnie trzy biblioteki JavaFX 17.0.21, co zapobiega konfliktom ze starszymi JAR-ami.
-Szczegóły: ZMIANA_POKOJU.md.
+NOWY ETAP: HISTORIA REZERWACJI
+GUI: Rezerwacje -> zaznacz pobyt -> Historia.
+Konsola: opcja 25.
+
+AKTUALIZACJA ISTNIEJĄCEJ BAZY:
+1. Zrób kopię swojej bazy.
+2. Jako administrator MySQL wykonaj db/aktualizacja_historia.sql.
+3. Wykonaj db/uprawnienia_historia.sql dla używanego konta hotel_app.
+   Dla własnej bazy/konta dostosuj nazwy. Jeśli masz tylko jedno z dwóch kont,
+   wykonaj tylko pasujący GRANT. Nowy pełny import zawiera już tabelę i uprawnienia.
+4. Rozpakuj program do nowego folderu, przenieś własny db.properties i uruchom.
+Nie importuj ponownie pełnej bazy na istniejące dane.
+Historia działa od aktualizacji i nie odtwarza dawnych zdarzeń.
+Wcześniejsze wymagane migracje uczestników i bezpieczeństwa nadal obowiązują.
+Szczegóły: HISTORIA_REZERWACJI.md.
 
 WAŻNE: AKTUALIZACJA BEZPIECZEŃSTWA
 ================================

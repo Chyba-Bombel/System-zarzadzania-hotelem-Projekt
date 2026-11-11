@@ -55,6 +55,7 @@ final class ZmianaPokojuDAO {
                         if (r.next()) throw new SQLException("Nowy pokój jest zajęty w terminie rezerwacji.");
                     }
                 }
+                String przedZmiana = HistoriaDAO.stan(c, id);
                 try (PreparedStatement q = c.prepareStatement("UPDATE rezerwacje SET pokoj_id = ? WHERE id = ?")) {
                     q.setLong(1, nowyId); q.setInt(2, id);
                     if (q.executeUpdate() != 1) throw new SQLException("Nie potwierdzono zmiany pokoju.");
@@ -65,6 +66,7 @@ final class ZmianaPokojuDAO {
                         q.setLong(1, poprzedniId); q.executeUpdate();
                     }
                 }
+                HistoriaDAO.zapisz(c, id, "ZMIANA_POKOJU", przedZmiana);
                 c.commit();
             } catch (SQLException | RuntimeException e) {
                 try { c.rollback(); } catch (SQLException rollback) { e.addSuppressed(rollback); }

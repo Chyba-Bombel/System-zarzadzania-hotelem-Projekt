@@ -1,6 +1,8 @@
 Weryfikacja 2026-11-11; JDK 17, MySQL 8.0.46, izolowana baza fikcyjnych danych.
 
 SECURITY_MIGRATION_OK
+HISTORY_MIGRATION_OK: v9, dwukrotne wykonanie, wszystkie dotychczasowe rekordy zachowane.
+WINDOWS_JARS_COMPILE_OK
 CALENDAR_OK: granice dat, statusy, konflikty, przeszłość i miesiące.
 
 SECURITY_OK: 65 asercji; uprawnienia, podszywanie, SQL injection, blokada procesu, sesje, hasła, walidacja, finanse i JDBC.
@@ -10,6 +12,8 @@ INTEGRATION_OK: odczyt/zapis, terminy, rollback, płatności, pobyt, role, konta
 
 ROOM_CHANGE_OK: 26 asercji, transakcja, cena, wpłaty, goście, sprzątanie i wyścig zapisów.
 
+HISTORY_OK: 34 asercji; autorzy, stany przed/po, transakcje, odmowy i stronicowanie.
+
 REPORTS_OK: okres, obłożenie, ceny, płatności, uczestnicy, CSV i HTML.
 
 PRIVILEGES_OK: brak DDL i zmiany/usuwania płatności; obsługa pobytu działa na minimalnych grantach.
@@ -18,7 +22,11 @@ CONSOLE_OK: admin
 
 CONSOLE_OK: recepcja
 
+CONSOLE_HISTORY_OK
+
 CONSOLE_ROOM_CHANGE_OK
+
+GUI_HISTORY_OK
 
 GUI_ROOM_CHANGE_OK
 

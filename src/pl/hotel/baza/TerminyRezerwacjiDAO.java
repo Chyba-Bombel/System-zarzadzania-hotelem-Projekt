@@ -116,6 +116,7 @@ final class TerminyRezerwacjiDAO {
                     }
 
                 }
+                String przedZmiana = HistoriaDAO.stan(polaczenie, id);
                 String sqlZmiana = "UPDATE rezerwacje "
                         + "SET data_od = ?, data_do = ? "
                         + "WHERE id = ?";
@@ -128,6 +129,7 @@ final class TerminyRezerwacjiDAO {
 
                 }
 
+                HistoriaDAO.zapisz(polaczenie, id, "ZMIANA_TERMINU", przedZmiana);
                 polaczenie.commit();
             } catch (SQLException | RuntimeException e){
                 try {

@@ -21,7 +21,7 @@ mvn test-compile org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass
 ```
 
 `RunAllProbes` wykonuje CalendarProbe, SecurityProbe, IntegrationProbe,
-RoomChangeProbe, ReportProbe i PrivilegeProbe. Testy są programami z `main`, nie testami
+RoomChangeProbe, HistoryProbe, ReportProbe i PrivilegeProbe. Testy są programami z `main`, nie testami
 uruchamianymi samoczynnie przez `mvn test`. Potrzebny jest JDK 17 lub nowszy.
 Pierwsze pobranie pluginu i zależności wymaga internetu.
 
@@ -67,8 +67,24 @@ częścią publicznego dostępu do bazy w aplikacji.
 
 ## Oczekiwane znaczniki
 
-`CALENDAR_OK`, `SECURITY_OK`, `PARTICIPANTS_OK`, `INTEGRATION_OK`, `ROOM_CHANGE_OK`, `REPORTS_OK`,
-`PRIVILEGES_OK`, `ALL_PROBES_OK` oraz oddzielnie `GUI_ROOM_CHANGE_OK` i `GUI_SMOKE_OK`.
+`CALENDAR_OK`, `SECURITY_OK`, `PARTICIPANTS_OK`, `INTEGRATION_OK`, `ROOM_CHANGE_OK`, `HISTORY_OK`, `REPORTS_OK`,
+`PRIVILEGES_OK`, `ALL_PROBES_OK` oraz oddzielnie `GUI_HISTORY_OK`, `GUI_ROOM_CHANGE_OK` i `GUI_SMOKE_OK`.
 
 Szczegółowy zakres i wynik weryfikacji dostarczonej paczki opisano w
 `RAPORT_BEZPIECZENSTWA/README.md`.
+
+## Historia
+
+`HistoryProbe` sprawdza sześć rodzajów zdarzeń oraz tożsamość autora, różną od
+pracownika tworzącego rezerwację. Trigger testowy wymusza błąd dopisania historii:
+zmiana terminu, pokoju, anulowanie i wymeldowanie muszą zostać wycofane; sprzątanie
+nie może pozostać zapisane. Sprawdzane jest również wycofanie utworzenia rezerwacji.
+Ponad 100 zmian sprawdza limit i przechodzenie po stronach podczas nowego zapisu.
+
+`PrivilegeProbe` wykonuje skrypt uprawnień historii na tymczasowych kontach
+technicznych i sprawdza odmowę UPDATE/DELETE. GUI otwiera historię nowego pobytu,
+sprawdza zdarzenia utworzenia i przeniesienia oraz obsługuje odświeżanie i zamknięcie.
+
+Podczas weryfikacji paczki zaimportowano również schemat poprzedniej wersji,
+wykonano migrację historii dwukrotnie i porównano wszystkie dotychczasowe rekordy.
+Nowy dziennik pozostaje pusty dla zmian sprzed aktualizacji.

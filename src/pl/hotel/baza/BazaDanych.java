@@ -91,6 +91,11 @@ public final class BazaDanych {
         TerminyRezerwacjiDAO.zmienTerminRezerwacji(id, noweOd, noweDo);
     }
 
+    public static StronaHistorii pobierzHistorieRezerwacji(int id, long przedId) throws SQLException {
+        KontrolaDostepu.wymagaj(false);
+        return HistoriaDAO.pobierz(id, przedId);
+    }
+
     public static void zmienPokojRezerwacji(int id, long poprzedniPokojId, long nowyPokojId) throws SQLException {
         KontrolaDostepu.wymagaj(false);
         ZmianaPokojuDAO.zmienPokoj(id, poprzedniPokojId, nowyPokojId);

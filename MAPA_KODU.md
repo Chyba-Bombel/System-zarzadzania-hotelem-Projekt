@@ -35,6 +35,7 @@ GUI i konsola nadal wywołują `BazaDanych.pobierzGosci()`, ale właściwe zapyt
 | `TworzenieRezerwacjiDAO` | Zapis rezerwacji: walidacja, blokada pokoju, dostępność, zapis i zatwierdzenie. |
 | `AnulowanieRezerwacjiDAO` | Anulowanie i sprawdzenie pozostałych wpłat. |
 | `TerminyRezerwacjiDAO` | Zmiana terminu wraz ze sprawdzeniem dostępności i rozliczenia. |
+| `HistoriaDAO` | Odczyt stanu, dopisanie zdarzenia przez to samo Connection i stronicowany odczyt historii. |
 | `ZmianaPokojuDAO` | Zmiana pokoju w jednej transakcji: blokady obu pokoi według rosnącego ID, kontrola nieaktualnego wyboru, pojemności i terminów, sprzątanie po przeniesieniu zameldowanych gości. |
 | `PobytyDAO` | Zameldowanie i wymeldowanie; kontrola stanu pokoju i rozliczenia. |
 | `UczestnicyDAO` | Zapis listy dodatkowych gości i zmiana uczestników istniejącego pobytu. |
@@ -63,6 +64,7 @@ Podobnie sprawdzenie salda w operacjach zapisu korzysta z już otwartego połąc
 | `GoscieKonsola` | Dodawanie, edycja, wyszukiwanie i wyświetlanie gości. |
 | `PokojeKonsola` | Wolne pokoje, dodawanie, edycja i sprzątanie. |
 | `RezerwacjeKonsola` | Tworzenie, anulowanie i zmiana terminu rezerwacji. |
+| `HistoriaKonsola` | Opcja 25: przeglądanie historii rezerwacji w konsoli. |
 | `ZmianaPokojuKonsola` | Opcja 24: wybór rezerwacji i nowego pokoju, potwierdzenie i odświeżenie danych. |
 | `PobytyKonsola` | Zameldowanie i wymeldowanie. |
 | `PlatnosciKonsola` | Rozliczenie, wybór metody płatności, wpłata i zwrot. |
@@ -85,6 +87,7 @@ Każda klasa `Ekran...` otrzymuje w konstruktorze ten sam obiekt koordynatora `H
 | `EkranKalendarza` | Miesięczny plan pokoi, filtrowanie, szczegóły i otwieranie formularza z datą. |
 | `KomorkaKalendarza` | Wygląd oraz obsługa kliknięcia pojedynczej nocy. |
 | `EkranRezerwacji` | Rezerwacje, formularze terminu i uczestników, zameldowanie, wymeldowanie i anulowanie. |
+| `HistoriaRezerwacjiGUI` | Okno historii, szczegóły oraz strony po 100 wpisów. |
 | `ZmianaPokojuGUI` | Osobny formularz zmiany pokoju, wstępny filtr dostępności i zapis przez fasadę. |
 | `EkranPlatnosci` | Podgląd rozliczenia, wpłaty i zwroty. |
 | `EkranPracownikow` | Lista kont, formularz nowego konta i dezaktywacja. |
@@ -159,3 +162,11 @@ Własny wątek wykonujący operacje musi sam się zalogować.
 Zmiana roli, aktywności lub hasła powoduje błąd `SesjaWygasla` przy kolejnym użyciu.
 Dwa pola blokady logowania dodaje `db/aktualizacja_bezpieczenstwo.sql`.
 Komentarze przeniesiono do dokumentacji — źródła nie mają komentarzy.
+
+## Historia zmian
+
+`model/ZmianaRezerwacji` jest niezmiennym rekordem jednego zdarzenia;
+`model/StronaHistorii` przechowuje niezmienną listę i informację o starszych wpisach.
+Fasada udostępnia wyłącznie chroniony odczyt historii. Dopisywanie jest wewnętrzną
+operacją DAO wywoływaną przed `commit()` operacji biznesowej.
+Szczegóły i migracja: `HISTORIA_REZERWACJI.md`.

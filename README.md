@@ -18,6 +18,7 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 - [Przykładowa obsługa pobytu](#przykładowa-obsługa-pobytu)
 - [Kalendarz rezerwacji](#kalendarz-rezerwacji)
 - [Zmiana pokoju](#zmiana-pokoju)
+- [Historia rezerwacji](#historia-rezerwacji)
 - [Raporty i eksport](#raporty-i-eksport)
 - [Budowa projektu](#budowa-projektu)
 - [Relacje w bazie danych](#relacje-w-bazie-danych)
@@ -33,7 +34,7 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 | **Goście** | Dodawanie, edycja i wyszukiwanie danych gości. |
 | **Pokoje** | Lista pokoi, sprawdzanie dostępności, oznaczanie sprzątania; dla administratora dodawanie i edycja pokoju. |
 | **Kalendarz** | Miesięczny plan pokoi, szczegóły pobytu i rozpoczęcie rezerwacji od klikniętej wolnej nocy. |
-| **Rezerwacje** | Tworzenie rezerwacji, dodatkowi goście, zmiana terminu i pokoju, zameldowanie, wymeldowanie i anulowanie. |
+| **Rezerwacje** | Tworzenie rezerwacji, dodatkowi goście, zmiana terminu i pokoju, historia zmian, zameldowanie, wymeldowanie i anulowanie. |
 | **Płatności** | Rozliczenie pobytu, wpłaty i zaliczki; dla administratora rejestrowanie zwrotów. |
 | **Raporty** | Zestawienia za wybrany okres, eksport CSV i HTML oraz wydruk przez przeglądarkę. |
 | **Pracownicy** | Tworzenie i dezaktywacja kont przez administratora. |
@@ -230,7 +231,7 @@ Jeśli Twoja baza nie ma tabeli `uczestnicy_rezerwacji`, wykonaj jako administra
 -- db/aktualizacja_uczestnicy.sql
 ```
 
-Ten plik dodaje tabelę dodatkowych osób i zachowuje dotychczasowe rekordy. Dla innej nazwy bazy zmień zawarte w nim `USE hotel_manager;`. Jeśli aktualizacja została już wykonana, nie potrzebujesz kolejnej migracji. **Moduł raportów nie dodaje nowych tabel.** Aktualizacja bezpieczeństwa wymaga jednak dwóch pól logowania opisanych poniżej.
+Ten plik dodaje tabelę dodatkowych osób i zachowuje dotychczasowe rekordy. Dla innej nazwy bazy zmień zawarte w nim `USE hotel_manager;`. Jeśli aktualizacja została już wykonana, nie powtarzaj migracji uczestników. **Moduł raportów nie dodaje nowych tabel.** Osobno wykonaj wymagane aktualizacje bezpieczeństwa i historii opisane poniżej.
 
 Przy aktualizacji programu zachowaj własny plik `db.properties`. Starsze rezerwacje mogą pokazywać komunikat o brakujących danych dodatkowych osób — uzupełnisz je przez **„Goście pobytu”** w potwierdzonej lub zameldowanej rezerwacji.
 
@@ -343,7 +344,8 @@ Kalendarz korzysta z ostatnio pobranych danych — użyj „Odśwież dane”, a
 zobaczyć zapisy z innych stanowisk. Numer pokoju, jego pojemność i stan są
 odczytywane z aktualnej kartoteki, bez historii zmian stanu pokoju.
 
-Nie dodano nowych tabel ani migracji. Kalendarz działa na tej samej bazie
+Sam kalendarz nie dodaje tabel ani migracji. Obecna paczka wymaga jednak także
+aktualizacji historii opisanej w następnym rozdziale. Kalendarz działa na bazie
 co wcześniejsza wersja. Ten etap nie obejmuje przenoszenia rezerwacji myszą
 ani zmiany pokoju istniejącej rezerwacji.
 
@@ -361,12 +363,37 @@ Dostępność jest ponownie sprawdzana w transakcji przy zapisie.
 
 **Ograniczenie modelu:** rezerwacja ma jeden `pokoj_id`. Zmiana przypisuje nowy
 pokój całemu pobytowi, również przeszłym nocom w kalendarzu i raportach.
-Nie jest to podział pobytu na noclegi w kilku pokojach; historia kolejnych przeniesień
-nie jest rejestrowana. Formularz informuje o tym przed zapisem.
+Nie jest to podział pobytu na noclegi w kilku pokojach. Zmiany przypisania pokoju
+są widoczne w historii zdarzeń, ale nie tworzą odcinków noclegów dla kalendarza i raportów.
+Formularz informuje o zakresie zmiany przed zapisem.
 
-Ten etap **nie zmienia struktury bazy**. Jeżeli masz już aktualizację bezpieczeństwa,
-nie wykonuj ponownie importu ani migracji. Rozpakuj program do nowego folderu
+Sama zmiana pokoju nie dodaje tabel. Ta paczka zawiera również historię zmian,
+która wymaga aktualizacji opisanej poniżej. Rozpakuj program do nowego folderu
 i przenieś własny `db.properties`. Szczegóły: [`ZMIANA_POKOJU.md`](ZMIANA_POKOJU.md).
+
+## Historia rezerwacji
+
+Zaznacz pobyt w **Rezerwacjach** i kliknij **Historia**. Zobaczysz datę i czas
+serwera, login autora oraz stan rezerwacji przed zmianą i po niej. Wpisy obejmują
+utworzenie, zmianę terminu, zmianę pokoju, zameldowanie, wymeldowanie i anulowanie.
+Możesz czytać po 100 wpisów, przejść do starszych albo odświeżyć najnowsze.
+W konsoli historia jest dostępna jako **opcja 25**.
+
+**Przy aktualizacji istniejącej bazy wykonaj jako administrator MySQL:**
+
+1. `db/aktualizacja_historia.sql` — dodaje tabelę, zachowuje dotychczasowe dane.
+2. `db/uprawnienia_historia.sql` — nadaje odczyt i dopisywanie historii kontom
+   `hotel_app@localhost` oraz `hotel_app@127.0.0.1`.
+
+Dla własnej nazwy bazy albo innego konta dostosuj skrypty. Jeżeli istnieje tylko
+jedno z wymienionych kont, wykonaj tylko odpowiadający mu `GRANT`. Nowa instalacja
+z pełnego skryptu zawiera już tabelę i uprawnienia. Nie importuj ponownie rekordów demo.
+Wcześniejsze wymagane migracje bezpieczeństwa i uczestników nadal obowiązują.
+
+Historia zaczyna się od aktualizacji: program nie dopisuje fikcyjnych dawnych
+zdarzeń. Zapis zdarzenia jest częścią transakcji zmiany rezerwacji — jego błąd
+wycofuje całą operację. To dziennik zmian, nie podział pobytu między pokoje.
+Opis implementacji i ograniczeń: [`HISTORIA_REZERWACJI.md`](HISTORIA_REZERWACJI.md).
 
 ## Raporty i eksport
 
@@ -448,6 +475,7 @@ Zapytania JDBC oraz zapis raportów wykonują się w tle przez JavaFX `Task`. In
 | `pracownicy` | Konta pracowników, role i aktywność; pracownik jest przypisywany do rezerwacji i płatności. |
 | `rezerwacje` | Powiązanie głównego gościa, pokoju i pracownika z terminem, liczbą osób, stawką i statusem. |
 | `uczestnicy_rezerwacji` | Dodatkowe osoby przypisane do jednej rezerwacji — relacja 1:N. |
+| `historia_rezerwacji` | Zdarzenia rezerwacji, autor, zapisany login, czas serwera oraz stan przed zmianą i po niej; relacje N:1 do rezerwacji i pracownika. |
 | `platnosci` | Wpłaty i zwroty przypisane do rezerwacji oraz pracownika — rezerwacja może mieć wiele transakcji. |
 
 Dodatkowi goście są przypisani do **konkretnego pobytu**, nie na stałe do pokoju. Dane rezerwacji i jej nowych uczestników są zapisywane w jednej transakcji.
@@ -472,9 +500,10 @@ Sprawdzono kompilację na JDK 17 oraz scenariusze na rzeczywistym MySQL 8.0.46 w
 
 | Scenariusz | Zakres |
 | --- | --- |
+| `HistoryProbe` | Autorzy zmian, stan przed i po, brak wpisów po odmowie, wycofanie operacji przy błędzie historii oraz stronicowanie bez duplikatów. |
 | `RoomChangeProbe` | Zmiana pokoju: dostępność, pojemność, statusy, cena i wpłaty, dodatkowi goście, sprzątanie, pełny rollback oraz równoczesne przeniesienia i rezerwacje. |
 | `IntegrationProbe` | Rezerwacje, konflikty terminów, płatności, rozliczanie pobytu, konta, role, równoczesne próby rezerwacji oraz zapis i edycja uczestników z wycofaniem błędnych zmian. |
-| `GuiSmoke` / `GuiSmokeLauncher` | Logowanie, ekrany, formularze, zapis gościa i rezerwacji, edycja dodatkowych osób, zmiana pokoju i odświeżenie kalendarza, rozliczenie, raporty i zakończenie sesji nieaktywnego konta. |
+| `GuiSmoke` / `GuiSmokeLauncher` | Logowanie, ekrany, formularze, zapis gościa i rezerwacji, edycja dodatkowych osób, zmiana pokoju i odświeżenie kalendarza, odczyt historii, rozliczenie, raporty i zakończenie sesji nieaktywnego konta. |
 | `SecurityProbe` | Odmowa nieuprawnionych operacji, SQL injection, blokada logowania między procesami, wygaszenie sesji, równoległe wpłaty i zwroty, limity danych oraz ustawienia JDBC. |
 | `PrivilegeProbe` | Działanie programu na ograniczonym koncie technicznym i odmowa DDL oraz modyfikacji/usuwania płatności. |
 | `CalendarProbe` | Noc przyjazdu i wyjazdu, zmiana miesiąca, luty przestępny, anulowania, zakończone pobyty, wyłączenie pokoju i konflikty. |

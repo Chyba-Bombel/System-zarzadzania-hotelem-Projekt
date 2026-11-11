@@ -65,13 +65,14 @@ samego `.bat` nie uruchamiano na Windows.
 | Scenariusz | Sprawdzane przypadki |
 | --- | --- |
 | `SecurityProbe` | Brak dostępu bez logowania; niedozwolone role; fałszywy obiekt administratora i obce ID wykonawcy; SQL injection jako dane; NULL i limity; blokada logowania między procesami i jej wygaśnięcie; zmiana roli, aktywności i hasła w otwartej sesji; równoczesne wpłaty i zwroty; niebezpieczne ustawienia JDBC i ukrycie szczegółów SQL. |
+| `HistoryProbe` | 34 asercje: autorzy, stany przed i po, odmowy, brak pozornych zmian, rollback przy błędzie historii oraz stronicowanie. |
 | `RoomChangeProbe` | 26 asercji zmiany pokoju: dostępność, cena i płatności, goście, statusy, sprzątanie, rollback po wymuszonym błędzie oraz równoczesne zapisy. |
 | `IntegrationProbe` | Dodawanie/edycja, rezerwacje, terminy, płatności, rozliczenie, zameldowanie/wymeldowanie, anulowanie, rollback, dodatkowi goście oraz dwie próby rezerwacji tego samego pokoju. |
 | `ReportProbe` | Granice dat, poprawna wycena, brak mnożenia kwot przez liczbę gości, CSV: separator, cudzysłów, nowa linia, formuły/BOM/tabulator; HTML: kodowanie danych jako tekst. |
 | `PrivilegeProbe` | Odmowa DDL i UPDATE/DELETE płatności na ograniczonym koncie MySQL; poprawne logowanie i obsługa gościa, pokoju, rezerwacji, wpłaty, zwrotu i raportu. |
 | `CalendarProbe` | Przyjazd/wyjazd, miesiące i rok przestępny, anulowane/zakończone pobyty, wyłączenia i konflikty. |
 | Konsola | Logowanie i listy gości, pokoi oraz rezerwacji dla ADMIN i RECEPCJA, prawidłowe zakończenie programu; zmiana pokoju przez opcję 24. |
-| `GuiSmoke` | Sceny, role, walidacja i zapis gościa, rezerwacja, uczestnicy, zmiana pokoju i aktualizacja kalendarza, rozliczenie, raporty, kalendarz, rezerwacja z wolnej nocy i zakończenie sesji dezaktywowanego konta. |
+| `GuiSmoke` | Sceny, role, walidacja i zapis gościa, rezerwacja, uczestnicy, zmiana pokoju i aktualizacja kalendarza, podgląd historii, rozliczenie, raporty, kalendarz, rezerwacja z wolnej nocy i zakończenie sesji dezaktywowanego konta. |
 | Migracja | Ponowne wykonanie aktualizacji bezpieczeństwa bez błędu i bez usuwania istniejących rekordów. |
 
 Testy są przykładami regresji, a nie dowodem pokrycia każdej możliwej ścieżki
@@ -147,3 +148,20 @@ Ponadto:
    sprawdzenia przez administratora.
 
 Szczegóły powtórzenia testów: `../TESTOWANIE.md`.
+
+## Rozszerzenie: dziennik rezerwacji
+
+Dopisanie zdarzenia jest częścią transakcji operacji biznesowej. Potwierdzono
+wycofanie utworzenia, terminu, pokoju, anulowania i wymeldowania po wymuszonym
+błędzie historii; przy wymeldowaniu wycofuje się również stan sprzątania.
+Tożsamość pochodzi z uwierzytelnionego kontekstu, nie z formularza.
+
+Nowa tabela wymaga `db/aktualizacja_historia.sql` i odpowiednich uprawnień
+SELECT/INSERT; standardowe konta obsługuje `db/uprawnienia_historia.sql`.
+Test migracji porównał wszystkie stare rekordy po dwukrotnym wykonaniu skryptu.
+Test ograniczonego konta potwierdził odczyt/dopisanie oraz odmowę UPDATE/DELETE.
+
+GUI nie udostępnia edycji historii, ale wspólne konto MySQL, stare szerokie granty
+lub dostęp administracyjny nadal pozwalają ingerować w bazę. Dziennik nie ma
+zabezpieczenia kryptograficznego i nie rejestruje operacji wykonanych poza nowym
+programem. Historia zdarzeń nie zastępuje ewidencji odcinków pobytu w kilku pokojach.

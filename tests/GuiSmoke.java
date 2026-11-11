@@ -122,6 +122,17 @@ public class GuiSmoke extends Application {
         klik("calendar-cell-" + nowyPokoj + "-" + java.time.LocalDate.now());
         if (!fx(() -> ((Label)node("calendar-details")).getText()).contains("Rezerwacja #" + ostatnia.getId()))
             throw new AssertionError("Kalendarz nie odświeżył pokoju po przeniesieniu");
+        klik("nav-rezerwacje");
+        fx(() -> { ((TableView<?>)node("bookings-table")).getSelectionModel().selectLast(); return null; });
+        klik("booking-history"); czekaj();
+        int ileWpisow=fx(() -> ((TableView<?>)node("history-table")).getItems().size());
+        if(ileWpisow!=2)throw new AssertionError("Historia GUI: oczekiwano utworzenia i zmiany pokoju, otrzymano "+ileWpisow);
+        if(!fx(() -> ((TextArea)node("history-details")).getText()).contains("106"))throw new AssertionError("Brak szczegółów zmiany pokoju w historii");
+        if(!fx(() -> ((Button)node("history-older")).isDisabled()))throw new AssertionError("Starsze wpisy aktywne bez starszej strony");
+        screen("04c-historia-rezerwacji");
+        klik("history-refresh"); czekaj(); klik("history-close");
+        if(fx(() -> pole("aktywnyDialog"))!=null)throw new AssertionError("Historia nie zamknęła się");
+        System.out.println("GUI_HISTORY_OK");
         System.out.println("GUI_ROOM_CHANGE_OK");
         klik("nav-platnosci");
         fx(() -> { TableView<?> t=(TableView<?>)node("balances-table");t.getSelectionModel().selectLast();return null; });

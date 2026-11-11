@@ -143,6 +143,7 @@ final class TworzenieRezerwacjiDAO {
                             UczestnicyDAO.zapiszUczestnikow(polaczenie, (int) idZbazy, osoby);
                             nowa.ustawUczestnikow(osoby);
                         }
+                        HistoriaDAO.zapisz(polaczenie, (int) idZbazy, "UTWORZENIE", null);
                         polaczenie.commit();
                         return nowa;
 

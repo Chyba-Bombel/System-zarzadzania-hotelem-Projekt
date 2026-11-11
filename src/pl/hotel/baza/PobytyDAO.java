@@ -89,6 +89,7 @@ final class PobytyDAO {
                     }
 
                 }
+                String przedZmiana = HistoriaDAO.stan(polaczenie, id);
                 String sqlZmiana =
                         "UPDATE rezerwacje "
                                 + "SET status = 'ZAMELDOWANA' "
@@ -98,6 +99,7 @@ final class PobytyDAO {
                     zapytanie.executeUpdate();
 
                 }
+                HistoriaDAO.zapisz(polaczenie, id, "ZAMELDOWANIE", przedZmiana);
                 polaczenie.commit();
             } catch (SQLException | RuntimeException e){
                 try {
@@ -202,6 +204,7 @@ final class PobytyDAO {
                     }
                 }
 
+                String przedZmiana = HistoriaDAO.stan(polaczenie, id);
                 String sqlZakonczenie =
                         "UPDATE rezerwacje "
                                 + "SET status = 'ZAKONCZONA' "
@@ -229,6 +232,7 @@ final class PobytyDAO {
                     }
                 }
 
+                HistoriaDAO.zapisz(polaczenie, id, "WYMELDOWANIE", przedZmiana);
                 polaczenie.commit();
 
             } catch (SQLException | RuntimeException e) {

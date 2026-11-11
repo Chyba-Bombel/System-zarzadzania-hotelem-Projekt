@@ -9,6 +9,11 @@ final class KontrolaDostepu {
     private static final ThreadLocal<Sesja> SESJA = new ThreadLocal<>();
     private KontrolaDostepu() {}
     static void otworz(Pracownik p, String hash) { SESJA.set(new Sesja(p.getId(),p.getRola(),hash)); }
+    static long identyfikator() {
+        Sesja sesja = SESJA.get();
+        if (sesja == null) throw new SesjaWygasla();
+        return sesja.id();
+    }
     static void wyloguj() { SESJA.remove(); }
     static long wymagaj(boolean admin) throws SQLException {
         Sesja s = SESJA.get();

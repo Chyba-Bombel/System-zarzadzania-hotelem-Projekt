@@ -52,6 +52,7 @@ final class AnulowanieRezerwacjiDAO {
                     );
                 }
 
+                String przedZmiana = HistoriaDAO.stan(polaczenie, id);
                 String sqlZmiana = "UPDATE rezerwacje "
                                 + "SET status = 'ANULOWANA' "
                                 + "WHERE id = ?";
@@ -61,6 +62,7 @@ final class AnulowanieRezerwacjiDAO {
                     zapytanie.executeUpdate();
                 }
 
+                HistoriaDAO.zapisz(polaczenie, id, "ANULOWANIE", przedZmiana);
                 polaczenie.commit();
 
                 return true;

@@ -23,8 +23,10 @@ public final class PrivilegeProbe {
                     q.execute("GRANT INSERT ON "+baza+".platnosci TO "+user);
                     q.execute("GRANT INSERT,DELETE ON "+baza+".uczestnicy_rezerwacji TO "+user);
                 }
+                String granty=Files.readString(Path.of("db/uprawnienia_historia.sql")).replace("hotel_manager",baza).replace("'hotel_app'","'"+konto+"'");
+                for(String polecenie:granty.split(";")) if(!polecenie.isBlank())q.execute(polecenie);
                 try(Connection c=DriverManager.getConnection(p.getProperty("url"),konto,haslo);Statement z=c.createStatement()) {
-                    for(String sql:List.of("CREATE TABLE niedozwolona_tabela (id INT)","DELETE FROM platnosci WHERE 1=0","UPDATE platnosci SET kwota=kwota WHERE 1=0")) {
+                    for(String sql:List.of("CREATE TABLE niedozwolona_tabela (id INT)","DELETE FROM historia_rezerwacji WHERE 1=0","UPDATE historia_rezerwacji SET akcja=akcja WHERE 1=0","DELETE FROM platnosci WHERE 1=0","UPDATE platnosci SET kwota=kwota WHERE 1=0")) {
                         try{z.execute(sql);throw new AssertionError("Nadmierne uprawnienia techniczne");}
                         catch(SQLException ok){check(ok.getErrorCode()==1142||ok.getErrorCode()==1044,"Odmowa musi wynikać z uprawnień");}
                     }
@@ -42,6 +44,7 @@ public final class PrivilegeProbe {
                 var drugi=BazaDanych.pobierzPokoje().stream().filter(x->x.getNumer().equals("MIN2")).findFirst().orElseThrow();
                 BazaDanych.zmienPokojRezerwacji(r.getId(),pokoj.getId(),drugi.getId());
                 check(IntegrationProbe.rezerwacja(r.getId()).getPokoj().getId()==drugi.getId(),"Zmiana pokoju na ograniczonym koncie");
+                check(BazaDanych.pobierzHistorieRezerwacji(r.getId(),0).wpisy().size()==2,"Historia na ograniczonym koncie");
                 check(BazaDanych.edytujGoscia(g.getId(),"Jan","Minimalny","500123457","min@example.com"),"Edycja gościa");
                 check(Raporty.generuj(LocalDate.now(),LocalDate.now()).tabele().size()==4,"Raport na ograniczonym koncie");
                 System.out.println("PRIVILEGES_OK: brak DDL i zmiany/usuwania płatności; obsługa pobytu działa na minimalnych grantach.");
