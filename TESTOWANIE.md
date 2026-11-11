@@ -21,7 +21,7 @@ mvn test-compile org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass
 ```
 
 `RunAllProbes` wykonuje CalendarProbe, SecurityProbe, IntegrationProbe,
-RoomChangeProbe, HistoryProbe, ConfirmationProbe, ReportProbe i PrivilegeProbe. Testy są programami z `main`, nie testami
+RoomChangeProbe, HistoryProbe, NotesProbe, ConfirmationProbe, ReportProbe i PrivilegeProbe. Testy są programami z `main`, nie testami
 uruchamianymi samoczynnie przez `mvn test`. Potrzebny jest JDK 17 lub nowszy.
 Pierwsze pobranie pluginu i zależności wymaga internetu.
 
@@ -67,8 +67,8 @@ częścią publicznego dostępu do bazy w aplikacji.
 
 ## Oczekiwane znaczniki
 
-`CALENDAR_OK`, `SECURITY_OK`, `PARTICIPANTS_OK`, `INTEGRATION_OK`, `ROOM_CHANGE_OK`, `HISTORY_OK`, `CONFIRMATION_OK`, `REPORTS_OK`,
-`PRIVILEGES_OK`, `ALL_PROBES_OK` oraz oddzielnie `GUI_CONFIRMATION_OK`, `GUI_HISTORY_OK`, `GUI_ROOM_CHANGE_OK` i `GUI_SMOKE_OK`.
+`CALENDAR_OK`, `SECURITY_OK`, `PARTICIPANTS_OK`, `INTEGRATION_OK`, `ROOM_CHANGE_OK`, `HISTORY_OK`, `CONFIRMATION_OK`, `NOTES_OK`, `REPORTS_OK`,
+`PRIVILEGES_OK`, `ALL_PROBES_OK` oraz oddzielnie `GUI_NOTES_OK`, `GUI_CONFIRMATION_OK`, `GUI_HISTORY_OK`, `GUI_ROOM_CHANGE_OK` i `GUI_SMOKE_OK`.
 
 Szczegółowy zakres i wynik weryfikacji dostarczonej paczki opisano w
 `RAPORT_BEZPIECZENSTWA/README.md`.
@@ -102,3 +102,19 @@ i zamyka okno. Oddzielny scenariusz konsolowy wykonuje zapis HTML oraz odmawia
 zastąpienia istniejącego pliku. Nie uruchamiano systemowego okna wyboru pliku,
 fizycznej drukarki ani skryptu Windows na Windows. PDF tworzy przeglądarka.
 Bieżący wynik całego przebiegu znajduje się w `WYNIKI_TESTOW_POTWIERDZENIA.txt`.
+
+## Notatki recepcji
+
+`NotesProbe` sprawdza istniejące uwagi, pustą treść, nowe linie, 500 znaków Unicode
+z emoji, odrzucenie znaków sterujących i niepoprawnych surogatów. Dwie równoczesne
+edycje z tą samą poprzednią treścią mogą mieć tylko jednego zwycięzcę. Test porównuje
+również wielkość liter mimo niewrażliwej na nią kolacji SQL. Wymuszony błąd UPDATE
+nie może pozostawić częściowych zmian.
+
+Sprawdzany jest brak uwag w potwierdzeniu, raporcie HTML i wszystkich tabelach CSV,
+odczyt archiwalnych rezerwacji i odmowa ich edycji. `PrivilegeProbe` wykonuje odczyt
+oraz zapis notatki na ograniczonym koncie technicznym.
+
+GUI zachowuje szkic po konflikcie, pokazuje aktualną treść bez kasowania szkicu,
+sprawdza limit pola i odczyt anulowanej rezerwacji. Konsola ma scenariusze wielu
+wierszy, anulowania edycji i usunięcia treści. Bieżące wyniki są w `WYNIKI_TESTOW_NOTATKI.txt`.

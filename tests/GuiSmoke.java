@@ -61,6 +61,22 @@ public class GuiSmoke extends Application {
         });
     }
     static void loguj(String login,String haslo) throws Exception { wpisz("login",login);wpisz("password",haslo);klik("login-button");czekaj(); }
+    static void zamknijBladNotatki() throws Exception {
+        for(int i=0;i<100;i++) {
+            boolean zamknieto=fx(() -> {
+                for(Window w:java.util.List.copyOf(Window.getWindows())) {
+                    if(w.isShowing() && w!=okno && w.getScene().getRoot() instanceof DialogPane d
+                            && d.lookup("#notes-editor")==null && d.getButtonTypes().contains(ButtonType.OK)) {
+                        ((Button)d.lookupButton(ButtonType.OK)).fire();return true;
+                    }
+                }
+                return false;
+            });
+            if(zamknieto)return;
+            Thread.sleep(100);
+        }
+        throw new AssertionError("Brak komunikatu konfliktu notatki");
+    }
     static void scenariusz() throws Exception {
         screen("01-logowanie"); loguj("admin","Admin123!");
         if(fx(() -> pole("sesja"))==null)throw new AssertionError("Logowanie nieudane");
@@ -147,6 +163,38 @@ public class GuiSmoke extends Application {
         screen("04e-potwierdzenie-rozliczenie");
         klik("confirmation-close");
         if(fx(() -> pole("aktywnyDialog"))!=null)throw new AssertionError("Potwierdzenie nie zamknęło się");
+        klik("booking-notes"); czekaj();
+        if(!fx(() -> ((TextArea)node("notes-editor")).isEditable()))throw new AssertionError("Notatka aktywnego pobytu nieedytowalna");
+        wpisz("notes-editor","Późny przyjazd o 23:00\nProśba o ciszę");
+        wpisz("notes-editor","a".repeat(501));
+        if(fx(() -> ((TextArea)node("notes-editor")).getText().length())>500)throw new AssertionError("Brak limitu pola notatki");
+        String pierwsza="Późny przyjazd o 23:00\nProśba o ciszę";
+        wpisz("notes-editor",pierwsza); klik("notes-save"); czekaj();
+        if(!BazaDanych.pobierzNotatkeRezerwacji(ostatnia.getId()).tresc().equals(pierwsza))throw new AssertionError("Brak zapisu notatki z GUI");
+        wpisz("notes-editor","Mój szkic");
+        BazaDanych.zapiszNotatkeRezerwacji(ostatnia.getId(),pierwsza,"Zmiana z innego stanowiska");
+        klik("notes-save"); zamknijBladNotatki(); czekaj();
+        if(!fx(() -> ((TextArea)node("notes-editor")).getText()).equals("Mój szkic"))throw new AssertionError("Konflikt usuwa szkic notatki");
+        if(!BazaDanych.pobierzNotatkeRezerwacji(ostatnia.getId()).tresc().equals("Zmiana z innego stanowiska"))throw new AssertionError("Konflikt nadpisuje nowszą notatkę");
+        klik("notes-refresh"); czekaj();
+        if(!fx(() -> ((TextArea)node("notes-current")).getText()).equals("Zmiana z innego stanowiska")
+                || !fx(() -> ((TextArea)node("notes-editor")).getText()).equals("Mój szkic"))throw new AssertionError("Odświeżenie nie zachowuje szkicu i aktualnej treści");
+        String scalona="Zmiana z innego stanowiska\nMój szkic";
+        wpisz("notes-editor",scalona); klik("notes-save"); czekaj();
+        screen("04f-notatka-recepcji");
+        wpisz("notes-editor","Bez zapisu"); klik("notes-close");
+        klik("booking-notes"); czekaj();
+        if(!fx(() -> ((TextArea)node("notes-editor")).getText()).equals(scalona))throw new AssertionError("Zamknięcie zapisuje szkic bez polecenia");
+        klik("notes-close");
+        fx(() -> {
+            TableView<Rezerwacja> t=(TableView<Rezerwacja>)node("bookings-table");
+            t.getSelectionModel().select(t.getItems().stream().filter(x->x.getId()==1).findFirst().orElseThrow()); return null;
+        });
+        klik("booking-notes"); czekaj();
+        if(fx(() -> ((TextArea)node("notes-editor")).isEditable()) || !fx(() -> ((Button)node("notes-save")).isDisabled()))
+            throw new AssertionError("Notatka anulowanej rezerwacji edytowalna w GUI");
+        screen("04g-notatka-archiwalna"); klik("notes-close");
+        System.out.println("GUI_NOTES_OK");
         System.out.println("GUI_CONFIRMATION_OK");
         System.out.println("GUI_HISTORY_OK");
         System.out.println("GUI_ROOM_CHANGE_OK");

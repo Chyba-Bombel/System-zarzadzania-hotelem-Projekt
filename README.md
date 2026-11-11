@@ -20,6 +20,7 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 - [Zmiana pokoju](#zmiana-pokoju)
 - [Historia rezerwacji](#historia-rezerwacji)
 - [Potwierdzenie rezerwacji](#potwierdzenie-rezerwacji)
+- [Notatki recepcji](#notatki-recepcji)
 - [Raporty i eksport](#raporty-i-eksport)
 - [Budowa projektu](#budowa-projektu)
 - [Relacje w bazie danych](#relacje-w-bazie-danych)
@@ -35,7 +36,7 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 | **Goście** | Dodawanie, edycja i wyszukiwanie danych gości. |
 | **Pokoje** | Lista pokoi, sprawdzanie dostępności, oznaczanie sprzątania; dla administratora dodawanie i edycja pokoju. |
 | **Kalendarz** | Miesięczny plan pokoi, szczegóły pobytu i rozpoczęcie rezerwacji od klikniętej wolnej nocy. |
-| **Rezerwacje** | Tworzenie rezerwacji, dodatkowi goście, zmiana terminu i pokoju, historia zmian, potwierdzenie do wydruku, zameldowanie, wymeldowanie i anulowanie. |
+| **Rezerwacje** | Tworzenie rezerwacji, dodatkowi goście, zmiana terminu i pokoju, historia zmian, potwierdzenie do wydruku, notatki recepcji, zameldowanie, wymeldowanie i anulowanie. |
 | **Płatności** | Rozliczenie pobytu, wpłaty i zaliczki; dla administratora rejestrowanie zwrotów. |
 | **Raporty** | Zestawienia za wybrany okres, eksport CSV i HTML oraz wydruk przez przeglądarkę. |
 | **Pracownicy** | Tworzenie i dezaktywacja kont przez administratora. |
@@ -417,6 +418,25 @@ z historią rezerwacji, rozpakuj nową paczkę i przenieś własny `db.propertie
 Wcześniejsze migracje pozostają wymagane dla starszych baz.
 Instrukcja i opis kodu: [`POTWIERDZENIE_REZERWACJI.md`](POTWIERDZENIE_REZERWACJI.md).
 
+## Notatki recepcji
+
+Zaznacz rezerwację i kliknij **Notatka recepcji**. Górne pole pokazuje zapisane
+uwagi, dolne służy do edycji. **Zapisz notatkę** zatwierdza tekst, **Wyczyść pole**
+przygotowuje pustą treść do zapisania. Zamknięcie okna nie zapisuje zmian.
+
+**Odśwież zapisaną** pobiera aktualną treść bez kasowania Twojego szkicu. Jeśli
+inny pracownik zmienił notatkę, zapis starszej treści zostaje odrzucony. Porównaj
+oba pola, uwzględnij nowsze uwagi i zapisz ponownie. **Użyj zapisanej treści**
+zastępuje szkic tekstem z górnego pola.
+
+Limit to **500 znaków**, z obsługą wielu wierszy. Edycja jest dostępna dla
+potwierdzonych i zameldowanych rezerwacji; anulowane i zakończone są tylko do odczytu.
+W konsoli wybierz **27**. Notatki pozostają wewnętrzne i nie trafiają do raportów
+ani potwierdzenia dla gościa. Nie mają osobnego dziennika zmian.
+
+Nie ma nowej migracji ani zależności — wykorzystywane jest istniejące pole
+`rezerwacje.uwagi`. Instrukcja i opis kodu: [`NOTATKI_REZERWACJI.md`](NOTATKI_REZERWACJI.md).
+
 ## Raporty i eksport
 
 Na ekranie **„Raporty”** wybierz okres od 1 do 366 dni i kliknij **„Generuj raport”**. Obie daty należą do wybranego okresu.
@@ -522,11 +542,12 @@ Sprawdzono kompilację na JDK 17 oraz scenariusze na rzeczywistym MySQL 8.0.46 w
 
 | Scenariusz | Zakres |
 | --- | --- |
+| `NotesProbe` | Odczyt/zapis uwag, Unicode i limit, konflikt dwóch edycji, statusy, prywatność eksportów, role oraz rollback. |
 | `ConfirmationProbe` | Spójność odczytu kilku tabel, cena i saldo, grupy gości, anulowanie, kodowanie HTML, niezmienny podgląd, zapis i błędy pliku oraz uprawnienia. |
 | `HistoryProbe` | Autorzy zmian, stan przed i po, brak wpisów po odmowie, wycofanie operacji przy błędzie historii oraz stronicowanie bez duplikatów. |
 | `RoomChangeProbe` | Zmiana pokoju: dostępność, pojemność, statusy, cena i wpłaty, dodatkowi goście, sprzątanie, pełny rollback oraz równoczesne przeniesienia i rezerwacje. |
 | `IntegrationProbe` | Rezerwacje, konflikty terminów, płatności, rozliczanie pobytu, konta, role, równoczesne próby rezerwacji oraz zapis i edycja uczestników z wycofaniem błędnych zmian. |
-| `GuiSmoke` / `GuiSmokeLauncher` | Logowanie, ekrany, formularze, zapis gościa i rezerwacji, edycja dodatkowych osób, zmiana pokoju i odświeżenie kalendarza, odczyt historii, podgląd potwierdzenia i jego odświeżenie po wpłacie, rozliczenie, raporty i zakończenie sesji nieaktywnego konta. |
+| `GuiSmoke` / `GuiSmokeLauncher` | Logowanie, ekrany, formularze, zapis gościa i rezerwacji, edycja dodatkowych osób, zmiana pokoju i odświeżenie kalendarza, odczyt historii, podgląd potwierdzenia i jego odświeżenie po wpłacie, notatki ze szkicem i konfliktem zapisu, rozliczenie, raporty i zakończenie sesji nieaktywnego konta. |
 | `SecurityProbe` | Odmowa nieuprawnionych operacji, SQL injection, blokada logowania między procesami, wygaszenie sesji, równoległe wpłaty i zwroty, limity danych oraz ustawienia JDBC. |
 | `PrivilegeProbe` | Działanie programu na ograniczonym koncie technicznym i odmowa DDL oraz modyfikacji/usuwania płatności. |
 | `CalendarProbe` | Noc przyjazdu i wyjazdu, zmiana miesiąca, luty przestępny, anulowania, zakończone pobyty, wyłączenie pokoju i konflikty. |
@@ -554,3 +575,5 @@ Opis audytu, wyników oraz ograniczeń: **[`RAPORT_BEZPIECZENSTWA/README.md`](RA
 Dodatkowe wskazówki uruchomienia i aktualizacji znajdują się w **[`START_TUTAJ.txt`](START_TUTAJ.txt)**.
 
 Wynik bieżącej regresji po dodaniu potwierdzeń: **[`WYNIKI_TESTOW_POTWIERDZENIA.txt`](WYNIKI_TESTOW_POTWIERDZENIA.txt)**.
+
+Bieżący wynik regresji po dodaniu notatek: **[`WYNIKI_TESTOW_NOTATKI.txt`](WYNIKI_TESTOW_NOTATKI.txt)**.

@@ -75,6 +75,7 @@ public final class MenuKonsoli {
             System.out.println("24. Zmień pokój rezerwacji");
             System.out.println("25. Historia rezerwacji");
             System.out.println("26. Potwierdzenie rezerwacji HTML / PDF");
+            System.out.println("27. Notatka recepcji do rezerwacji");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -185,6 +186,9 @@ public final class MenuKonsoli {
                     break;
                 case "26":
                     dziala = PotwierdzenieKonsola.zapisz();
+                    break;
+                case "27":
+                    dziala = NotatkiKonsola.pokaz();
                     break;
                 case "0":
                     dziala = false;

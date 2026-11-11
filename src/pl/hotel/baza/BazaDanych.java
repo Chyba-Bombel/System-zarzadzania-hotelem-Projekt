@@ -91,6 +91,16 @@ public final class BazaDanych {
         TerminyRezerwacjiDAO.zmienTerminRezerwacji(id, noweOd, noweDo);
     }
 
+    public static NotatkaRezerwacji pobierzNotatkeRezerwacji(int id) throws SQLException {
+        KontrolaDostepu.wymagaj(false);
+        return NotatkiDAO.pobierz(id);
+    }
+
+    public static NotatkaRezerwacji zapiszNotatkeRezerwacji(int id, String oczekiwanaTresc, String nowaTresc) throws SQLException {
+        KontrolaDostepu.wymagaj(false);
+        return NotatkiDAO.zapisz(id, oczekiwanaTresc, nowaTresc);
+    }
+
     public static PotwierdzenieRezerwacji pobierzPotwierdzenieRezerwacji(int id) throws SQLException {
         KontrolaDostepu.wymagaj(false);
         return PotwierdzeniaDAO.pobierz(id);

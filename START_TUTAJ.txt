@@ -1,4 +1,19 @@
-NOWY ETAP: POTWIERDZENIE REZERWACJI
+NOWY ETAP: NOTATKI RECEPCJI
+GUI: Rezerwacje -> zaznacz pobyt -> Notatka recepcji.
+Edytuj dolne pole i kliknij Zapisz notatkę. Zamknięcie nie zapisuje zmian.
+Odśwież zapisaną aktualizuje górne pole, zachowując Twój szkic.
+Przy konflikcie porównaj oba teksty przed ponownym zapisem.
+Limit: 500 znaków. Wyczyść pole przygotowuje usunięcie treści po zapisaniu.
+Anulowane i zakończone rezerwacje: tylko odczyt.
+Konsola: opcja 27. Edycję kończy :zapisz, rezygnację :anuluj.
+Notatki są wewnętrzne; nie są eksportowane do raportów ani potwierdzeń dla gościa.
+Nie mają osobnej historii zmian.
+Nie dodano tabel, migracji ani bibliotek. Jeśli poprzednia wersja działa,
+rozpakuj paczkę do nowego folderu i przenieś własny db.properties.
+Starsze bazy nadal wymagają wcześniejszych migracji. Nie importuj ponownie danych demo.
+Opis: NOTATKI_REZERWACJI.md. Wyniki: WYNIKI_TESTOW_NOTATKI.txt.
+
+POPRZEDNI ETAP: POTWIERDZENIE REZERWACJI
 GUI: Rezerwacje -> zaznacz pobyt -> Potwierdzenie -> Zapisz HTML.
 HTML otwórz w przeglądarce. Ctrl+P umożliwia wydruk lub zapis do PDF.
 Aplikacja zapisuje HTML; nie tworzy pliku PDF bezpośrednio.

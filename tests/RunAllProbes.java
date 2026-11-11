@@ -6,6 +6,7 @@ public final class RunAllProbes {
         IntegrationProbe.main(new String[0]);
         RoomChangeProbe.main(new String[0]);
         HistoryProbe.main(new String[0]);
+        NotesProbe.main(new String[0]);
         ConfirmationProbe.main(new String[0]);
         ReportProbe.main(new String[0]);
         PrivilegeProbe.main(new String[0]);

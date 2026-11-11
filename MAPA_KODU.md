@@ -35,6 +35,7 @@ GUI i konsola nadal wywołują `BazaDanych.pobierzGosci()`, ale właściwe zapyt
 | `TworzenieRezerwacjiDAO` | Zapis rezerwacji: walidacja, blokada pokoju, dostępność, zapis i zatwierdzenie. |
 | `AnulowanieRezerwacjiDAO` | Anulowanie i sprawdzenie pozostałych wpłat. |
 | `TerminyRezerwacjiDAO` | Zmiana terminu wraz ze sprawdzeniem dostępności i rozliczenia. |
+| `NotatkiDAO` | Odczyt i zapis uwag, walidacja Unicode, blokada rezerwacji oraz porównanie treści przed zapisem. |
 | `PotwierdzeniaDAO` | Odczyt danych pojedynczej rezerwacji, uczestników i sum wpłat/zwrotów w jednej transakcji tylko do odczytu. |
 | `HistoriaDAO` | Odczyt stanu, dopisanie zdarzenia przez to samo Connection i stronicowany odczyt historii. |
 | `ZmianaPokojuDAO` | Zmiana pokoju w jednej transakcji: blokady obu pokoi według rosnącego ID, kontrola nieaktualnego wyboru, pojemności i terminów, sprzątanie po przeniesieniu zameldowanych gości. |
@@ -65,6 +66,7 @@ Podobnie sprawdzenie salda w operacjach zapisu korzysta z już otwartego połąc
 | `GoscieKonsola` | Dodawanie, edycja, wyszukiwanie i wyświetlanie gości. |
 | `PokojeKonsola` | Wolne pokoje, dodawanie, edycja i sprzątanie. |
 | `RezerwacjeKonsola` | Tworzenie, anulowanie i zmiana terminu rezerwacji. |
+| `NotatkiKonsola` | Opcja 27: przegląd, wielowierszowa edycja i usunięcie treści. |
 | `PotwierdzenieKonsola` | Opcja 26: dane dokumentu, wybór ścieżki i potwierdzenie zastąpienia pliku. |
 | `HistoriaKonsola` | Opcja 25: przeglądanie historii rezerwacji w konsoli. |
 | `ZmianaPokojuKonsola` | Opcja 24: wybór rezerwacji i nowego pokoju, potwierdzenie i odświeżenie danych. |
@@ -89,6 +91,7 @@ Każda klasa `Ekran...` otrzymuje w konstruktorze ten sam obiekt koordynatora `H
 | `EkranKalendarza` | Miesięczny plan pokoi, filtrowanie, szczegóły i otwieranie formularza z datą. |
 | `KomorkaKalendarza` | Wygląd oraz obsługa kliknięcia pojedynczej nocy. |
 | `EkranRezerwacji` | Rezerwacje, formularze terminu i uczestników, zameldowanie, wymeldowanie i anulowanie. |
+| `NotatkiGUI` | Dwa pola notatki, szkic zachowany po konflikcie, odświeżenie zapisanej treści i tryb tylko do odczytu. |
 | `PotwierdzenieGUI` | Podgląd dokumentu, odświeżanie oraz wybór ścieżki eksportu HTML. |
 | `HistoriaRezerwacjiGUI` | Okno historii, szczegóły oraz strony po 100 wpisów. |
 | `ZmianaPokojuGUI` | Osobny formularz zmiany pokoju, wstępny filtr dostępności i zapis przez fasadę. |
@@ -185,3 +188,13 @@ HTML. Koduje wszystkie dane tekstowe przed umieszczeniem w dokumencie.
 docelowe. Korzystają z niego potwierdzenia i dotychczasowe raporty CSV/HTML.
 `PotwierdzeniaDAO` używa jednego połączenia i REPEATABLE_READ, aby nazwy, goście
 oraz płatności pochodziły z jednego obrazu danych. Odczyt nie dopisuje historii.
+
+## Uwagi recepcji
+
+`model/NotatkaRezerwacji` jest niezmiennym rekordem: ID rezerwacji, jej status i treść.
+Metoda `edytowalna()` rozpoznaje potwierdzony lub zameldowany pobyt.
+Fasada udostępnia `pobierzNotatkeRezerwacji(id)` i
+`zapiszNotatkeRezerwacji(id, oczekiwanaTresc, nowaTresc)` z kontrolą sesji.
+SQL i walidacja należą do `baza/NotatkiDAO`, interfejsy do osobnych klas.
+Pole nie jest dodawane do listy rezerwacji, raportów ani modelu potwierdzenia.
+Szczegóły: `NOTATKI_REZERWACJI.md`.
