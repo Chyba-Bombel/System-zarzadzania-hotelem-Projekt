@@ -63,11 +63,6 @@ public final class Raporty {
     }
 
     private static void zapiszAtomowo(Path plik,String tekst) throws java.io.IOException {
-        Path cel=plik.toAbsolutePath(); Path tmp=Files.createTempFile(cel.getParent(),".hotel-raport-",".tmp");
-        try {
-            Files.writeString(tmp,tekst,StandardCharsets.UTF_8);
-            try { Files.move(tmp,cel,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING); }
-            catch(AtomicMoveNotSupportedException e) { Files.move(tmp,cel,StandardCopyOption.REPLACE_EXISTING); }
-        } finally { Files.deleteIfExists(tmp); }
+        pl.hotel.pliki.ZapisPliku.tekst(plik, tekst);
     }
 }

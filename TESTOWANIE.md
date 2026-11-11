@@ -21,7 +21,7 @@ mvn test-compile org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass
 ```
 
 `RunAllProbes` wykonuje CalendarProbe, SecurityProbe, IntegrationProbe,
-RoomChangeProbe, HistoryProbe, ReportProbe i PrivilegeProbe. Testy są programami z `main`, nie testami
+RoomChangeProbe, HistoryProbe, ConfirmationProbe, ReportProbe i PrivilegeProbe. Testy są programami z `main`, nie testami
 uruchamianymi samoczynnie przez `mvn test`. Potrzebny jest JDK 17 lub nowszy.
 Pierwsze pobranie pluginu i zależności wymaga internetu.
 
@@ -67,8 +67,8 @@ częścią publicznego dostępu do bazy w aplikacji.
 
 ## Oczekiwane znaczniki
 
-`CALENDAR_OK`, `SECURITY_OK`, `PARTICIPANTS_OK`, `INTEGRATION_OK`, `ROOM_CHANGE_OK`, `HISTORY_OK`, `REPORTS_OK`,
-`PRIVILEGES_OK`, `ALL_PROBES_OK` oraz oddzielnie `GUI_HISTORY_OK`, `GUI_ROOM_CHANGE_OK` i `GUI_SMOKE_OK`.
+`CALENDAR_OK`, `SECURITY_OK`, `PARTICIPANTS_OK`, `INTEGRATION_OK`, `ROOM_CHANGE_OK`, `HISTORY_OK`, `CONFIRMATION_OK`, `REPORTS_OK`,
+`PRIVILEGES_OK`, `ALL_PROBES_OK` oraz oddzielnie `GUI_CONFIRMATION_OK`, `GUI_HISTORY_OK`, `GUI_ROOM_CHANGE_OK` i `GUI_SMOKE_OK`.
 
 Szczegółowy zakres i wynik weryfikacji dostarczonej paczki opisano w
 `RAPORT_BEZPIECZENSTWA/README.md`.
@@ -88,3 +88,17 @@ sprawdza zdarzenia utworzenia i przeniesienia oraz obsługuje odświeżanie i za
 Podczas weryfikacji paczki zaimportowano również schemat poprzedniej wersji,
 wykonano migrację historii dwukrotnie i porównano wszystkie dotychczasowe rekordy.
 Nowy dziennik pozostaje pusty dla zmian sprzed aktualizacji.
+
+## Potwierdzenia rezerwacji
+
+`ConfirmationProbe` sprawdza cenę całego pokoju, sumy wpłat i zwrotów, niezmienność
+pobranego podglądu, aktualny pokój przy zachowaniu uzgodnionej ceny i anulowanie.
+Próby równoczesnych zmian trzech tabel sprawdzają, czy odczyt dokumentu zachowuje
+wspólny obraz danych. Testy eksportu obejmują znaki HTML, Unicode, apostrofy,
+brak kontaktów w dokumencie, zastąpienie pliku, błąd zapisu i sprzątanie plików tymczasowych.
+
+GUI otwiera podgląd, sprawdza pokój i dodatkowego gościa, odświeża po nowej wpłacie
+i zamyka okno. Oddzielny scenariusz konsolowy wykonuje zapis HTML oraz odmawia
+zastąpienia istniejącego pliku. Nie uruchamiano systemowego okna wyboru pliku,
+fizycznej drukarki ani skryptu Windows na Windows. PDF tworzy przeglądarka.
+Bieżący wynik całego przebiegu znajduje się w `WYNIKI_TESTOW_POTWIERDZENIA.txt`.

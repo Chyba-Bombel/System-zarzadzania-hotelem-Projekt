@@ -45,6 +45,7 @@ public final class PrivilegeProbe {
                 BazaDanych.zmienPokojRezerwacji(r.getId(),pokoj.getId(),drugi.getId());
                 check(IntegrationProbe.rezerwacja(r.getId()).getPokoj().getId()==drugi.getId(),"Zmiana pokoju na ograniczonym koncie");
                 check(BazaDanych.pobierzHistorieRezerwacji(r.getId(),0).wpisy().size()==2,"Historia na ograniczonym koncie");
+                check(BazaDanych.pobierzPotwierdzenieRezerwacji(r.getId()).pokoj().equals("MIN2"),"Potwierdzenie na ograniczonym koncie");
                 check(BazaDanych.edytujGoscia(g.getId(),"Jan","Minimalny","500123457","min@example.com"),"Edycja gościa");
                 check(Raporty.generuj(LocalDate.now(),LocalDate.now()).tabele().size()==4,"Raport na ograniczonym koncie");
                 System.out.println("PRIVILEGES_OK: brak DDL i zmiany/usuwania płatności; obsługa pobytu działa na minimalnych grantach.");

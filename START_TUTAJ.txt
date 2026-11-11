@@ -1,3 +1,14 @@
+NOWY ETAP: POTWIERDZENIE REZERWACJI
+GUI: Rezerwacje -> zaznacz pobyt -> Potwierdzenie -> Zapisz HTML.
+HTML otwórz w przeglądarce. Ctrl+P umożliwia wydruk lub zapis do PDF.
+Aplikacja zapisuje HTML; nie tworzy pliku PDF bezpośrednio.
+Konsola: opcja 26.
+Nie są potrzebne nowe tabele, migracje ani biblioteki.
+Jeśli poprzednia wersja z historią działa, rozpakuj program do nowego folderu,
+przenieś własny db.properties i uruchom. Nie importuj ponownie danych demo.
+Starsze bazy nadal wymagają wcześniejszych migracji opisanych niżej.
+Szczegóły: POTWIERDZENIE_REZERWACJI.md.
+
 NOWY ETAP: HISTORIA REZERWACJI
 GUI: Rezerwacje -> zaznacz pobyt -> Historia.
 Konsola: opcja 25.

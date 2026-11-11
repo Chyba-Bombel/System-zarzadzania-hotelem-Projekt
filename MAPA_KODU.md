@@ -35,6 +35,7 @@ GUI i konsola nadal wywołują `BazaDanych.pobierzGosci()`, ale właściwe zapyt
 | `TworzenieRezerwacjiDAO` | Zapis rezerwacji: walidacja, blokada pokoju, dostępność, zapis i zatwierdzenie. |
 | `AnulowanieRezerwacjiDAO` | Anulowanie i sprawdzenie pozostałych wpłat. |
 | `TerminyRezerwacjiDAO` | Zmiana terminu wraz ze sprawdzeniem dostępności i rozliczenia. |
+| `PotwierdzeniaDAO` | Odczyt danych pojedynczej rezerwacji, uczestników i sum wpłat/zwrotów w jednej transakcji tylko do odczytu. |
 | `HistoriaDAO` | Odczyt stanu, dopisanie zdarzenia przez to samo Connection i stronicowany odczyt historii. |
 | `ZmianaPokojuDAO` | Zmiana pokoju w jednej transakcji: blokady obu pokoi według rosnącego ID, kontrola nieaktualnego wyboru, pojemności i terminów, sprzątanie po przeniesieniu zameldowanych gości. |
 | `PobytyDAO` | Zameldowanie i wymeldowanie; kontrola stanu pokoju i rozliczenia. |
@@ -64,6 +65,7 @@ Podobnie sprawdzenie salda w operacjach zapisu korzysta z już otwartego połąc
 | `GoscieKonsola` | Dodawanie, edycja, wyszukiwanie i wyświetlanie gości. |
 | `PokojeKonsola` | Wolne pokoje, dodawanie, edycja i sprzątanie. |
 | `RezerwacjeKonsola` | Tworzenie, anulowanie i zmiana terminu rezerwacji. |
+| `PotwierdzenieKonsola` | Opcja 26: dane dokumentu, wybór ścieżki i potwierdzenie zastąpienia pliku. |
 | `HistoriaKonsola` | Opcja 25: przeglądanie historii rezerwacji w konsoli. |
 | `ZmianaPokojuKonsola` | Opcja 24: wybór rezerwacji i nowego pokoju, potwierdzenie i odświeżenie danych. |
 | `PobytyKonsola` | Zameldowanie i wymeldowanie. |
@@ -87,6 +89,7 @@ Każda klasa `Ekran...` otrzymuje w konstruktorze ten sam obiekt koordynatora `H
 | `EkranKalendarza` | Miesięczny plan pokoi, filtrowanie, szczegóły i otwieranie formularza z datą. |
 | `KomorkaKalendarza` | Wygląd oraz obsługa kliknięcia pojedynczej nocy. |
 | `EkranRezerwacji` | Rezerwacje, formularze terminu i uczestników, zameldowanie, wymeldowanie i anulowanie. |
+| `PotwierdzenieGUI` | Podgląd dokumentu, odświeżanie oraz wybór ścieżki eksportu HTML. |
 | `HistoriaRezerwacjiGUI` | Okno historii, szczegóły oraz strony po 100 wpisów. |
 | `ZmianaPokojuGUI` | Osobny formularz zmiany pokoju, wstępny filtr dostępności i zapis przez fasadę. |
 | `EkranPlatnosci` | Podgląd rozliczenia, wpłaty i zwroty. |
@@ -170,3 +173,15 @@ Komentarze przeniesiono do dokumentacji — źródła nie mają komentarzy.
 Fasada udostępnia wyłącznie chroniony odczyt historii. Dopisywanie jest wewnętrzną
 operacją DAO wywoływaną przed `commit()` operacji biznesowej.
 Szczegóły i migracja: `HISTORIA_REZERWACJI.md`.
+
+## Potwierdzenia i wspólny zapis plików
+
+`model/PotwierdzenieRezerwacji` jest niezmienną kopią danych pobytu i kwot.
+Przechowuje własną listę uczestników i oblicza noce, należność oraz saldo.
+`potwierdzenia/Potwierdzenia` przygotowuje podpisy pól, formatowanie i samodzielny
+HTML. Koduje wszystkie dane tekstowe przed umieszczeniem w dokumencie.
+
+`pliki/ZapisPliku` zapisuje UTF-8 do pliku tymczasowego i przenosi go na miejsce
+docelowe. Korzystają z niego potwierdzenia i dotychczasowe raporty CSV/HTML.
+`PotwierdzeniaDAO` używa jednego połączenia i REPEATABLE_READ, aby nazwy, goście
+oraz płatności pochodziły z jednego obrazu danych. Odczyt nie dopisuje historii.

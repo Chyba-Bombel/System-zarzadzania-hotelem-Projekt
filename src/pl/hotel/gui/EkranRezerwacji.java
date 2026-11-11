@@ -25,12 +25,14 @@ final class EkranRezerwacji {
         pokoj.setId("booking-change-room");
         Button historia = app.zaznaczony("Historia", app.stan.tabelaRezerwacji, r -> new HistoriaRezerwacjiGUI(app).pokaz(r));
         historia.setId("booking-history");
+        Button potwierdzenie = app.zaznaczony("Potwierdzenie", app.stan.tabelaRezerwacji, r -> new PotwierdzenieGUI(app).pokaz(r));
+        potwierdzenie.setId("booking-confirmation");
         Button zamelduj = app.zaznaczony("Zamelduj", app.stan.tabelaRezerwacji, r -> operacjaRezerwacji(r, "Zameldowanie", () -> BazaDanych.zameldujGoscia(r.getId())));
         Button wymelduj = app.zaznaczony("Wymelduj", app.stan.tabelaRezerwacji, r -> operacjaRezerwacji(r, "Wymeldowanie", () -> BazaDanych.wymeldujGoscia(r.getId())));
         Button anuluj = app.zaznaczony("Anuluj rezerwację", app.stan.tabelaRezerwacji, r -> operacjaRezerwacji(r, "Anulowanie rezerwacji", () -> BazaDanych.anulujRezerwacje(r.getId())));
         anuluj.getStyleClass().add("danger");
         VBox page = app.strona("Rezerwacje", "Wybierz pobyt z tabeli, aby zmienić termin lub obsłużyć gościa.", bar,
-                app.stan.tabelaRezerwacji, new FlowPane(10, 10, uczestnicy, daty, pokoj, historia, zamelduj, wymelduj, anuluj),
+                app.stan.tabelaRezerwacji, new FlowPane(10, 10, uczestnicy, daty, pokoj, historia, potwierdzenie, zamelduj, wymelduj, anuluj),
                 etykieta("Wymeldowanie wymaga pełnego rozliczenia. Przed anulowaniem zwróć wpłacone środki.", "muted"));
         VBox.setVgrow(app.stan.tabelaRezerwacji, Priority.ALWAYS); return page;
     }
