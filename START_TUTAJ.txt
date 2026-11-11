@@ -1,3 +1,14 @@
+NOWY ETAP: ZMIANA POKOJU
+Rezerwacje -> zaznacz pobyt -> Zmień pokój -> wybierz -> Zmień pokój.
+W konsoli: opcja 24.
+Cena, wpłaty, daty i lista osób pozostają bez zmian.
+Przeniesienie zameldowanych gości oznacza stary pokój jako wymagający sprzątania.
+Przypisanie pokoju zmienia się dla całego pobytu; nie ma historii noclegów w różnych pokojach.
+Ten etap nie wymaga zmian bazy po wcześniejszej aktualizacji bezpieczeństwa.
+Rozpakuj do nowego folderu i przenieś własny db.properties.
+Skrypt Windows wskazuje dokładnie trzy biblioteki JavaFX 17.0.21, co zapobiega konfliktom ze starszymi JAR-ami.
+Szczegóły: ZMIANA_POKOJU.md.
+
 WAŻNE: AKTUALIZACJA BEZPIECZEŃSTWA
 ================================
 1. Zamknij program i rozpakuj nową paczkę do osobnego folderu.

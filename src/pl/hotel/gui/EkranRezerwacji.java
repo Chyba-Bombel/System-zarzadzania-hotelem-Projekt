@@ -21,12 +21,14 @@ final class EkranRezerwacji {
         HBox bar = pasek(app.stan.szukajRezerwacji, app.stan.statusRezerwacji, dodaj);
         Button uczestnicy = app.zaznaczony("Goście pobytu", app.stan.tabelaRezerwacji, this::formularzUczestnikow); uczestnicy.setId("booking-participants");
         Button daty = app.zaznaczony("Zmień termin", app.stan.tabelaRezerwacji, this::formularzTerminu);
+        Button pokoj = app.zaznaczony("Zmień pokój", app.stan.tabelaRezerwacji, r -> new ZmianaPokojuGUI(app).pokaz(r));
+        pokoj.setId("booking-change-room");
         Button zamelduj = app.zaznaczony("Zamelduj", app.stan.tabelaRezerwacji, r -> operacjaRezerwacji(r, "Zameldowanie", () -> BazaDanych.zameldujGoscia(r.getId())));
         Button wymelduj = app.zaznaczony("Wymelduj", app.stan.tabelaRezerwacji, r -> operacjaRezerwacji(r, "Wymeldowanie", () -> BazaDanych.wymeldujGoscia(r.getId())));
         Button anuluj = app.zaznaczony("Anuluj rezerwację", app.stan.tabelaRezerwacji, r -> operacjaRezerwacji(r, "Anulowanie rezerwacji", () -> BazaDanych.anulujRezerwacje(r.getId())));
         anuluj.getStyleClass().add("danger");
         VBox page = app.strona("Rezerwacje", "Wybierz pobyt z tabeli, aby zmienić termin lub obsłużyć gościa.", bar,
-                app.stan.tabelaRezerwacji, pasek(uczestnicy, daty, zamelduj, wymelduj, anuluj),
+                app.stan.tabelaRezerwacji, new FlowPane(10, 10, uczestnicy, daty, pokoj, zamelduj, wymelduj, anuluj),
                 etykieta("Wymeldowanie wymaga pełnego rozliczenia. Przed anulowaniem zwróć wpłacone środki.", "muted"));
         VBox.setVgrow(app.stan.tabelaRezerwacji, Priority.ALWAYS); return page;
     }

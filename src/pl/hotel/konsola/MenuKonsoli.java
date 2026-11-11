@@ -72,6 +72,7 @@ public final class MenuKonsoli {
                 System.out.println("22. Dezaktywuj konto pracownika");
             }
             System.out.println("23. Zmień własne hasło");
+            System.out.println("24. Zmień pokój rezerwacji");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -173,6 +174,9 @@ public final class MenuKonsoli {
                     break;
                 case "23":
                     dziala = KontaKonsola.zmienWlasneHaslo();
+                    break;
+                case "24":
+                    dziala = ZmianaPokojuKonsola.wykonaj();
                     break;
                 case "0":
                     dziala = false;

@@ -19,6 +19,7 @@ Uruchamianie Maven pozostaje bez zmian: `mvn javafx:run`. Skrypt Windows wyszuku
 
 ```java
 public static ArrayList<Gosc> pobierzGosci() throws SQLException {
+    KontrolaDostepu.wymagaj(false);
     return GoscieDAO.pobierzGosci();
 }
 ```
@@ -34,6 +35,7 @@ GUI i konsola nadal wywołują `BazaDanych.pobierzGosci()`, ale właściwe zapyt
 | `TworzenieRezerwacjiDAO` | Zapis rezerwacji: walidacja, blokada pokoju, dostępność, zapis i zatwierdzenie. |
 | `AnulowanieRezerwacjiDAO` | Anulowanie i sprawdzenie pozostałych wpłat. |
 | `TerminyRezerwacjiDAO` | Zmiana terminu wraz ze sprawdzeniem dostępności i rozliczenia. |
+| `ZmianaPokojuDAO` | Zmiana pokoju w jednej transakcji: blokady obu pokoi według rosnącego ID, kontrola nieaktualnego wyboru, pojemności i terminów, sprzątanie po przeniesieniu zameldowanych gości. |
 | `PobytyDAO` | Zameldowanie i wymeldowanie; kontrola stanu pokoju i rozliczenia. |
 | `UczestnicyDAO` | Zapis listy dodatkowych gości i zmiana uczestników istniejącego pobytu. |
 | `RozliczeniaDAO` | Odczyt rozliczenia i pomocnicze obliczenie wpłat minus zwroty. |
@@ -61,6 +63,7 @@ Podobnie sprawdzenie salda w operacjach zapisu korzysta z już otwartego połąc
 | `GoscieKonsola` | Dodawanie, edycja, wyszukiwanie i wyświetlanie gości. |
 | `PokojeKonsola` | Wolne pokoje, dodawanie, edycja i sprzątanie. |
 | `RezerwacjeKonsola` | Tworzenie, anulowanie i zmiana terminu rezerwacji. |
+| `ZmianaPokojuKonsola` | Opcja 24: wybór rezerwacji i nowego pokoju, potwierdzenie i odświeżenie danych. |
 | `PobytyKonsola` | Zameldowanie i wymeldowanie. |
 | `PlatnosciKonsola` | Rozliczenie, wybór metody płatności, wpłata i zwrot. |
 | `KontaKonsola` | Logowanie, role, pracownicy, dezaktywacja i zmiana hasła. |
@@ -82,6 +85,7 @@ Każda klasa `Ekran...` otrzymuje w konstruktorze ten sam obiekt koordynatora `H
 | `EkranKalendarza` | Miesięczny plan pokoi, filtrowanie, szczegóły i otwieranie formularza z datą. |
 | `KomorkaKalendarza` | Wygląd oraz obsługa kliknięcia pojedynczej nocy. |
 | `EkranRezerwacji` | Rezerwacje, formularze terminu i uczestników, zameldowanie, wymeldowanie i anulowanie. |
+| `ZmianaPokojuGUI` | Osobny formularz zmiany pokoju, wstępny filtr dostępności i zapis przez fasadę. |
 | `EkranPlatnosci` | Podgląd rozliczenia, wpłaty i zwroty. |
 | `EkranPracownikow` | Lista kont, formularz nowego konta i dezaktywacja. |
 | `EkranKonta` | Widok własnego konta i formularz zmiany hasła. |

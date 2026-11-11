@@ -21,7 +21,7 @@ mvn test-compile org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass
 ```
 
 `RunAllProbes` wykonuje CalendarProbe, SecurityProbe, IntegrationProbe,
-ReportProbe i PrivilegeProbe. Testy są programami z `main`, nie testami
+RoomChangeProbe, ReportProbe i PrivilegeProbe. Testy są programami z `main`, nie testami
 uruchamianymi samoczynnie przez `mvn test`. Potrzebny jest JDK 17 lub nowszy.
 Pierwsze pobranie pluginu i zależności wymaga internetu.
 
@@ -55,7 +55,7 @@ Na komputerze ze środowiskiem graficznym uruchom oddzielnie
 `GuiSmokeLauncher` z tym samym classpath i parametrami testowymi.
 Aby scenariusz miał wolny pokój 101, przed nim na **testowym schemacie** ustaw
 rezerwacje tego pokoju na `ANULOWANA`. Są to dane demonstracyjne, nie rzeczywiste płatności.
-GUI samo klika formularze, zapisuje fikcyjne dane, sprawdza raport i kalendarz,
+GUI samo klika formularze, zapisuje fikcyjne dane, sprawdza zmianę pokoju, zachowanie ceny i uczestników, odświeżenie kalendarza oraz raport,
 a na koniec dezaktywuje demonstracyjne konto recepcji. Odtwórz testowy schemat
 przed następnym pełnym przebiegiem. W automatycznej weryfikacji paczki użyto
 Monocle headless, a samego skryptu `.bat` nie uruchamiano na Windows.
@@ -67,8 +67,8 @@ częścią publicznego dostępu do bazy w aplikacji.
 
 ## Oczekiwane znaczniki
 
-`CALENDAR_OK`, `SECURITY_OK`, `PARTICIPANTS_OK`, `INTEGRATION_OK`, `REPORTS_OK`,
-`PRIVILEGES_OK`, `ALL_PROBES_OK` oraz oddzielnie `GUI_SMOKE_OK`.
+`CALENDAR_OK`, `SECURITY_OK`, `PARTICIPANTS_OK`, `INTEGRATION_OK`, `ROOM_CHANGE_OK`, `REPORTS_OK`,
+`PRIVILEGES_OK`, `ALL_PROBES_OK` oraz oddzielnie `GUI_ROOM_CHANGE_OK` i `GUI_SMOKE_OK`.
 
 Szczegółowy zakres i wynik weryfikacji dostarczonej paczki opisano w
 `RAPORT_BEZPIECZENSTWA/README.md`.

@@ -103,6 +103,26 @@ public class GuiSmoke extends Application {
         var edytowane=BazaDanych.pobierzRezerwacje(BazaDanych.pobierzGosci(),BazaDanych.pobierzPokoje()).stream()
             .filter(r->r.getId()==ostatnia.getId()).findFirst().orElseThrow();
         if(!edytowane.getUczestnicy().get(0).nazwisko().equals("Pruska"))throw new AssertionError("Edycja GUI nie zapisana");
+        fx(() -> { ((TableView<?>)node("bookings-table")).getSelectionModel().selectLast(); return null; });
+        klik("booking-change-room"); czekaj();
+        long nowyPokoj = fx(() -> {
+            ComboBox<Pokoj> wybor = (ComboBox<Pokoj>)node("change-room-target");
+            Pokoj wolny = wybor.getItems().stream().filter(p -> p.getNumer().equals("106")).findFirst().orElseThrow();
+            wybor.getSelectionModel().select(wolny); return wolny.getId();
+        });
+        screen("04a-zmiana-pokoju");
+        klik("form-save"); czekaj();
+        if (fx(() -> pole("aktywnyDialog")) != null) throw new AssertionError("Formularz zmiany pokoju nie zamknął się");
+        var przeniesiona = IntegrationProbe.rezerwacja(ostatnia.getId());
+        if (przeniesiona.getPokoj().getId() != nowyPokoj || !przeniesiona.obliczCene().equals(ostatnia.obliczCene())
+                || !przeniesiona.getUczestnicy().get(0).nazwisko().equals("Pruska"))
+            throw new AssertionError("GUI zmiany pokoju: pokój, cena lub uczestnicy");
+        klik("nav-kalendarz");
+        screen("04b-kalendarz-po-zmianie");
+        klik("calendar-cell-" + nowyPokoj + "-" + java.time.LocalDate.now());
+        if (!fx(() -> ((Label)node("calendar-details")).getText()).contains("Rezerwacja #" + ostatnia.getId()))
+            throw new AssertionError("Kalendarz nie odświeżył pokoju po przeniesieniu");
+        System.out.println("GUI_ROOM_CHANGE_OK");
         klik("nav-platnosci");
         fx(() -> { TableView<?> t=(TableView<?>)node("balances-table");t.getSelectionModel().selectLast();return null; });
         klik("show-balance");czekaj();screen("05-rozliczenie");

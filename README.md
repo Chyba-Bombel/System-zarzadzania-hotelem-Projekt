@@ -17,6 +17,7 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 - [Konta i uprawnienia](#konta-i-uprawnienia)
 - [Przykładowa obsługa pobytu](#przykładowa-obsługa-pobytu)
 - [Kalendarz rezerwacji](#kalendarz-rezerwacji)
+- [Zmiana pokoju](#zmiana-pokoju)
 - [Raporty i eksport](#raporty-i-eksport)
 - [Budowa projektu](#budowa-projektu)
 - [Relacje w bazie danych](#relacje-w-bazie-danych)
@@ -32,7 +33,7 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 | **Goście** | Dodawanie, edycja i wyszukiwanie danych gości. |
 | **Pokoje** | Lista pokoi, sprawdzanie dostępności, oznaczanie sprzątania; dla administratora dodawanie i edycja pokoju. |
 | **Kalendarz** | Miesięczny plan pokoi, szczegóły pobytu i rozpoczęcie rezerwacji od klikniętej wolnej nocy. |
-| **Rezerwacje** | Tworzenie rezerwacji, dodatkowi goście, zmiana terminu, zameldowanie, wymeldowanie i anulowanie. |
+| **Rezerwacje** | Tworzenie rezerwacji, dodatkowi goście, zmiana terminu i pokoju, zameldowanie, wymeldowanie i anulowanie. |
 | **Płatności** | Rozliczenie pobytu, wpłaty i zaliczki; dla administratora rejestrowanie zwrotów. |
 | **Raporty** | Zestawienia za wybrany okres, eksport CSV i HTML oraz wydruk przez przeglądarkę. |
 | **Pracownicy** | Tworzenie i dezaktywacja kont przez administratora. |
@@ -346,6 +347,27 @@ Nie dodano nowych tabel ani migracji. Kalendarz działa na tej samej bazie
 co wcześniejsza wersja. Ten etap nie obejmuje przenoszenia rezerwacji myszą
 ani zmiany pokoju istniejącej rezerwacji.
 
+## Zmiana pokoju
+
+W zakładce **Rezerwacje** zaznacz pobyt i kliknij **„Zmień pokój”**. Formularz
+pokaże inne pokoje z wystarczającą liczbą miejsc, wolne na cały termin pobytu.
+Dostępność jest ponownie sprawdzana w transakcji przy zapisie.
+
+- Funkcja jest dostępna dla recepcji i administratora.
+- Cena uzgodniona przy rezerwacji, daty, płatności oraz dodatkowi goście pozostają bez zmian.
+- Przeniesienie zameldowanych gości wymaga pokoju `GOTOWY` i oznacza poprzedni pokój jako `DO_SPRZATANIA`; pokój już wyłączony pozostaje wyłączony.
+- Anulowane, zakończone oraz pobyty z wyjazdem dzisiaj lub wcześniej nie mogą być przenoszone.
+- W konsoli wybierz **24. Zmień pokój rezerwacji** i potwierdź wpisując `TAK`.
+
+**Ograniczenie modelu:** rezerwacja ma jeden `pokoj_id`. Zmiana przypisuje nowy
+pokój całemu pobytowi, również przeszłym nocom w kalendarzu i raportach.
+Nie jest to podział pobytu na noclegi w kilku pokojach; historia kolejnych przeniesień
+nie jest rejestrowana. Formularz informuje o tym przed zapisem.
+
+Ten etap **nie zmienia struktury bazy**. Jeżeli masz już aktualizację bezpieczeństwa,
+nie wykonuj ponownie importu ani migracji. Rozpakuj program do nowego folderu
+i przenieś własny `db.properties`. Szczegóły: [`ZMIANA_POKOJU.md`](ZMIANA_POKOJU.md).
+
 ## Raporty i eksport
 
 Na ekranie **„Raporty”** wybierz okres od 1 do 366 dni i kliknij **„Generuj raport”**. Obie daty należą do wybranego okresu.
@@ -450,8 +472,9 @@ Sprawdzono kompilację na JDK 17 oraz scenariusze na rzeczywistym MySQL 8.0.46 w
 
 | Scenariusz | Zakres |
 | --- | --- |
+| `RoomChangeProbe` | Zmiana pokoju: dostępność, pojemność, statusy, cena i wpłaty, dodatkowi goście, sprzątanie, pełny rollback oraz równoczesne przeniesienia i rezerwacje. |
 | `IntegrationProbe` | Rezerwacje, konflikty terminów, płatności, rozliczanie pobytu, konta, role, równoczesne próby rezerwacji oraz zapis i edycja uczestników z wycofaniem błędnych zmian. |
-| `GuiSmoke` / `GuiSmokeLauncher` | Logowanie, ekrany, formularze, zapis gościa i rezerwacji, edycja dodatkowych osób, rozliczenie, raporty i zakończenie sesji nieaktywnego konta. |
+| `GuiSmoke` / `GuiSmokeLauncher` | Logowanie, ekrany, formularze, zapis gościa i rezerwacji, edycja dodatkowych osób, zmiana pokoju i odświeżenie kalendarza, rozliczenie, raporty i zakończenie sesji nieaktywnego konta. |
 | `SecurityProbe` | Odmowa nieuprawnionych operacji, SQL injection, blokada logowania między procesami, wygaszenie sesji, równoległe wpłaty i zwroty, limity danych oraz ustawienia JDBC. |
 | `PrivilegeProbe` | Działanie programu na ograniczonym koncie technicznym i odmowa DDL oraz modyfikacji/usuwania płatności. |
 | `CalendarProbe` | Noc przyjazdu i wyjazdu, zmiana miesiąca, luty przestępny, anulowania, zakończone pobyty, wyłączenie pokoju i konflikty. |
@@ -463,6 +486,7 @@ Sprawdzono kompilację na JDK 17 oraz scenariusze na rzeczywistym MySQL 8.0.46 w
 
 | Problem | Co sprawdzić |
 | --- | --- |
+| `duplicate module on application module path` | Nie mieszaj wersji bibliotek. Aktualny skrypt wskazuje dokładnie trzy JAR-y JavaFX 17.0.21; rozpakuj paczkę do nowego folderu i przenieś własny `db.properties`. |
 | Brak polecenia `javac` | Zainstaluj JDK i dodaj katalog `bin` do `PATH`; samo JRE nie wystarczy. |
 | `file not found: srcBazaDanych.java` | Użyj aktualnego skryptu `.bat`. Skrypt musi wyszukać źródła w podfolderach i zapisać ścieżki z ukośnikiem `/`, np. `src/pl/hotel/baza/BazaDanych.java`. |
 | Nie znaleziono `db.properties` | Uruchamiaj program z głównego folderu projektu. |

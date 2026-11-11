@@ -38,6 +38,10 @@ public final class PrivilegeProbe {
                 var r=BazaDanych.zapiszRezerwacje(g,pokoj,LocalDate.now().plusDays(9),LocalDate.now().plusDays(10),1,1,List.of());
                 BazaDanych.zapiszWplate(r.getId(),new BigDecimal("50"),"KARTA",1);BazaDanych.zapiszZwrot(r.getId(),new BigDecimal("20"),"KARTA",1);
                 BazaDanych.zmienUczestnikow(r.getId(),List.of());
+                BazaDanych.dodajPokoj("MIN2","Test",1,new BigDecimal("200"));
+                var drugi=BazaDanych.pobierzPokoje().stream().filter(x->x.getNumer().equals("MIN2")).findFirst().orElseThrow();
+                BazaDanych.zmienPokojRezerwacji(r.getId(),pokoj.getId(),drugi.getId());
+                check(IntegrationProbe.rezerwacja(r.getId()).getPokoj().getId()==drugi.getId(),"Zmiana pokoju na ograniczonym koncie");
                 check(BazaDanych.edytujGoscia(g.getId(),"Jan","Minimalny","500123457","min@example.com"),"Edycja gościa");
                 check(Raporty.generuj(LocalDate.now(),LocalDate.now()).tabele().size()==4,"Raport na ograniczonym koncie");
                 System.out.println("PRIVILEGES_OK: brak DDL i zmiany/usuwania płatności; obsługa pobytu działa na minimalnych grantach.");

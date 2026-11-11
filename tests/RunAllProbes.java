@@ -4,6 +4,7 @@ public final class RunAllProbes {
         CalendarProbe.main(new String[0]);
         SecurityProbe.main(new String[0]);
         IntegrationProbe.main(new String[0]);
+        RoomChangeProbe.main(new String[0]);
         ReportProbe.main(new String[0]);
         PrivilegeProbe.main(new String[0]);
         System.out.println("ALL_PROBES_OK");
