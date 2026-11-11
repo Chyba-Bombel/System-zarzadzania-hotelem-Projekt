@@ -77,6 +77,8 @@ Każda klasa `Ekran...` otrzymuje w konstruktorze ten sam obiekt koordynatora `H
 | `EkranPulpitu` | Liczniki, dzisiejsze przyjazdy i wyjazdy. |
 | `EkranGosci` | Tabela oraz formularz dodawania i edycji gościa. |
 | `EkranPokoi` | Tabela pokoi, sprawdzanie wolnego terminu, formularz pokoju i sprzątanie. |
+| `EkranKalendarza` | Miesięczny plan pokoi, filtrowanie, szczegóły i otwieranie formularza z datą. |
+| `KomorkaKalendarza` | Wygląd oraz obsługa kliknięcia pojedynczej nocy. |
 | `EkranRezerwacji` | Rezerwacje, formularze terminu i uczestników, zameldowanie, wymeldowanie i anulowanie. |
 | `EkranPlatnosci` | Podgląd rozliczenia, wpłaty i zwroty. |
 | `EkranPracownikow` | Lista kont, formularz nowego konta i dezaktywacja. |
@@ -98,10 +100,22 @@ Stan GUI jest **instancyjny**. Nie zmieniono go na globalne pola statyczne. Oper
 - `pl.hotel.serwis.GuiRepository`: wczytanie zestawu danych na potrzeby ekranów i kontrola aktywnego konta.
 - `pl.hotel.raporty.Raporty`: obliczenia raportu oraz eksport CSV i HTML; wybór pliku w oknie należy do `EkranRaportow`.
 
+### Plan miesięczny — `pl.hotel.kalendarz`
+
+`PlanKalendarza` buduje indeks pobytów po ID pokoju i dacie nocy. Nie korzysta
+z JavaFX ani JDBC. Wyjazd jest granicą wyłączną, anulowane są pomijane,
+a zakończone pozostają historią i nie blokują rezerwacji. `PoleDnia` udostępnia
+listę pobytów, wykrywa konflikt aktywnych rezerwacji i sprawdza, czy można
+rozpocząć nowy pobyt danego dnia. Ostateczna dostępność nadal jest kontrolowana
+przez `TworzenieRezerwacjiDAO` podczas zapisu. `CalendarProbe` sprawdza reguły
+planu bez uruchamiania GUI ani MySQL.
+
 ## 6. Gdzie wprowadzać zmianę?
 
 | Chcę zmienić… | Otwieram… |
 | --- | --- |
+| Układ miesięcznego kalendarza | `gui/EkranKalendarza.java` i `gui/KomorkaKalendarza.java`. |
+| Zasady oznaczania nocy w kalendarzu | `kalendarz/PlanKalendarza.java`. |
 | Zapytanie SQL pobierające gości | `baza/GoscieDAO.java`. |
 | Zasady tworzenia rezerwacji | `baza/TworzenieRezerwacjiDAO.java`; sprawdzam też spójność zmiany terminu w `TerminyRezerwacjiDAO`. |
 | Formularz nowej rezerwacji | `gui/EkranRezerwacji.java`. |

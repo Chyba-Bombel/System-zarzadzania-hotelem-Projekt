@@ -49,3 +49,17 @@
 .button.nav:hover { -fx-background-color: #233654; }
 .button.nav.active { -fx-background-color: #355b97; -fx-text-fill: white; }
 .table-view .filler { -fx-background-color: #edf1f7; }
+
+/* Plan rezerwacji: odrębne kolory oraz teksty/ID niezależne od koloru. */
+.calendar-table .table-cell.calendar-cell { -fx-padding: 4 2; }
+.calendar-table .column-header { -fx-size: 48; }
+.calendar-table .column-header .label { -fx-alignment: center; -fx-padding: 2; }
+.button.calendar-slot { -fx-padding: 6 2; -fx-background-radius: 4; -fx-border-radius: 4; -fx-font-size: 12px; -fx-font-weight: bold; }
+.calendar-legend { -fx-padding: 5 9; -fx-background-radius: 4; -fx-font-size: 12px; }
+.calendar-free, .button.calendar-free { -fx-background-color: #edf8f1; -fx-text-fill: #286740; -fx-border-color: #c5e4ce; }
+.calendar-confirmed, .button.calendar-confirmed { -fx-background-color: #dce8ff; -fx-text-fill: #234a8b; -fx-border-color: #b0c8ef; }
+.calendar-checked-in, .button.calendar-checked-in { -fx-background-color: #bde6d1; -fx-text-fill: #165c3a; -fx-border-color: #80c5a2; }
+.calendar-finished, .button.calendar-finished { -fx-background-color: #e6e9ef; -fx-text-fill: #566177; -fx-border-color: #c8cfdb; }
+.calendar-unavailable, .button.calendar-unavailable { -fx-background-color: #f2f2f2; -fx-text-fill: #7b8290; -fx-border-color: #e0e2e7; }
+.calendar-conflict, .button.calendar-conflict { -fx-background-color: #ffe0e3; -fx-text-fill: #a31f38; -fx-border-color: #e69ba8; }
+.calendar-details { -fx-background-color: white; -fx-padding: 12; -fx-background-radius: 7; -fx-border-color: #e1e6ef; -fx-border-radius: 7; }

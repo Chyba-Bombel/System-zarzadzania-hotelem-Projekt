@@ -1,3 +1,19 @@
+NOWOŚĆ: KALENDARZ REZERWACJI — ETAP 1
+===================================
+1. Zaloguj się i wybierz „Kalendarz” z menu.
+2. Zmień miesiąc strzałkami lub wybierz datę i kliknij „Przejdź”.
+3. W razie potrzeby wpisz numer lub typ pokoju w filtrze.
+4. Kliknij #ID, aby zobaczyć szczegóły pobytu i przejść do jego obsługi.
+5. Kliknij + na wolnej nocy, aby otworzyć formularz z pokojem i terminem.
+   Uzupełnij gościa oraz pozostałe dane i zapisz rezerwację.
+
+Kolory i symbole wyjaśnia legenda na ekranie. Dzień wyjazdu nie jest zajętą nocą.
+Anulowane są pomijane, zakończone są historią i nie blokują nowej rezerwacji.
+Wyłączony obecnie pokój nie przyjmuje nowych pobytów. Przeszłe noce nie mają +.
+Odśwież dane, by zobaczyć zmiany wykonane na innych stanowiskach.
+Kalendarz nie wymaga zmian bazy danych. Zachowaj własny db.properties.
+Kolejne etapy, np. zmiana pokoju, nie zostały dodane w tej aktualizacji.
+
 UPORZĄDKOWANA STRUKTURA KODU
 ==========================
 Ta wersja ma pakiety pl.hotel.model, baza, konsola, gui, raporty, serwis

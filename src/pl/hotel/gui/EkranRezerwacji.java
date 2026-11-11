@@ -32,10 +32,19 @@ final class EkranRezerwacji {
         VBox.setVgrow(app.stan.tabelaRezerwacji, Priority.ALWAYS); return page;
     }
 
-    void formularzRezerwacji() {
+    void formularzRezerwacji() { formularzRezerwacji(null, LocalDate.now()); }
+
+    void formularzRezerwacji(Long pokojId, LocalDate przyjazd) {
         // Przed otwarciem formularza pobieramy najnowsze dane.
         app.zadaniaGUI.odswiezPo("Przygotowanie rezerwacji", () -> {
             if (app.stan.goscie.isEmpty() || app.stan.pokoje.isEmpty()) { app.komunikatyGUI.blad("Najpierw dodaj gościa i pokój."); return; }
+            Pokoj wybrany = pokojId == null ? null : app.stan.pokoje.stream().filter(p -> p.getId() == pokojId).findFirst().orElse(null);
+            if (pokojId != null) {
+                if (wybrany == null || !new pl.hotel.kalendarz.PlanKalendarza(java.time.YearMonth.from(przyjazd), app.stan.rezerwacje)
+                        .dzien(wybrany, przyjazd).moznaRezerwowac(LocalDate.now())) {
+                    app.komunikatyGUI.blad("Wybrana noc nie jest już dostępna. Sprawdź odświeżony kalendarz."); return;
+                }
+            }
             Formularz f = new Formularz(app, "Nowa rezerwacja", "Wybierz gościa, pokój i termin pobytu.", "Utwórz rezerwację");
             ComboBox<Gosc> gosc = new ComboBox<>(app.stan.goscie); gosc.setId("booking-guest");
             gosc.setConverter(konwerter(g -> "#" + g.getId() + " • " + osoba(g)));
@@ -43,13 +52,14 @@ final class EkranRezerwacji {
             ComboBox<Pokoj> pokoj = new ComboBox<>(FXCollections.observableArrayList(app.stan.pokoje.stream()
                     .filter(p -> !p.getStan().equals("WYLACZONY")).toList())); pokoj.setId("booking-room");
             pokoj.setConverter(konwerter(p -> p.getNumer() + " • " + p.getLiczbaMiejsc() + " os. • " + zl(p.getCenaZaNoc()) + "/noc"));
-            pokoj.getSelectionModel().selectFirst(); f.dodaj("Pokój", pokoj);
+            if (wybrany == null) pokoj.getSelectionModel().selectFirst(); else pokoj.getSelectionModel().select(wybrany);
+            f.dodaj("Pokój", pokoj);
             Spinner<Integer> osoby = new Spinner<>(1, 10, 1); osoby.setId("booking-people"); f.dodaj("Liczba osób", osoby);
             PanelUczestnikow panel = new PanelUczestnikow(f);
             osoby.valueProperty().addListener((o,a,b) -> panel.liczba(b - 1));
             panel.liczba(0);
             f.notatka("Liczba osób obejmuje głównego gościa. Dla każdej kolejnej osoby wpisz imię i nazwisko; telefon i e-mail nie są wymagane.");
-            DatePicker od = data(LocalDate.now()), koniec = data(LocalDate.now().plusDays(1));
+            DatePicker od = data(przyjazd), koniec = data(przyjazd.plusDays(1));
             od.setId("booking-from"); koniec.setId("booking-to"); f.dodaj("Przyjazd", od); f.dodaj("Wyjazd", koniec);
             Label cena = new Label(); cena.setWrapText(true); f.dodaj("Szacowana cena", cena);
             Runnable wycena = () -> {

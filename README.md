@@ -16,6 +16,7 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 - [Uruchomienie przez IntelliJ IDEA i Maven](#uruchomienie-przez-intellij-idea-i-maven)
 - [Konta i uprawnienia](#konta-i-uprawnienia)
 - [Przykładowa obsługa pobytu](#przykładowa-obsługa-pobytu)
+- [Kalendarz rezerwacji](#kalendarz-rezerwacji)
 - [Raporty i eksport](#raporty-i-eksport)
 - [Budowa projektu](#budowa-projektu)
 - [Relacje w bazie danych](#relacje-w-bazie-danych)
@@ -30,6 +31,7 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 | **Pulpit** | Liczniki, przyjazdy na dziś oraz dzisiejsze i zaległe wyjazdy. |
 | **Goście** | Dodawanie, edycja i wyszukiwanie danych gości. |
 | **Pokoje** | Lista pokoi, sprawdzanie dostępności, oznaczanie sprzątania; dla administratora dodawanie i edycja pokoju. |
+| **Kalendarz** | Miesięczny plan pokoi, szczegóły pobytu i rozpoczęcie rezerwacji od klikniętej wolnej nocy. |
 | **Rezerwacje** | Tworzenie rezerwacji, dodatkowi goście, zmiana terminu, zameldowanie, wymeldowanie i anulowanie. |
 | **Płatności** | Rozliczenie pobytu, wpłaty i zaliczki; dla administratora rejestrowanie zwrotów. |
 | **Raporty** | Zestawienia za wybrany okres, eksport CSV i HTML oraz wydruk przez przeglądarkę. |
@@ -279,6 +281,36 @@ Główny gość pochodzi z kartoteki `goscie`. Dodatkowym osobom wystarczą imi�
 
 Liczba osób obejmuje głównego gościa. Dodanie nazwisk nie zwiększa liczby miejsc w pokoju ani nie zmienia ceny rezerwacji.
 
+## Kalendarz rezerwacji
+
+Wybierz **„Kalendarz”** w menu. Wiersze odpowiadają pokojom, a kolumny nocom
+zaczynającym się danego dnia. Strzałki przełączają miesiące, „Dzisiaj” wraca
+do bieżącego miesiąca. Możesz też podać datę i kliknąć „Przejdź”. Filtr szuka
+numeru lub typu pokoju. Dalsze dni zobaczysz po przewinięciu tabeli poziomo.
+
+- **+** — wolna noc: kliknięcie odświeża dane i otwiera formularz z pokojem,
+  datą przyjazdu i domyślnym wyjazdem następnego dnia. Możesz zmienić termin
+  w formularzu; ostateczna dostępność jest sprawdzana w transakcji zapisu.
+- **Niebieskie #ID** — potwierdzona rezerwacja; **zielone #ID** — zameldowany pobyt.
+- **Szare #ID** — zakończony pobyt pokazany jako historia; nie blokuje nowego zapisu.
+- **—** — brak możliwości utworzenia nowego pobytu: termin w przeszłości lub
+  pokój obecnie wyłączony. Wyłączenie nie usuwa historycznych rezerwacji z podglądu.
+- **!** — co najmniej dwie aktywne rezerwacje tej samej nocy; trzeba sprawdzić dane.
+
+Kliknięcie #ID pokazuje gości, termin, status i cenę pobytu. Przycisk
+„Otwórz na liście rezerwacji” przełącza do dotychczasowego ekranu obsługi.
+Jeśli tego dnia zapisano kilka pobytów, można wybrać je z listy pod szczegółami.
+Podpowiedź po najechaniu myszą podaje także numer pokoju i datę nocy.
+
+**Dzień wyjazdu nie jest zajętą nocą.** Anulowane rezerwacje są pomijane.
+Kalendarz korzysta z ostatnio pobranych danych — użyj „Odśwież dane”, aby
+zobaczyć zapisy z innych stanowisk. Numer pokoju, jego pojemność i stan są
+odczytywane z aktualnej kartoteki, bez historii zmian stanu pokoju.
+
+Nie dodano nowych tabel ani migracji. Kalendarz działa na tej samej bazie
+co wcześniejsza wersja. Ten etap nie obejmuje przenoszenia rezerwacji myszą
+ani zmiany pokoju istniejącej rezerwacji.
+
 ## Raporty i eksport
 
 Na ekranie **„Raporty”** wybierz okres od 1 do 366 dni i kliknij **„Generuj raport”**. Obie daty należą do wybranego okresu.
@@ -315,6 +347,8 @@ Wartość noclegów korzysta ze stawki zapisanej przy rezerwacji i obejmuje tylk
 | `src/pl/hotel/baza/*DAO.java` | Zapytania i transakcje podzielone według obszaru: goście, pokoje, rezerwacje, pobyty, rozliczenia, konta. |
 | `src/pl/hotel/konsola/` | Osobno menu, odczyt danych od użytkownika, stan konsoli oraz obsługa poszczególnych obszarów. |
 | `src/pl/hotel/gui/HotelGUI.java` | Cykl życia okna i nawigacja między ekranami. |
+| `src/pl/hotel/kalendarz/PlanKalendarza.java` | Indeks rezerwacji według pokoju i nocy; zasady dostępności widoku, bez JavaFX i SQL. |
+| `src/pl/hotel/gui/KomorkaKalendarza.java` | Kolor, podpowiedź i kliknięcie komórki kalendarza. |
 | `src/pl/hotel/gui/Ekran*.java` | Ekrany i formularze: goście, pokoje, rezerwacje, płatności, konta, raporty i pulpit. |
 | `src/pl/hotel/gui/StanGUI.java` | Dane jednej instancji GUI, w tym sesja, tabele i filtry. |
 | `src/pl/hotel/gui/Formularz.java`, `TabeleGUI.java`, `NarzedziaGUI.java` | Wspólna obsługa formularzy, konfiguracja tabel, kontrolki, formatowanie i walidacja. |
@@ -380,6 +414,7 @@ Sprawdzono kompilację na JDK 17 oraz scenariusze na rzeczywistym MySQL 8.0.46 w
 | --- | --- |
 | `IntegrationProbe` | Rezerwacje, konflikty terminów, płatności, rozliczanie pobytu, konta, role, równoczesne próby rezerwacji oraz zapis i edycja uczestników z wycofaniem błędnych zmian. |
 | `GuiSmoke` / `GuiSmokeLauncher` | Logowanie, ekrany, formularze, zapis gościa i rezerwacji, edycja dodatkowych osób, rozliczenie, raporty i zakończenie sesji nieaktywnego konta. |
+| `CalendarProbe` | Noc przyjazdu i wyjazdu, zmiana miesiąca, luty przestępny, anulowania, zakończone pobyty, wyłączenie pokoju i konflikty. |
 | `ReportProbe` | Granice okresu, obłożenie, wycena noclegów, płatności, dodatkowi goście oraz eksport CSV i HTML. |
 
 **Scenariusze zmieniają dane — uruchamiaj je wyłącznie na osobnej bazie testowej.** Są to programy testowe z metodami `main`, a nie testy automatycznie wykonywane przez `mvn test`. Skrypt Windows przygotowano dla Windows x64; w środowisku weryfikacyjnym sprawdzono kompilację z dołączonymi bibliotekami, lecz nie uruchamiano samego `.bat` na Windows.

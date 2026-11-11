@@ -20,6 +20,7 @@ public final class HotelGUI extends Application {
     final EkranPulpitu ekranPulpitu = new EkranPulpitu(this);
     final EkranGosci ekranGosci = new EkranGosci(this);
     final EkranPokoi ekranPokoi = new EkranPokoi(this);
+    final EkranKalendarza ekranKalendarza = new EkranKalendarza(this);
     final EkranRezerwacji ekranRezerwacji = new EkranRezerwacji(this);
     final EkranPlatnosci ekranPlatnosci = new EkranPlatnosci(this);
     final EkranPracownikow ekranPracownikow = new EkranPracownikow(this);
@@ -53,7 +54,7 @@ public final class HotelGUI extends Application {
         stan.shell = new BorderPane();
         VBox nav = new VBox(7); nav.setPrefWidth(226); nav.getStyleClass().add("sidebar");
         nav.getChildren().addAll(etykieta("HOTEL", "brand"), etykieta("PANEL RECEPCJI", "brand-sub"), new Separator());
-        for (String nazwa : new String[]{"Pulpit", "Goście", "Pokoje", "Rezerwacje", "Płatności", "Raporty", "Pracownicy", "Moje konto"}) {
+        for (String nazwa : new String[]{"Pulpit", "Goście", "Pokoje", "Rezerwacje", "Kalendarz", "Płatności", "Raporty", "Pracownicy", "Moje konto"}) {
             if (nazwa.equals("Pracownicy") && !admin()) continue;
             Button b = new Button(nazwa); b.setMaxWidth(Double.MAX_VALUE); b.getStyleClass().add("nav");
             b.setId("nav-" + klucz(nazwa));
@@ -82,6 +83,7 @@ public final class HotelGUI extends Application {
             case "Goście" -> ekranGosci.stronaGosci();
             case "Pokoje" -> ekranPokoi.stronaPokoi();
             case "Rezerwacje" -> ekranRezerwacji.stronaRezerwacji();
+            case "Kalendarz" -> ekranKalendarza.stronaKalendarza();
             case "Płatności" -> ekranPlatnosci.stronaPlatnosci();
             case "Raporty" -> ekranRaportow.stronaRaportow();
             case "Pracownicy" -> admin() ? ekranPracownikow.stronaPracownikow() : ekranPulpitu.pulpit();
