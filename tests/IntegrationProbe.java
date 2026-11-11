@@ -1,3 +1,8 @@
+import pl.hotel.model.*;
+import pl.hotel.baza.BazaDanych;
+import pl.hotel.gui.HotelGUI;
+import pl.hotel.serwis.GuiRepository;
+import pl.hotel.raporty.Raporty;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;

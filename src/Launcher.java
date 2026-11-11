@@ -1,6 +1,10 @@
-// Osobny launcher pozwala również uruchamiać projekt z IntelliJ.
-public class Launcher {
+import javafx.application.Application;
+import pl.hotel.gui.HotelGUI;
+
+/** Punkt wejścia aplikacji okienkowej. */
+public final class Launcher {
+    private Launcher() {}
     public static void main(String[] args) {
-        javafx.application.Application.launch(HotelGUI.class, args);
+        Application.launch(HotelGUI.class, args);
     }
 }

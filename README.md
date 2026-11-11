@@ -64,7 +64,7 @@ Paczka zawiera biblioteki **JavaFX dla Windows x64** i sterownik JDBC. Na Linux/
 4. Otwórz `db.properties` i wpisz dane połączenia ze swoją bazą.
 5. Uruchom **`uruchom_windows.bat`**.
 
-Skrypt kompiluje pliki z `src`, kopiuje arkusz stylów i uruchamia klasę `Launcher`. Maven nie jest potrzebny w tym wariancie. Foldery `src`, `resources`, `lib` oraz plik `db.properties` muszą pozostać obok skryptu.
+Skrypt kompiluje pliki z `src` oraz jego podfolderów, kopiuje arkusz stylów i uruchamia klasę `Launcher`. Maven nie jest potrzebny w tym wariancie. Foldery `src`, `resources`, `lib` oraz plik `db.properties` muszą pozostać obok skryptu.
 
 ### Konfiguracja połączenia
 
@@ -307,23 +307,41 @@ Wartość noclegów korzysta ze stawki zapisanej przy rezerwacji i obejmuje tylk
 
 | Plik / katalog | Rola |
 | --- | --- |
-| `src/Launcher.java` | Uruchomienie aplikacji JavaFX. |
-| `src/HotelGUI.java` | Ekrany, formularze, tabele, obsługa działań użytkownika i zadania w tle. |
-| `src/GuiRepository.java` | Pobieranie danych dla GUI i kontrola sesji pracownika. |
-| `src/BazaDanych.java` | Połączenie JDBC, zapytania SQL i transakcje operacji hotelowych. |
-| `src/Raporty.java` | Generowanie zestawień oraz eksport CSV i HTML. |
-| `src/Osoba.java`, `src/Gosc.java`, `src/Pracownik.java` | Model osób; wspólne dane i dziedziczenie. |
-| `src/Pokoj.java`, `src/Rezerwacja.java`, `src/Uczestnik.java` | Model pokoju, rezerwacji i dodatkowej osoby pobytu. |
-| `src/Platnosc.java`, `src/Rozliczenie.java` | Dane płatności i obliczenia rozliczenia. |
-| `src/KontoPracownika.java`, `src/Hasla.java` | Dane kont i obsługa haseł. |
-| `src/Main.java` | Zachowana wersja konsolowa; nie zawiera wszystkich nowych funkcji GUI. |
+| `src/Launcher.java` | Krótki punkt wejścia GUI; nadal uruchamiany przez Maven i skrypt Windows. |
+| `src/Main.java` | Krótki punkt wejścia zachowanej wersji konsolowej. |
+| `src/pl/hotel/model/` | Modele: gość, pokój, rezerwacja, uczestnik, pracownik i płatność. |
+| `src/pl/hotel/baza/BazaDanych.java` | Publiczne API bazy: przekazuje wywołania do odpowiednich klas DAO. |
+| `src/pl/hotel/baza/PolaczenieBazy.java` | Odczyt `db.properties` i tworzenie połączenia JDBC. |
+| `src/pl/hotel/baza/*DAO.java` | Zapytania i transakcje podzielone według obszaru: goście, pokoje, rezerwacje, pobyty, rozliczenia, konta. |
+| `src/pl/hotel/konsola/` | Osobno menu, odczyt danych od użytkownika, stan konsoli oraz obsługa poszczególnych obszarów. |
+| `src/pl/hotel/gui/HotelGUI.java` | Cykl życia okna i nawigacja między ekranami. |
+| `src/pl/hotel/gui/Ekran*.java` | Ekrany i formularze: goście, pokoje, rezerwacje, płatności, konta, raporty i pulpit. |
+| `src/pl/hotel/gui/StanGUI.java` | Dane jednej instancji GUI, w tym sesja, tabele i filtry. |
+| `src/pl/hotel/gui/Formularz.java`, `TabeleGUI.java`, `NarzedziaGUI.java` | Wspólna obsługa formularzy, konfiguracja tabel, kontrolki, formatowanie i walidacja. |
+| `src/pl/hotel/gui/ZadaniaGUI.java`, `KomunikatyGUI.java` | Zadania w tle, odświeżanie i obsługa błędów. |
+| `src/pl/hotel/serwis/GuiRepository.java` | Odczyt zestawu danych dla GUI i weryfikacja sesji. |
+| `src/pl/hotel/raporty/Raporty.java` | Generowanie raportu i eksport CSV oraz HTML. |
+| `src/pl/hotel/bezpieczenstwo/Hasla.java` | Tworzenie i sprawdzanie skrótów haseł. |
 | `resources/hotel.css` | Wygląd interfejsu. |
 | `db/HotelManager_baza.sql` | Pełna baza z fikcyjnymi rekordami dla nowej instalacji. |
 | `db/aktualizacja_uczestnicy.sql` | Aktualizacja wcześniejszej bazy o dodatkowych gości. |
 | `lib/` | Biblioteki do uruchamiania skryptem Windows. |
-| `tests/` | Scenariusze sprawdzające operacje bazy, GUI i raporty. |
+| `tests/` | Scenariusze sprawdzające bazę, konsolę, GUI i raporty. |
 | `db.properties`, `pom.xml` | Konfiguracja połączenia i projektu Maven. |
 | `uruchom_windows.bat`, `START_TUTAJ.txt` | Skrypt uruchamiający i dodatkowa instrukcja. |
+| [`MAPA_KODU.md`](MAPA_KODU.md) | Opis podziału klas i wskazówki, gdzie wprowadzać kolejne zmiany. |
+
+### Aktualizacja do uporządkowanej struktury
+
+Rozpakuj tę wersję **do nowego folderu** i przenieś do niego własny `db.properties`.
+Nie mieszaj starych plików z płaskiego `src` z nowymi pakietami.
+`Launcher` i `Main` zachowują nazwy punktów wejścia, a pozostałe klasy znajdują się
+w `pl.hotel.*`. Użyj również nowego `uruchom_windows.bat`, który szuka źródeł
+rekurencyjnie w podfolderach i zapisuje ścieżki z ukośnikiem `/` dla `javac`.
+
+**Sam podział kodu nie wymaga żadnej zmiany tabel ani ponownego importowania bazy.**
+Przy własnych rozszerzeniach zaktualizuj importy, np. `import pl.hotel.baza.BazaDanych;`.
+Dane, reguły pobytów, granice transakcji i dostępne funkcje pozostają bez zmian.
 
 Zapytania JDBC oraz zapis raportów wykonują się w tle przez JavaFX `Task`. Interfejs pokazuje stan operacji i blokuje kolejne działania do jej zakończenia. Formularze pozostają otwarte po błędzie zapisu, aby można było poprawić dane.
 
@@ -371,7 +389,7 @@ Sprawdzono kompilację na JDK 17 oraz scenariusze na rzeczywistym MySQL 8.0.46 w
 | Problem | Co sprawdzić |
 | --- | --- |
 | Brak polecenia `javac` | Zainstaluj JDK i dodaj katalog `bin` do `PATH`; samo JRE nie wystarczy. |
-| `file not found: srcBazaDanych.java` | Użyj aktualnego skryptu `.bat`. W pliku listy źródeł ścieżki muszą mieć postać `src/BazaDanych.java`. |
+| `file not found: srcBazaDanych.java` | Użyj aktualnego skryptu `.bat`. Skrypt musi wyszukać źródła w podfolderach i zapisać ścieżki z ukośnikiem `/`, np. `src/pl/hotel/baza/BazaDanych.java`. |
 | Nie znaleziono `db.properties` | Uruchamiaj program z głównego folderu projektu. |
 | `Access denied` | Sprawdź użytkownika MySQL, jego hasło i uprawnienia w `db.properties`. |
 | Brak połączenia z serwerem | Sprawdź działanie MySQL, adres i port. |

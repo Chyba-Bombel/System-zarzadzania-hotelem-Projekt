@@ -1,3 +1,17 @@
+UPORZĄDKOWANA STRUKTURA KODU
+==========================
+Ta wersja ma pakiety pl.hotel.model, baza, konsola, gui, raporty, serwis
+oraz bezpieczenstwo. Main i Launcher są krótkimi punktami wejścia.
+Szczegółowy opis klas i miejsc do edycji: MAPA_KODU.md.
+
+Rozpakuj projekt DO NOWEGO FOLDERU i skopiuj tam własny db.properties.
+Nie dokładaj nowych pakietów do starego src z dawnymi dużymi klasami.
+Użyj nowego uruchom_windows.bat, który wyszukuje pliki w podfolderach.
+Maven uruchamiasz jak dotychczas: mvn javafx:run.
+Podział kodu NIE wymaga zmiany bazy ani ponownego importu rekordów.
+Jeżeli masz własną ikonę lub inne własne zasoby, przenieś je i dostosuj
+własny kod do nowej ścieżki: src/pl/hotel/gui/HotelGUI.java.
+
 NOWOŚĆ: RAPORTY
 ==============
 W menu „Raporty” wybierz datę od/do (oba dni włącznie, maks. 366 dni).
@@ -86,9 +100,36 @@ INTELLIJ IDEA — MAVEN
 5. Katalog roboczy musi zawierać db.properties.
    Launcher.java uruchamia GUI. Main.java pozostaje wejściem wersji konsolowej.
 
-Linux/macOS: użyj Maven, który pobierze biblioteki właściwe dla systemu.
-Nie używaj dołączonych bibliotek javafx-win na innym systemie.
-Na komputerze musi być dostępne środowisko graficzne i biblioteki systemowe JavaFX.
+LINUX — PRZYKŁAD DLA UBUNTU 24.04 LTS x86_64 Z PULPITEM
+1. Zainstaluj wymagania:
+   sudo apt update
+   sudo apt install openjdk-17-jdk maven libgtk-3-0t64
+2. Sprawdź: java -version, javac -version, mvn -version (Java co najmniej 17).
+3. Rozpakuj paczkę i przejdź do folderu z pom.xml, np.:
+   cd ~/Projekty/Hotel_GUI
+4. Jeżeli nie masz serwera MySQL, zainstaluj i uruchom go:
+   sudo apt install mysql-server
+   sudo systemctl start mysql
+5. Tylko dla NOWEJ bazy wykonaj jednorazowo:
+   sudo mysql < db/HotelManager_baza.sql
+   Przy koncie administratora wymagającym hasła zamiast sudo mysql użyj:
+   mysql -u root -p < db/HotelManager_baza.sql
+   Dla ISTNIEJĄCEJ bazy nie importuj danych demo. Gdy brakuje tabeli
+   uczestnicy_rezerwacji, wykonaj tylko db/aktualizacja_uczestnicy.sql.
+6. Popraw adres, port, użytkownika i hasło w db.properties, np.:
+   nano db.properties
+   Zapis w nano: Ctrl+O, Enter; wyjście: Ctrl+X.
+7. Uruchom aplikację na zwykłym koncie użytkownika:
+   mvn clean javafx:run
+   Kolejne uruchomienia: mvn javafx:run
+
+Pierwsze uruchomienie Maven wymaga internetu. Nie używaj skryptu .bat
+ani bibliotek lib/javafx-win na Linuxie. Maven pobiera właściwe zależności.
+W Ubuntu 22.04 pakiet GTK nazywa się libgtk-3-0. Dla innych dystrybucji
+zainstaluj odpowiedniki JDK 17, Maven i GTK 3.
+Przy błędzie DISPLAY potrzebna jest sesja graficzna, nie sam terminal SSH.
+Szczegółowa instrukcja i tabela błędów: README.md, rozdział „Uruchomienie na Linuxie”.
+Na macOS również użyj Maven i zależności właściwych dla swojej platformy.
 
 JAK UŻYWAĆ
 - Pulpit: liczniki, przyjazdy na dziś i dzisiejsze/zaległe wyjazdy.

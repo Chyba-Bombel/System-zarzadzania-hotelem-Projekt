@@ -1,3 +1,8 @@
+import pl.hotel.model.*;
+import pl.hotel.baza.BazaDanych;
+import pl.hotel.gui.HotelGUI;
+import pl.hotel.serwis.GuiRepository;
+import pl.hotel.raporty.Raporty;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -25,7 +30,11 @@ public class GuiSmoke extends Application {
             },"test-ui").start();
         } catch (Throwable e) { e.printStackTrace(); System.exit(3); }
     }
-    static Object pole(String nazwa) throws Exception { Field f = HotelGUI.class.getDeclaredField(nazwa); f.setAccessible(true); return f.get(app); }
+    static Object pole(String nazwa) throws Exception {
+        Field stan = HotelGUI.class.getDeclaredField("stan"); stan.setAccessible(true);
+        Object dane = stan.get(app);
+        Field f = dane.getClass().getDeclaredField(nazwa); f.setAccessible(true); return f.get(dane);
+    }
     static <T> T fx(Callable<T> c) throws Exception { FutureTask<T> t = new FutureTask<>(c); Platform.runLater(t); return t.get(15,TimeUnit.SECONDS); }
     static void czekaj() throws Exception {
         for (int i=0;i<200;i++) {
