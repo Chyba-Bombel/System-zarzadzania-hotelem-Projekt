@@ -29,6 +29,7 @@ final class NotatkiDAO {
                         if (q.executeUpdate() != 1) throw new SQLException("Nie potwierdzono zapisu notatki.");
                     }
                 }
+                HistoriaDAO.opis(c,id,"ZMIANA_NOTATKI",aktualna.tresc(),tekst,null);
                 c.commit(); return new NotatkaRezerwacji(id, aktualna.status(), tekst);
             } catch (SQLException | RuntimeException e) {
                 try { c.rollback(); } catch (SQLException rollback) { e.addSuppressed(rollback); }

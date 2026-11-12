@@ -76,6 +76,13 @@ public final class MenuKonsoli {
             System.out.println("25. Historia rezerwacji");
             System.out.println("26. Potwierdzenie rezerwacji HTML / PDF");
             System.out.println("27. Notatka recepcji do rezerwacji");
+            if (KontaKonsola.czyAdministrator()) System.out.println("28. Wyłącz lub przywróć pokój");
+            System.out.println("29. Usługi dodatkowe pobytu");
+            System.out.println("30. Zaawansowane wyszukiwanie");
+            if(KontaKonsola.czyAdministrator())System.out.println("31. Cennik usług");
+            System.out.println("32. Archiwizuj gościa");
+            System.out.println("33. Przywróć gościa");
+            System.out.println("34. Pokaż archiwalnych gości");
             System.out.println("0. Zakończ");
             System.out.print("Wybierz opcję: ");
 
@@ -190,6 +197,15 @@ public final class MenuKonsoli {
                 case "27":
                     dziala = NotatkiKonsola.pokaz();
                     break;
+                case "28":
+                    dziala = StanPokojuKonsola.zmien();
+                    break;
+                case "29": dziala=UslugiKonsola.pokaz();break;
+                case "30": dziala=WyszukiwanieKonsola.pokaz();break;
+                case "31": dziala=KatalogUslugKonsola.pokaz();break;
+                case "32": dziala=ArchiwumGosciKonsola.zmien(true);break;
+                case "33": dziala=ArchiwumGosciKonsola.zmien(false);break;
+                case "34": ArchiwumGosciKonsola.pokaz();break;
                 case "0":
                     dziala = false;
                     break;

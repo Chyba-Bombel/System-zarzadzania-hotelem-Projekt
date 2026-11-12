@@ -27,6 +27,14 @@ final class EkranPokoi {
                 return true;
             }, v -> app.zadaniaGUI.odswiez("Pokój jest gotowy."));
         });
+        sprzataj.setId("room-clean");
+        FlowPane akcje = new FlowPane(10,10,sprzataj);
+        if (app.admin()) {
+            Button wylacz = app.zaznaczony("Wyłącz pokój",app.stan.tabelaPokoi,p -> new StanPokojuGUI(app).pokaz(p,true));
+            Button przywroc = app.zaznaczony("Przywróć pokój",app.stan.tabelaPokoi,p -> new StanPokojuGUI(app).pokaz(p,false));
+            wylacz.setId("room-disable"); przywroc.setId("room-restore"); wylacz.getStyleClass().add("danger");
+            akcje.getChildren().addAll(wylacz,przywroc);
+        }
         HBox dostepnosc = pasek(etykieta("Przyjazd", "form-label"), app.stan.dostepnyOd,
                 etykieta("Wyjazd", "form-label"), app.stan.dostepnyDo,
                 etykieta("Osoby", "form-label"), app.stan.miejsca,
@@ -42,7 +50,7 @@ final class EkranPokoi {
         app.stan.miejsca.setPrefWidth(72);
         Button reset = przycisk("Wszystkie pokoje", "", () -> { app.stan.filtrTerminu = false; app.tabeleGUI.filtruj(); });
         VBox page = app.strona("Pokoje", "Cennik, stan przygotowania i wyszukiwanie wolnych terminów.", bar,
-                dostepnosc, pasek(app.stan.filtrInfo, reset), app.stan.tabelaPokoi, pasek(sprzataj));
+                dostepnosc, pasek(app.stan.filtrInfo, reset), app.stan.tabelaPokoi, akcje);
         VBox.setVgrow(app.stan.tabelaPokoi, Priority.ALWAYS); return page;
     }
 

@@ -16,9 +16,9 @@ final class RaportDAO {
         if (od==null || koniec==null || koniec.isBefore(od) || ChronoUnit.DAYS.between(od,koniec)>365)
             throw new IllegalArgumentException("Wybierz okres od 1 do 366 dni. Data końcowa nie może być wcześniejsza.");
         LocalDate doWylacznie=koniec.plusDays(1); long dni=ChronoUnit.DAYS.between(od,doWylacznie);
-        List<List<String>> rezerwacje=new ArrayList<>(), platnosci=new ArrayList<>(), pokoje=new ArrayList<>();
+        List<List<String>> rezerwacje=new ArrayList<>(), platnosci=new ArrayList<>(), pokoje=new ArrayList<>(),uslugi=new ArrayList<>();
         Map<Long,Long> nocePokoi=new HashMap<>();
-        BigDecimal wartosc=BigDecimal.ZERO, wplaty=BigDecimal.ZERO, zwroty=BigDecimal.ZERO;
+        BigDecimal wartosc=BigDecimal.ZERO, wplaty=BigDecimal.ZERO, zwroty=BigDecimal.ZERO,wartoscUslug=BigDecimal.ZERO;
         long noce=0, osobonoce=0; int aktywne=0, anulowane=0;
         try (Connection c=PolaczenieBazy.polacz()) {
             c.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
@@ -66,6 +66,14 @@ final class RaportDAO {
                                 r.getString("rodzaj"),r.getString("metoda"),kwota(k)));
                     } }
                 }
+                try(PreparedStatement q=c.prepareStatement("SELECT u.*,r.status AS stan_rezerwacji FROM pozycje_uslug u JOIN rezerwacje r ON r.id=u.rezerwacja_id WHERE u.utworzono>=? AND u.utworzono<? ORDER BY u.utworzono,u.id")){
+                    q.setTimestamp(1,Timestamp.valueOf(od.atStartOfDay()));q.setTimestamp(2,Timestamp.valueOf(doWylacznie.atStartOfDay()));
+                    try(ResultSet r=q.executeQuery()){while(r.next()){
+                        BigDecimal k=r.getString("status").equals("AKTYWNA")&&!r.getString("stan_rezerwacji").equals("ANULOWANA")?r.getBigDecimal("cena_jednostkowa").multiply(BigDecimal.valueOf(r.getInt("ilosc"))):BigDecimal.ZERO;
+                        wartoscUslug=wartoscUslug.add(k);
+                        uslugi.add(List.of(""+r.getLong("id"),""+r.getLong("rezerwacja_id"),r.getString("nazwa"),""+r.getInt("ilosc"),r.getString("jednostka"),kwota(r.getBigDecimal("cena_jednostkowa")),kwota(k),r.getString("status"),r.getTimestamp("utworzono").toLocalDateTime().toString()));
+                    }}
+                }
                 c.commit();
             } catch(SQLException | RuntimeException e) {
                 try { c.rollback(); } catch(SQLException rollback) { e.addSuppressed(rollback); } throw e;
@@ -77,11 +85,11 @@ final class RaportDAO {
                 List.of("Pobyty nieanulowane przecinające okres",""+aktywne),List.of("Anulowane przecinające okres",""+anulowane),
                 List.of("Zarezerwowane pokojonoce",""+noce),List.of("Osobonoce",""+osobonoce),
                 List.of("Dostępne pokojonoce (aktualna baza pokoi)",""+dostepne),List.of("Obłożenie rezerwacyjne (%)",procent(noce,dostepne)),
-                List.of("Wartość noclegów w okresie (zł)",kwota(wartosc)),List.of("Wpłaty w okresie (zł)",kwota(wplaty)),
+                List.of("Wartość noclegów w okresie (zł)",kwota(wartosc)),List.of("Aktywne usługi dodane w okresie (zł)",kwota(wartoscUslug)),List.of("Wpłaty w okresie (zł)",kwota(wplaty)),
                 List.of("Zwroty w okresie (zł)",kwota(zwroty)),List.of("Wpłaty minus zwroty (zł)",kwota(wplaty.subtract(zwroty)))));
         return new Raport(od,koniec,LocalDateTime.now(),List.of(suma,
                 new Tabela("Rezerwacje i goście",List.of("ID","Główny gość","Dodatkowi goście","Pokój","Przyjazd","Wyjazd","Osoby","Status","Noce w okresie","Wartość w okresie (zł)"),rezerwacje),
                 new Tabela("Obłożenie pokoi",List.of("Pokój","Miejsca","Stan obecnie","Zarezerwowane noce","Noce okresu","Obłożenie (%)"),pokoje),
-                new Tabela("Płatności",List.of("ID","Rezerwacja ID","Data","Rodzaj","Metoda","Kwota (zł)"),platnosci)));
+                new Tabela("Płatności",List.of("ID","Rezerwacja ID","Data","Rodzaj","Metoda","Kwota (zł)"),platnosci),new Tabela("Usługi dodatkowe",List.of("ID","Rezerwacja ID","Usługa","Ilość","Jednostka","Cena jednostkowa (zł)","Wartość aktywna (zł)","Status","Dodano"),uslugi)));
     }
 }

@@ -31,7 +31,7 @@ public final class Potwierdzenia {
     }
     public static List<List<String>> rozliczenie(PotwierdzenieRezerwacji p) {
         return List.of(List.of("Cena pokoju za noc", kwota(p.cenaZaNoc())),
-                List.of("Wartość noclegów", kwota(p.wartoscPobytu())), List.of("Należność", kwota(p.naleznosc())),
+                List.of("Wartość noclegów", kwota(p.wartoscPobytu())), List.of("Usługi dodatkowe",kwota(p.kosztUslug())), List.of("Należność", kwota(p.naleznosc())),
                 List.of("Wpłaty", kwota(p.wplaty())), List.of("Zwroty", kwota(p.zwroty())),
                 List.of("Wpłaty minus zwroty", kwota(p.netto())),
                 List.of(p.saldo().signum() < 0 ? "Do zwrotu" : p.saldo().signum() > 0 ? "Do zapłaty" : "Pozostałe saldo",
@@ -84,7 +84,13 @@ public final class Potwierdzenia {
         s.append("<h2>Dane pobytu</h2>"); tabela(s, pobyt(p));
         s.append("<h2>Goście pobytu</h2><ol>");
         for (String g : goscie(p)) s.append("<li>").append(html(g)).append("</li>");
-        s.append("</ol><h2>Rozliczenie w PLN</h2>"); tabela(s, rozliczenie(p));
+        s.append("</ol>");
+        if(!p.uslugi().isEmpty()){
+            s.append("<h2>Usługi dodatkowe</h2><ul>");
+            for(var u:p.uslugi())s.append("<li>").append(html(u.opis())).append(" | Wartość: ").append(html(kwota(u.wartosc()))).append("</li>");
+            s.append("</ul><p>Do należności wliczamy wyłącznie aktywne pozycje.</p>");
+        }
+        s.append("<h2>Rozliczenie w PLN</h2>"); tabela(s, rozliczenie(p));
         s.append("<footer><p>Data wyjazdu nie jest noclegiem. Cena dotyczy całego pokoju za noc.</p>")
                 .append("<p>Dokument jest informacją o rezerwacji. Nie jest fakturą ani bankowym potwierdzeniem płatności. ")
                 .append("Kwoty wpłat i zwrotów pochodzą z ewidencji hotelu.</p>")

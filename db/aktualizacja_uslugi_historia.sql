@@ -47,7 +47,12 @@ SET @sql=IF((SELECT COUNT(*) FROM information_schema.table_constraints WHERE con
 PREPARE q FROM @sql;
 EXECUTE q;
 DEALLOCATE PREPARE q;
-ALTER TABLE historia_rezerwacji DROP CHECK chk_historia_akcja, ADD CONSTRAINT chk_historia_akcja CHECK(akcja IN ('UTWORZENIE','ZMIANA_TERMINU','ZMIANA_POKOJU','ZAMELDOWANIE','WYMELDOWANIE','ANULOWANIE','WPLATA','ZWROT','DODANIE_USLUGI','ANULOWANIE_USLUGI','ZMIANA_NOTATKI','ZMIANA_UCZESTNIKOW'));
+SET @istnieje=(SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_schema=DATABASE() AND table_name='historia_rezerwacji' AND constraint_name='chk_historia_akcja' AND constraint_type='CHECK');
+SET @nowy='ADD CONSTRAINT chk_historia_akcja CHECK(akcja IN (''UTWORZENIE'',''ZMIANA_TERMINU'',''ZMIANA_POKOJU'',''ZAMELDOWANIE'',''WYMELDOWANIE'',''ANULOWANIE'',''WPLATA'',''ZWROT'',''DODANIE_USLUGI'',''ANULOWANIE_USLUGI'',''ZMIANA_NOTATKI'',''ZMIANA_UCZESTNIKOW''))';
+SET @sql=CONCAT('ALTER TABLE historia_rezerwacji ',IF(@istnieje>0,CONCAT(IF(LOCATE('MariaDB',VERSION())>0,'DROP CONSTRAINT ','DROP CHECK '),'chk_historia_akcja, '),''),@nowy);
+PREPARE polecenie FROM @sql;
+EXECUTE polecenie;
+DEALLOCATE PREPARE polecenie;
 INSERT INTO historia_rezerwacji(rezerwacja_id,pracownik_id,login_pracownika,akcja,przed,po,utworzono,platnosc_id)
 SELECT p.rezerwacja_id,p.pracownik_id,k.login,p.rodzaj,NULL,
  CONCAT('Płatność #',p.id,' | ',p.rodzaj,' | Kwota: ',p.kwota,' zł | Metoda: ',p.metoda,

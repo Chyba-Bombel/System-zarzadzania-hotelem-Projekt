@@ -77,7 +77,7 @@ final class TerminyRezerwacjiDAO {
                 long noweNoce = ChronoUnit.DAYS.between(noweOd, noweDo);
 
                 BigDecimal nowaNaleznosc =
-                        stawka.multiply(BigDecimal.valueOf(noweNoce));
+                        stawka.multiply(BigDecimal.valueOf(noweNoce)).add(KosztyDAO.sumaUslug(polaczenie,id));
 
                 BigDecimal netto = RozliczeniaDAO.pobierzNetto(polaczenie, id);
 

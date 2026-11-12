@@ -23,7 +23,7 @@ public final class Raporty {
             + "dzień wyjazdu nie jest noclegiem. Obłożenie rezerwacyjne obejmuje pobyty potwierdzone, zameldowane "
             + "i zakończone, bez anulowanych. Mianownik: wszystkie aktualne pokoje × dni okresu (także pokoje wyłączone); "
             + "baza nie przechowuje historycznej liczby pokoi. Wartość noclegów to wycena części pobytów w okresie, "
-            + "a nie otrzymane pieniądze. Płatności liczymy według daty transakcji, niezależnie od terminu pobytu.";
+            + "a nie otrzymane pieniądze. Usługi zestawiamy według daty dodania i bieżącego statusu, bez podziału na noce. Płatności liczymy według daty transakcji, niezależnie od terminu pobytu.";
     public static Raport generuj(LocalDate od,LocalDate koniec) throws SQLException {
         return pl.hotel.baza.BazaDanych.generujRaport(od,koniec);
     }

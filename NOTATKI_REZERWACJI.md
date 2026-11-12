@@ -1,3 +1,5 @@
+Aktualizacja tej paczki wymaga nowej migracji usług i historii: USLUGI_I_WYSZUKIWANIE.md. Dawne stwierdzenia o braku migracji odnoszą się do samego pola uwagi.
+
 # Notatki recepcji do rezerwacji
 
 ## 1. Zastosowanie
@@ -34,8 +36,7 @@ Odśwież zapisaną treść, porównaj oba pola, uzupełnij szkic i zapisz go po
 
 Porównanie rozróżnia wielkie i małe litery oraz białe znaki. Nie polega na kolacji
 tekstu SQL. Nie jest to licznik wersji: zmiana tekstu i późniejsze przywrócenie
-identycznej wartości nie zostaną odróżnione od braku zmiany. Pole przechowuje tylko
-bieżącą treść i nie ma osobnej historii, autora ani czasu edycji.
+identycznej wartości nie zostaną odróżnione od braku zmiany. Pole przechowuje bieżącą treść. Zmiana dopisuje ZMIANA_NOTATKI do historii rezerwacji, z poprzednim i nowym tekstem, autorem i czasem.
 
 ## 4. Obsługa w konsoli
 
@@ -68,7 +69,7 @@ przez `String.equals`. Dopiero potem wykonuje parametryzowany UPDATE, zmieniają
 
 Zapis identycznej treści nie wykonuje UPDATE. Nie zmienia terminu, ceny, pokoju,
 uczestników, płatności ani pracownika przypisanego do utworzenia rezerwacji.
-Nie dopisuje zdarzenia do dotychczasowego dziennika pobytu.
+Identyczna treść nie dopisuje zdarzenia; rzeczywiste zmiany są audytowane.
 
 ## 6. Walidacja i zakres danych
 
@@ -78,8 +79,7 @@ Końce linii CRLF i CR są zamieniane na LF. Nowe linie i tabulatory są dozwolo
 pozostałe znaki sterujące oraz niepoprawne surogaty są odrzucane.
 Tekst składający się wyłącznie z białych znaków jest zapisywany jako pusty.
 
-Pusta notatka oznacza usuniętą aktualną treść. W tym etapie nie ma osobnego archiwum
-notatek ani mechanizmu przywracania wcześniejszych wersji. Istniejące kopie zapasowe
+Pusta notatka oznacza usuniętą aktualną treść. Wcześniejsze teksty pozostają w historii rezerwacji, bez przycisku automatycznego przywracania. Istniejące kopie zapasowe
 bazy pozostają poza zakresem tej funkcji. Notatka nie jest dodawana do modelu
 potwierdzenia ani tabel eksportowanych raportów.
 

@@ -18,7 +18,8 @@ final class EkranRezerwacji {
 
     Node stronaRezerwacji() {
         Button dodaj = przycisk("+ Nowa rezerwacja", "primary", this::formularzRezerwacji); dodaj.setId("add-booking");
-        HBox bar = pasek(app.stan.szukajRezerwacji, app.stan.statusRezerwacji, dodaj);
+        Button szukaj=przycisk("Wyszukiwanie zaawansowane","",()->new WyszukiwanieGUI(app).pokaz());szukaj.setId("booking-search");
+        FlowPane bar=new FlowPane(10,10,app.stan.szukajRezerwacji,app.stan.statusRezerwacji,dodaj,szukaj);
         Button uczestnicy = app.zaznaczony("Goście pobytu", app.stan.tabelaRezerwacji, this::formularzUczestnikow); uczestnicy.setId("booking-participants");
         Button daty = app.zaznaczony("Zmień termin", app.stan.tabelaRezerwacji, this::formularzTerminu);
         Button pokoj = app.zaznaczony("Zmień pokój", app.stan.tabelaRezerwacji, r -> new ZmianaPokojuGUI(app).pokaz(r));
@@ -29,12 +30,14 @@ final class EkranRezerwacji {
         potwierdzenie.setId("booking-confirmation");
         Button notatka = app.zaznaczony("Notatka recepcji", app.stan.tabelaRezerwacji, r -> new NotatkiGUI(app).pokaz(r));
         notatka.setId("booking-notes");
+        Button uslugi=app.zaznaczony("Usługi pobytu",app.stan.tabelaRezerwacji,r->new UslugiGUI(app).pokaz(r));uslugi.setId("booking-services");
+        Button katalog=przycisk("Katalog usług","",()->new KatalogUslugGUI(app).pokaz());katalog.setId("services-manage");katalog.setVisible(app.admin());katalog.setManaged(app.admin());
         Button zamelduj = app.zaznaczony("Zamelduj", app.stan.tabelaRezerwacji, r -> operacjaRezerwacji(r, "Zameldowanie", () -> BazaDanych.zameldujGoscia(r.getId())));
         Button wymelduj = app.zaznaczony("Wymelduj", app.stan.tabelaRezerwacji, r -> operacjaRezerwacji(r, "Wymeldowanie", () -> BazaDanych.wymeldujGoscia(r.getId())));
         Button anuluj = app.zaznaczony("Anuluj rezerwację", app.stan.tabelaRezerwacji, r -> operacjaRezerwacji(r, "Anulowanie rezerwacji", () -> BazaDanych.anulujRezerwacje(r.getId())));
         anuluj.getStyleClass().add("danger");
         VBox page = app.strona("Rezerwacje", "Wybierz pobyt z tabeli, aby zmienić termin lub obsłużyć gościa.", bar,
-                app.stan.tabelaRezerwacji, new FlowPane(10, 10, uczestnicy, daty, pokoj, historia, potwierdzenie, notatka, zamelduj, wymelduj, anuluj),
+                app.stan.tabelaRezerwacji, new FlowPane(10, 10, uczestnicy, daty, pokoj, historia, potwierdzenie, notatka, uslugi, katalog, zamelduj, wymelduj, anuluj),
                 etykieta("Wymeldowanie wymaga pełnego rozliczenia. Przed anulowaniem zwróć wpłacone środki.", "muted"));
         VBox.setVgrow(app.stan.tabelaRezerwacji, Priority.ALWAYS); return page;
     }
@@ -44,7 +47,7 @@ final class EkranRezerwacji {
     void formularzRezerwacji(Long pokojId, LocalDate przyjazd) {
 
         app.zadaniaGUI.odswiezPo("Przygotowanie rezerwacji", () -> {
-            if (app.stan.goscie.isEmpty() || app.stan.pokoje.isEmpty()) { app.komunikatyGUI.blad("Najpierw dodaj gościa i pokój."); return; }
+            if (app.stan.goscie.stream().noneMatch(g->!g.isArchiwalny()) || app.stan.pokoje.isEmpty()) { app.komunikatyGUI.blad("Najpierw dodaj lub przywróć gościa i przygotuj pokój."); return; }
             Pokoj wybrany = pokojId == null ? null : app.stan.pokoje.stream().filter(p -> p.getId() == pokojId).findFirst().orElse(null);
             if (pokojId != null) {
                 if (wybrany == null || !new pl.hotel.kalendarz.PlanKalendarza(java.time.YearMonth.from(przyjazd), app.stan.rezerwacje)
@@ -53,7 +56,7 @@ final class EkranRezerwacji {
                 }
             }
             Formularz f = new Formularz(app, "Nowa rezerwacja", "Wybierz gościa, pokój i termin pobytu.", "Utwórz rezerwację");
-            ComboBox<Gosc> gosc = new ComboBox<>(app.stan.goscie); gosc.setId("booking-guest");
+            ComboBox<Gosc> gosc = new ComboBox<>(FXCollections.observableArrayList(app.stan.goscie.stream().filter(g->!g.isArchiwalny()).toList())); gosc.setId("booking-guest");
             gosc.setConverter(konwerter(g -> "#" + g.getId() + " • " + osoba(g)));
             gosc.getSelectionModel().selectFirst(); f.dodaj("Główny gość", gosc);
             ComboBox<Pokoj> pokoj = new ComboBox<>(FXCollections.observableArrayList(app.stan.pokoje.stream()
@@ -149,7 +152,7 @@ final class EkranRezerwacji {
         if (!r.getStatus().equals("POTWIERDZONA")) { app.komunikatyGUI.blad("Zmień termin potwierdzonej rezerwacji."); return; }
         Formularz f = new Formularz(app, "Zmiana terminu #" + r.getId(), osoba(r.getGosc()) + " • pokój " + r.getPokoj().getNumer(), "Zapisz termin");
         DatePicker od = data(r.getOd()), koniec = data(r.getDoDnia()); f.dodaj("Nowy przyjazd", od); f.dodaj("Nowy wyjazd", koniec);
-        f.notatka("Cena za noc pozostanie bez zmian: " + zl(r.getCenaZaNoc()) + ". Jeśli zaliczka przekroczy nową cenę pobytu, najpierw zarejestruj zwrot nadpłaty.");
+        f.notatka("Cena za noc pozostanie bez zmian: " + zl(r.getCenaZaNoc()) + ". Ilości usług pozostają bez zmian. Jeśli zaliczka przekroczy nową cenę pobytu, najpierw zarejestruj zwrot nadpłaty.");
         f.pokaz(() -> {
             LocalDate a = dataZ(od), b = dataZ(koniec); termin(a,b);
             app.zadaniaGUI.uwierzytelnione(false, "Zmiana terminu", () -> { BazaDanych.zmienTerminRezerwacji(r.getId(),a,b); return true; },

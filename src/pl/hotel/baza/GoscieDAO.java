@@ -13,8 +13,8 @@ final class GoscieDAO {
         ArrayList<Gosc> lista = new ArrayList<>();
 
         String sql =
-                "SELECT id, imie, nazwisko, telefon, email "
-                        + "FROM goscie ORDER BY id";
+                "SELECT g.*,k.login AS archiwizowal_login "
+                        + "FROM goscie g LEFT JOIN pracownicy k ON k.id=g.archiwizowal_pracownik_id ORDER BY g.id";
 
         try (
                 Connection polaczenie = PolaczenieBazy.polacz();
@@ -45,7 +45,10 @@ final class GoscieDAO {
                         imie,
                         nazwisko,
                         telefon,
-                        email
+                        email,
+                        wynik.getBoolean("archiwizowany"),
+                        wynik.getTimestamp("archiwizowano")==null?null:wynik.getTimestamp("archiwizowano").toLocalDateTime(),
+                        wynik.getString("archiwizowal_login")
                 );
 
                 lista.add(gosc);
@@ -104,7 +107,7 @@ final class GoscieDAO {
         String sql =
                 "UPDATE goscie "
                         + "SET imie = ?, nazwisko = ?, telefon = ?, email = ? "
-                        + "WHERE id = ?";
+                        + "WHERE id = ? AND archiwizowany=FALSE";
         try (Connection polaczenie = PolaczenieBazy.polacz();
 
             PreparedStatement zapytanie = polaczenie.prepareStatement(sql)

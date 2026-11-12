@@ -62,6 +62,7 @@ final class AnulowanieRezerwacjiDAO {
                     zapytanie.executeUpdate();
                 }
 
+                ZapisUslugDAO.anulujWszystkie(polaczenie,id);
                 HistoriaDAO.zapisz(polaczenie, id, "ANULOWANIE", przedZmiana);
                 polaczenie.commit();
 

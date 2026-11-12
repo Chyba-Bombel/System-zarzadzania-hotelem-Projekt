@@ -32,16 +32,18 @@ final class PotwierdzenieGUI {
         for (Label l : List.of(status,czas,zapis)) { l.setWrapText(true); l.setMaxWidth(600); }
         TableView<List<String>> pobyt = tabela("confirmation-stay"), saldo = tabela("confirmation-balance");
         ListView<String> goscie = new ListView<>(); goscie.setId("confirmation-guests"); goscie.setPrefHeight(300);
+        ListView<String> uslugi=new ListView<>();uslugi.setId("confirmation-services");
         TabPane tabs = new TabPane(); tabs.setId("confirmation-tabs");
-        for (Tab tab : List.of(new Tab("Pobyt",pobyt),new Tab("Goście",goscie),new Tab("Rozliczenie",saldo))) {
+        for (Tab tab : List.of(new Tab("Pobyt",pobyt),new Tab("Goście",goscie),new Tab("Rozliczenie",saldo),new Tab("Usługi",uslugi))) {
             tab.setClosable(false); tabs.getTabs().add(tab);
         }
         Button zapisz = przycisk("Zapisz HTML", "primary", null); zapisz.setId("confirmation-save"); zapisz.setDisable(true);
         Runnable odswiez = () -> {
-            wynik = null; zapisz.setDisable(true); pobyt.getItems().clear(); saldo.getItems().clear(); goscie.getItems().clear();
+            wynik = null; zapisz.setDisable(true); pobyt.getItems().clear(); saldo.getItems().clear(); goscie.getItems().clear();uslugi.getItems().clear();
             status.setText("Pobieranie danych…"); czas.setText(""); zapis.setText("");
             app.zadaniaGUI.uwierzytelnione(false, "Przygotowanie potwierdzenia",
                     () -> BazaDanych.pobierzPotwierdzenieRezerwacji(r.getId()), p -> {
+                uslugi.getItems().setAll(p.uslugi().stream().map(u->u.opis()).toList());
                 wynik = p; pobyt.getItems().setAll(Potwierdzenia.pobyt(p)); saldo.getItems().setAll(Potwierdzenia.rozliczenie(p));
                 goscie.getItems().setAll(Potwierdzenia.goscie(p)); status.setText(Potwierdzenia.uwaga(p));
                 status.setStyle(p.anulowana() ? "-fx-text-fill: #a12638; -fx-font-weight: bold;" : "");

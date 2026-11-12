@@ -45,6 +45,7 @@ final class StanGUI {
     final TextField szukajPokoju = pole("Szukaj numeru lub typu pokoju");
     final TextField szukajRezerwacji = pole("Szukaj ID, gościa lub numeru pokoju");
     final TextField szukajKonta = pole("Szukaj nazwiska lub loginu");
+    final ComboBox<String> stanGoscia = wybor("Aktywni", "Archiwalni", "Wszyscy");
     final ComboBox<String> stanPokoju = wybor("Wszystkie stany", "GOTOWY", "DO_SPRZATANIA", "WYLACZONY");
     final ComboBox<String> statusRezerwacji = wybor("Wszystkie statusy", "POTWIERDZONA", "ZAMELDOWANA", "ZAKONCZONA", "ANULOWANA");
     final DatePicker dostepnyOd = data(LocalDate.now());

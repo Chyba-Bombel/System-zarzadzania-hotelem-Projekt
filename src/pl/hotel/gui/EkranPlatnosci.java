@@ -35,7 +35,7 @@ final class EkranPlatnosci {
         String saldo = r.saldo().signum() > 0 ? "Do dopłaty: " + zl(r.saldo())
                 : r.saldo().signum() < 0 ? "Do zwrotu: " + zl(r.saldo().abs()) : "Rezerwacja rozliczona";
         app.stan.szczegoly.setText("Rezerwacja #" + r.rezerwacjaId() + " • " + r.status()
-                + "\nCena pobytu: " + zl(r.cenaPobytu()) + "    Należność: " + zl(r.naleznosc())
+                + "\nCena pobytu: " + zl(r.cenaPobytu())+"    Usługi: "+zl(r.uslugi()) + "    Należność: " + zl(r.naleznosc())
                 + "\nWpłaty: " + zl(r.wplaty()) + "    Zwroty: " + zl(r.zwroty())
                 + "    Zapłacono netto: " + zl(r.zaplaconoNetto()) + "\n" + saldo);
         app.stan.tabelaPlatnosci.setItems(FXCollections.observableArrayList(r.platnosci()));

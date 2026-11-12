@@ -17,6 +17,9 @@ final class TabeleGUI {
         app.stan.tabelaKont.setId("accounts-table"); app.stan.tabelaRozliczen.setId("balances-table"); app.stan.tabelaPlatnosci.setId("payments-table");
         kol(app.stan.tabelaGosci,"ID",60,Gosc::getId); kol(app.stan.tabelaGosci,"Imię",140,Gosc::getImie);
         kol(app.stan.tabelaGosci,"Nazwisko",180,Gosc::getNazwisko); kol(app.stan.tabelaGosci,"Telefon",180,Gosc::getTelefon); kol(app.stan.tabelaGosci,"E-mail",260,Gosc::getEmail);
+        kol(app.stan.tabelaGosci,"Kartoteka",110,g->g.isArchiwalny()?"ARCHIWALNA":"AKTYWNA");
+        kol(app.stan.tabelaGosci,"Archiwizowano",180,Gosc::getArchiwizowano);
+        kol(app.stan.tabelaGosci,"Archiwizował",140,Gosc::getArchiwizowalLogin);
         kol(app.stan.tabelaPokoi,"ID",60,Pokoj::getId); kol(app.stan.tabelaPokoi,"Numer",100,Pokoj::getNumer);
         kol(app.stan.tabelaPokoi,"Typ",180,p -> app.stan.typy.getOrDefault(p.getId(),"")); kol(app.stan.tabelaPokoi,"Miejsca",90,Pokoj::getLiczbaMiejsc);
         kol(app.stan.tabelaPokoi,"Cena za noc (zł)",150,Pokoj::getCenaZaNoc); kol(app.stan.tabelaPokoi,"Stan",180,Pokoj::getStan);
@@ -34,6 +37,8 @@ final class TabeleGUI {
         pusta(app.stan.tabelaRozliczen,"Brak rezerwacji."); pusta(app.stan.tabelaPlatnosci,"Brak płatności lub nie wybrano rozliczenia.");
         for (TextField t : new TextField[]{app.stan.szukajGoscia,app.stan.szukajPokoju,app.stan.szukajRezerwacji,app.stan.szukajKonta})
             t.textProperty().addListener((o,a,b) -> filtruj());
+        app.stan.stanGoscia.setId("guest-state");
+        app.stan.stanGoscia.valueProperty().addListener((o,a,b)->filtruj());
         app.stan.stanPokoju.valueProperty().addListener((o,a,b) -> filtruj()); app.stan.statusRezerwacji.valueProperty().addListener((o,a,b) -> filtruj());
         app.stan.tabelaRozliczen.getSelectionModel().selectedItemProperty().addListener((o,a,b) -> {
             app.stan.tabelaPlatnosci.getItems().clear(); app.stan.szczegoly.setText("Kliknij „Pokaż rozliczenie”, aby pobrać aktualne saldo.");
@@ -44,11 +49,12 @@ final class TabeleGUI {
         kol(t,"ID",60,Rezerwacja::getId); kol(t,"Goście pobytu",270,Rezerwacja::getGosciePobytu);
         kol(t,"Pokój",75,r -> r.getPokoj().getNumer()); kol(t,"Przyjazd",115,Rezerwacja::getOd);
         kol(t,"Wyjazd",115,Rezerwacja::getDoDnia); kol(t,"Osoby",65,Rezerwacja::getLiczbaOsob);
-        kol(t,"Cena (zł)",110,Rezerwacja::obliczCene); kol(t,"Status",165,Rezerwacja::getStatus);
+        kol(t,"Razem (zł)",110,Rezerwacja::obliczCene); kol(t,"Saldo (zł)",110,Rezerwacja::getSaldo); kol(t,"Status",165,Rezerwacja::getStatus);
     }
 
     void filtruj() {
-        app.stan.widoczniGoscie.setPredicate(g -> pasuje(app.stan.szukajGoscia.getText(), osoba(g) + " " + g.getTelefon() + " " + g.getEmail() + " " + g.getId()));
+        app.stan.widoczniGoscie.setPredicate(g -> pasuje(app.stan.szukajGoscia.getText(), osoba(g) + " " + g.getTelefon() + " " + g.getEmail() + " " + g.getId())
+                && (app.stan.stanGoscia.getSelectionModel().getSelectedIndex()==2 || g.isArchiwalny()==(app.stan.stanGoscia.getSelectionModel().getSelectedIndex()==1)));
         app.stan.widoczneRezerwacje.setPredicate(r -> pasuje(app.stan.szukajRezerwacji.getText(), r.getId() + " " + r.getGosciePobytu() + " " + r.getPokoj().getNumer())
                 && (app.stan.statusRezerwacji.getValue() == null || app.stan.statusRezerwacji.getValue().equals("Wszystkie statusy") || r.getStatus().equals(app.stan.statusRezerwacji.getValue())));
         app.stan.widoczneKonta.setPredicate(k -> pasuje(app.stan.szukajKonta.getText(), k.id() + " " + k.imie() + " " + k.nazwisko() + " " + k.login()));

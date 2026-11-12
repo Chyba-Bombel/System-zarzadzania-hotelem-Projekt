@@ -1,99 +1,54 @@
 # Historia zmian rezerwacji
 
-## 1. Co dodaje ten etap
+## 1. Zakres
 
-Dziennik pokazuje, kto i kiedy utworzył rezerwację, zmienił jej termin lub pokój,
-zameldował, wymeldował albo anulował pobyt. Każdy wpis przechowuje stan przed
-zmianą i po niej: numer i ID pokoju, daty, status, liczbę osób oraz stawkę za noc.
-Nie zapisuje haseł, telefonów ani adresów e-mail. Edycja kontaktu gościa, listy
-uczestników i operacje płatnicze nie są zdarzeniami tego dziennika; wpłaty i zwroty
-nadal mają własną ewidencję w tabeli `platnosci`.
+Dziennik jednej rezerwacji pokazuje czas serwera MySQL, autora i dane przed/po. Ma 12 typów: UTWORZENIE, ZMIANA_TERMINU, ZMIANA_POKOJU, ZAMELDOWANIE, WYMELDOWANIE, ANULOWANIE, WPLATA, ZWROT, DODANIE_USLUGI, ANULOWANIE_USLUGI, ZMIANA_NOTATKI i ZMIANA_UCZESTNIKOW.
 
-## 2. Uruchomienie na istniejącej bazie
+Zmiany pobytu pokazują pokój, daty, status, liczbę osób i stawkę. Płatności: ID, kwotę, metodę oraz wpłaty netto przed/po. Usługi: historyczną pozycję i wartość. Notatki i uczestnicy: poprzednią oraz nową treść/listę. Identyczne dane nie tworzą pozornych zmian.
 
-1. Wykonaj kopię swojej bazy.
-2. W MySQL Workbench, jako administrator, otwórz i wykonaj
-   `db/aktualizacja_historia.sql` na swoim schemacie. Dla innej nazwy zmień `USE`.
-3. Nadaj kontu technicznemu odczyt i dopisywanie tabeli. Dla standardowych dwóch
-   kont projektowych wykonaj `db/uprawnienia_historia.sql`. Jeśli używasz innego
-   loginu, hosta lub schematu, dostosuj polecenia. Nie twórz nieużywanych kont.
-   Jeżeli masz tylko jedno z wymienionych kont, wykonaj tylko pasujący `GRANT`.
-4. Rozpakuj nowy program do osobnego folderu, przenieś własny `db.properties`.
-5. Uruchom program i wykonaj zmianę testowej rezerwacji, następnie otwórz historię.
+Historia nie obejmuje edycji kartoteki gościa, cennika, kont ani stanu pokoju. Nie jest rejestrem błędnych logowań i odrzuconych operacji. Nie zapisuje haseł, telefonów ani e-maili; nie wpisuj ich do notatek.
 
-Nowa instalacja z `HotelManager_baza.sql` zawiera tabelę i uprawnienia.
-Nie wykonuj pełnego importu na dotychczasowych rekordach. Migracja historii nie
-zastępuje wymaganych wcześniej migracji bezpieczeństwa ani dodatkowych gości.
+## 2. Aktualizacja
 
-## 3. Ekran i konsola
+Dla wcześniejszej działającej historii wykonaj db/aktualizacja_uslugi_historia.sql, następnie db/uprawnienia_uslugi.sql. Zamknij stanowiska, zrób kopię bazy, dostosuj schemat/konto/host. Jeśli tabeli historii nie ma, wcześniej wykonaj db/aktualizacja_historia.sql i db/uprawnienia_historia.sql. Starsze migracje uczestników i bezpieczeństwa nadal obowiązują. Nowy pełny import zawiera całość. Nie importuj danych demo do istniejącej bazy. Szczegóły: USLUGI_I_WYSZUKIWANIE.md, rozdział 1.
 
-W GUI zaznacz rezerwację i kliknij **Historia**. Tabela pokazuje najnowsze wpisy.
-Po zaznaczeniu wiersza poniżej odczytasz oba stany. **Starsze wpisy** pobiera
-kolejną stronę, **Najnowsze / odśwież** wraca do początku. **Zamknij** kończy podgląd.
-W konsoli wybierz **25**, podaj ID rezerwacji; starsze strony potwierdzaj słowem `TAK`.
-Odczyt jest dostępny dla recepcji i administratora po sprawdzeniu bieżącej sesji.
+## 3. Stare płatności
 
-## 4. Baza i relacje
+Migracja dopisuje wpłaty i zwroty z tabeli platnosci: czas transakcji, pracownika, kwotę, metodę i ID. Login kopiuje z aktualnej kartoteki pracownika przy migracji, ponieważ ledger nie ma dawnego brzmienia loginu. Wpis jest wyraźnie oznaczony jako odtworzony; nie wymyśla poprzedniego salda. Unikalny platnosc_id zapobiega duplikatom po ponownej migracji.
+
+Dawnych zmian terminu, pokoju, notatek i osób bez ewidencji nie da się odtworzyć. Nowe płatności zapisują pełne stany netto i login z chwili operacji. Zmiany wykonane bezpośrednio przez Workbench lub dawny program nie są automatycznie logowane.
+
+## 4. Obsługa
+
+Rezerwacje → zaznacz pobyt → Historia. Tabela ma do 100 wpisów; wybierz wiersz, by odczytać oba stany. Starsze wpisy pobiera następną stronę, Najnowsze / odśwież wraca do początku. Konsola: 25, ID pobytu, starsze strony potwierdzaj TAK.
+
+Podgląd jest dostępny recepcji i administratorowi. Historia zawiera wewnętrzne notatki i nazwiska, dlatego nie trafia do raportu ani potwierdzenia dla gościa.
+
+## 5. Tabela i relacje
 
 | Pole | Znaczenie |
 | --- | --- |
-| `id` | Rosnący identyfikator wpisu, porządek wyświetlania. |
-| `rezerwacja_id` | Klucz obcy do jednej rezerwacji; rezerwacja ma wiele zdarzeń. |
-| `pracownik_id` | Klucz obcy do autora operacji, pobrany z uwierzytelnionej sesji. |
-| `login_pracownika` | Login zapisany w momencie zdarzenia; późniejsza zmiana konta nie przepisuje tej wartości. |
-| `akcja` | Jeden z sześciu dozwolonych rodzajów zdarzeń. |
-| `przed`, `po` | Tekstowe kopie poprzednich i nowych danych; `przed` jest NULL przy utworzeniu. |
-| `utworzono` | Data i czas serwera MySQL z dokładnością do mikrosekund. |
+| id | Unikalne ID; rozstrzyga kolejność przy tym samym czasie. |
+| rezerwacja_id | Klucz obcy do pobytu. |
+| pracownik_id | Klucz obcy do autora. |
+| login_pracownika | Kopia loginu. Oznaczone stare płatności mają login z chwili migracji. |
+| platnosc_id | Opcjonalny unikalny klucz obcy do płatności, NULL dla innych akcji. |
+| akcja | Jeden z 12 typów kontrolowanych CHECK. |
+| przed, po | Tekstowe migawki; przed jest NULL przy utworzeniu i odtworzeniu starej płatności. |
+| utworzono | DATETIME(6), czas serwera lub czas starej transakcji. |
 
-Klucze obce mają `ON DELETE RESTRICT`. Program dezaktywuje konta, zamiast usuwać
-pracowników powiązanych z historią. Indeks `(rezerwacja_id, id)` wspiera strony.
+Klucze obce mają ON DELETE RESTRICT. Indeks (rezerwacja_id,utworzono,id) wspiera kolejność czasu i ID malejąco. Nie sortujemy wyłącznie po ID: stara płatność zaimportowana teraz ma większe ID, lecz starszą datę.
 
-## 5. Przebieg transakcji i klasy
+## 6. Kod
 
-DAO wykonujące operację blokuje odpowiednie wiersze zgodnie z dotychczasowymi
-regułami. `HistoriaDAO.stan(connection, id)` odczytuje stan przed zmianą.
-Po wykonaniu modyfikacji `HistoriaDAO.zapisz(connection, id, akcja, przed)` odczytuje
-nowy stan, pobiera tożsamość z kontekstu i dopisuje wpis przez to samo połączenie.
-Dopiero potem wykonywany jest `commit()`. Błąd historii uruchamia dotychczasowy
-`rollback()`, obejmujący rezerwację, ewentualne sprzątanie i zdarzenie.
+HistoriaDAO.stan odczytuje stan pobytu; zapisz dopisuje jego zmianę, a opis przyjmuje migawki właściwe dla płatności, usług, notatek lub osób. DAO operacji używa tego samego Connection, autora z kontekstu sesji i dopiero potem wykonuje commit. Błąd historii uruchamia rollback całej operacji.
 
-Dla utworzenia poprzedni stan jest NULL. Powtórzenie identycznego terminu nie
-tworzy pozornej zmiany, bo oba stany są równe. Odrzucone operacje nie są wpisami
-historii — to dziennik zatwierdzonych zmian, a nie rejestr prób i błędów logowania.
+Fasada BazaDanych udostępnia chroniony odczyt pobierzHistorieRezerwacji(id,przedId), bez publicznego dopisywania dowolnego zdarzenia i autora. Model: ZmianaRezerwacji, StronaHistorii. Widoki: HistoriaRezerwacjiGUI i HistoriaKonsola.
 
-Publiczna fasada `BazaDanych` udostępnia `pobierzHistorieRezerwacji(id, przedId)`.
-Nie udostępnia dopisywania wpisów przez formularz ani parametrów autora zdarzenia.
-`ZmianaRezerwacji` i `StronaHistorii` są niezmiennymi rekordami modelu.
-`HistoriaRezerwacjiGUI` odpowiada za okno, a `HistoriaKonsola` za opcję 25.
+Kursor 0 pobiera najnowsze. Dalsza strona przekazuje ostatnie ID; DAO ustala jego czas i wybiera starszą datę albo tę samą z mniejszym ID. Pobranie 101. wiersza rozpoznaje dalsze strony. Kursor innego pobytu jest odrzucany. Nowe wpisy na początku nie przesuwają granicy starszych wyników.
 
-Strona zawiera do 100 wpisów. Zapytanie pobiera 101. wiersz, aby rozpoznać, czy
-są starsze. Następna strona używa `id < ostatnieId`, więc nowy wpis na początku
-nie przesuwa granicy starszych wyników. Wartości trafiają do SQL przez parametry.
+## 7. Granice i testy
 
-## 6. Ograniczenia
+Interfejs nie edytuje i nie usuwa historii. Minimalne konto MySQL ma SELECT i INSERT; GRANT nie odbiera wcześniejszych szerokich uprawnień. Osoba kontrolująca serwer lub wspólne hasło techniczne z szerszymi prawami może ingerować w dane. To nie jest dziennik kryptograficznie odporny na administratora bazy.
 
-Historia zaczyna działać po aktualizacji programu i bazy. Nie odtwarza dawnych
-zmian i nie dopisuje sztucznych autorów do rekordów demonstracyjnych.
-Starsze rezerwacje mogą mieć pustą historię aż do pierwszej nowej operacji.
-Bezpośrednie zmiany przez Workbench lub starszą wersję programu nie są logowane.
-
-To dziennik zmian, a nie dokładna historia noclegów w kolejnych pokojach.
-Zmiana `pokoj_id` nadal dotyczy całej rezerwacji w kalendarzu i raportach.
-Nie zmieniono sposobu liczenia obłożenia i należności.
-
-Interfejs nie umożliwia edycji ani usuwania wpisów. Nowy profil minimalnych
-uprawnień przyznaje tylko SELECT i INSERT do historii. Dodatkowy skrypt GRANT
-nie odbiera wcześniejszych szerokich uprawnień; sprawdź je osobno, jeżeli konto
-miało pełny dostęp do schematu. Administrator MySQL albo osoba ze wspólnym
-hasłem JDBC i odpowiednimi grantami może zmienić dziennik. Nie jest to rejestr
-kryptograficznie zabezpieczony przed ingerencją osoby kontrolującej serwer.
-
-## 7. Sprawdzenie
-
-`HistoryProbe` weryfikuje autorów, sześć zdarzeń, obie kopie danych, pomijanie
-pozornych zmian i odmów, rollback przy wymuszonym błędzie oraz ponad 100 wpisów.
-`PrivilegeProbe` wykonuje skrypt grantów na tymczasowych kontach i sprawdza zakaz
-UPDATE/DELETE historii. GUI i konsola mają scenariusze odczytu historii.
-Migracja została sprawdzona dwukrotnie na poprzednim schemacie z porównaniem
-wszystkich istniejących rekordów. Polecenia uruchomienia są w `TESTOWANIE.md`.
-Źródła pozostają bez komentarzy; wyjaśnienia znajdują się w dokumentacji.
+Zmiana pokoju nadal dotyczy całego pobytu, bez odcinków noclegów. HistoryProbe sprawdza dotychczasowe zdarzenia i rollback. ServicesSearchProbe rozszerza weryfikację o finanse, usługi, notatki, uczestników, błędy historii i daty importu. PrivilegeProbe weryfikuje granty, GUI i konsola mają osobne scenariusze. Wyniki: WYNIKI_TESTOW_USLUGI_WYSZUKIWANIE.txt.

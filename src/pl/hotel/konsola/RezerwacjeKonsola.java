@@ -17,12 +17,14 @@ final class RezerwacjeKonsola {
     }
 
     static boolean dodajRezerwacja(){
+        try{StanKonsoli.goscie=BazaDanych.pobierzGosci();}
+        catch(SQLException e){System.out.println(pl.hotel.bezpieczenstwo.KomunikatyBledu.dlaUzytkownika(e));return true;}
         GoscieKonsola.wyswietlGosci();
         Integer id  = WejscieKonsoli.wczytajLiczbe("ID Goscia: ");
         if (id == null) return false;
         Gosc wybranyGosc = null;
         for (Gosc g : StanKonsoli.goscie){
-            if (g.getId() == id) wybranyGosc = g;
+            if (g.getId() == id && !g.isArchiwalny()) wybranyGosc = g;
 
         }
         if (wybranyGosc == null){

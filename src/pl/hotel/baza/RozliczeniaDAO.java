@@ -11,6 +11,13 @@ final class RozliczeniaDAO {
     private RozliczeniaDAO() {}
 
     public static Rozliczenie pobierzRozliczenie(int id) throws SQLException{
+        try(Connection c=PolaczenieBazy.polacz()){
+            c.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);c.setReadOnly(true);c.setAutoCommit(false);
+            try{var r=pobierz(c,id);c.commit();return r;}
+            catch(SQLException|RuntimeException e){try{c.rollback();}catch(SQLException b){e.addSuppressed(b);}throw e;}
+        }
+    }
+    static Rozliczenie pobierz(Connection polaczenie,int id)throws SQLException {
         String sql =
                 "SELECT r.id AS rezerwacja_id, r.status, "
                         + "r.data_od, r.data_do, r.cena_za_noc, "
@@ -20,7 +27,7 @@ final class RozliczeniaDAO {
                         + "LEFT JOIN platnosci p ON p.rezerwacja_id = r.id "
                         + "WHERE r.id = ? "
                         + "ORDER BY p.data_platnosci, p.id";
-        try (Connection polaczenie = PolaczenieBazy.polacz(); PreparedStatement zapytanie = polaczenie.prepareStatement(sql)){
+        try (PreparedStatement zapytanie = polaczenie.prepareStatement(sql)){
             zapytanie.setInt(1, id);
 
             try (ResultSet wynik = zapytanie.executeQuery()){
@@ -34,7 +41,8 @@ final class RozliczeniaDAO {
 
                 long liczbaNocy = ChronoUnit.DAYS.between(od,doDnia);
                 BigDecimal cenaPobytu = wynik.getBigDecimal("cena_za_noc").multiply(BigDecimal.valueOf(liczbaNocy));
-                BigDecimal naleznosc = status.equals("ANULOWANA") ? new BigDecimal("0.00") : cenaPobytu;
+                BigDecimal uslugi=KosztyDAO.sumaUslug(polaczenie,id);
+                BigDecimal naleznosc=status.equals("ANULOWANA")?new BigDecimal("0.00"):cenaPobytu.add(uslugi);
 
                 BigDecimal wplaty = new BigDecimal("0.00");
                 BigDecimal zwroty = new BigDecimal("0.00");
@@ -61,7 +69,7 @@ final class RozliczeniaDAO {
                     platnosi.add(platnosc);
                 } while (wynik.next());
 
-                return new Rozliczenie(id,status,cenaPobytu,naleznosc,wplaty,zwroty,platnosi);
+                return new Rozliczenie(id,status,cenaPobytu,uslugi,naleznosc,wplaty,zwroty,platnosi);
 
             }
 

@@ -16,13 +16,20 @@ final class EkranGosci {
     Node stronaGosci() {
         Button dodaj = przycisk("+ Dodaj gościa", "primary", () -> formularzGoscia(null)); dodaj.setId("add-guest");
         Button edytuj = przycisk("Edytuj zaznaczonego", "", () -> formularzGoscia(app.stan.tabelaGosci.getSelectionModel().getSelectedItem()));
-        edytuj.disableProperty().bind(app.stan.tabelaGosci.getSelectionModel().selectedItemProperty().isNull());
-        HBox bar = pasek(app.stan.szukajGoscia, dodaj, edytuj);
-        VBox page = app.strona("Goście", "Dane kontaktowe gości hotelowych.", bar, app.stan.tabelaGosci);
+        edytuj.setId("guest-edit");
+        Button archiwizuj=przycisk("Archiwizuj","",()->new ArchiwumGosciGUI(app).pokaz(app.stan.tabelaGosci.getSelectionModel().getSelectedItem(),true));archiwizuj.setId("guest-archive");
+        Button przywroc=przycisk("Przywróć","",()->new ArchiwumGosciGUI(app).pokaz(app.stan.tabelaGosci.getSelectionModel().getSelectedItem(),false));przywroc.setId("guest-restore");
+        var zaznaczenie=app.stan.tabelaGosci.getSelectionModel().selectedItemProperty();
+        edytuj.disableProperty().bind(javafx.beans.binding.Bindings.createBooleanBinding(()->zaznaczenie.get()==null||zaznaczenie.get().isArchiwalny(),zaznaczenie));
+        archiwizuj.disableProperty().bind(edytuj.disableProperty());
+        przywroc.disableProperty().bind(javafx.beans.binding.Bindings.createBooleanBinding(()->zaznaczenie.get()==null||!zaznaczenie.get().isArchiwalny(),zaznaczenie));
+        FlowPane bar=new FlowPane(10,10,app.stan.szukajGoscia,app.stan.stanGoscia,dodaj,edytuj,archiwizuj,przywroc);
+        VBox page = app.strona("Goście", "Aktywne kartoteki i archiwum. Archiwizacja zachowuje dotychczasowe rezerwacje.", bar, app.stan.tabelaGosci);
         VBox.setVgrow(app.stan.tabelaGosci, Priority.ALWAYS); return page;
     }
 
     void formularzGoscia(Gosc g) {
+        if(g!=null&&g.isArchiwalny()){app.komunikatyGUI.blad("Najpierw przywróć kartotekę gościa.");return;}
         Formularz f = new Formularz(app, g == null ? "Nowy gość" : "Edycja gościa", "Dane kontaktowe", "Zapisz gościa");
         TextField imie = f.tekst("Imię", g == null ? "" : g.getImie()); imie.setId("guest-first-name");
         TextField nazwisko = f.tekst("Nazwisko", g == null ? "" : g.getNazwisko()); nazwisko.setId("guest-last-name");

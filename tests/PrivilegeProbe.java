@@ -23,10 +23,10 @@ public final class PrivilegeProbe {
                     q.execute("GRANT INSERT ON "+baza+".platnosci TO "+user);
                     q.execute("GRANT INSERT,DELETE ON "+baza+".uczestnicy_rezerwacji TO "+user);
                 }
-                String granty=Files.readString(Path.of("db/uprawnienia_historia.sql")).replace("hotel_manager",baza).replace("'hotel_app'","'"+konto+"'");
+                String granty=(Files.readString(Path.of("db/uprawnienia_historia.sql"))+"\n"+Files.readString(Path.of("db/uprawnienia_uslugi.sql"))).replace("hotel_manager",baza).replace("'hotel_app'","'"+konto+"'");
                 for(String polecenie:granty.split(";")) if(!polecenie.isBlank())q.execute(polecenie);
                 try(Connection c=DriverManager.getConnection(p.getProperty("url"),konto,haslo);Statement z=c.createStatement()) {
-                    for(String sql:List.of("CREATE TABLE niedozwolona_tabela (id INT)","DELETE FROM historia_rezerwacji WHERE 1=0","UPDATE historia_rezerwacji SET akcja=akcja WHERE 1=0","DELETE FROM platnosci WHERE 1=0","UPDATE platnosci SET kwota=kwota WHERE 1=0")) {
+                    for(String sql:List.of("CREATE TABLE niedozwolona_tabela (id INT)","DELETE FROM historia_rezerwacji WHERE 1=0","UPDATE historia_rezerwacji SET akcja=akcja WHERE 1=0","DELETE FROM platnosci WHERE 1=0","UPDATE platnosci SET kwota=kwota WHERE 1=0","DELETE FROM uslugi WHERE 1=0","DELETE FROM pozycje_uslug WHERE 1=0")) {
                         try{z.execute(sql);throw new AssertionError("Nadmierne uprawnienia techniczne");}
                         catch(SQLException ok){check(ok.getErrorCode()==1142||ok.getErrorCode()==1044,"Odmowa musi wynikać z uprawnień");}
                     }
@@ -44,12 +44,25 @@ public final class PrivilegeProbe {
                 var drugi=BazaDanych.pobierzPokoje().stream().filter(x->x.getNumer().equals("MIN2")).findFirst().orElseThrow();
                 BazaDanych.zmienPokojRezerwacji(r.getId(),pokoj.getId(),drugi.getId());
                 check(IntegrationProbe.rezerwacja(r.getId()).getPokoj().getId()==drugi.getId(),"Zmiana pokoju na ograniczonym koncie");
-                check(BazaDanych.pobierzHistorieRezerwacji(r.getId(),0).wpisy().size()==2,"Historia na ograniczonym koncie");
+                check(BazaDanych.pobierzHistorieRezerwacji(r.getId(),0).wpisy().size()==4,"Historia na ograniczonym koncie");
                 check(BazaDanych.pobierzPotwierdzenieRezerwacji(r.getId()).pokoj().equals("MIN2"),"Potwierdzenie na ograniczonym koncie");
+                var u=BazaDanych.zapiszUsluge(null,"Minimalny parking","doba",new BigDecimal("10"),true);
+                var pozycja=BazaDanych.dodajUslugeDoRezerwacji(r.getId(),u,2,1);
+                check(BazaDanych.pobierzUslugiRezerwacji(r.getId()).rozliczenie().uslugi().compareTo(new BigDecimal("20"))==0,"Usługi na ograniczonych grantach");
+                BazaDanych.anulujUslugeRezerwacji(r.getId(),pozycja.id());
+                check(!BazaDanych.wyszukajRezerwacje(pl.hotel.model.FiltrRezerwacji.wszystkie(),0).wyniki().isEmpty(),"Wyszukiwanie na ograniczonych grantach");
                 BazaDanych.zapiszNotatkeRezerwacji(r.getId(),"","Notatka na ograniczonym koncie");
                 check(BazaDanych.pobierzNotatkeRezerwacji(r.getId()).tresc().equals("Notatka na ograniczonym koncie"),"Notatki na ograniczonym koncie");
+                BazaDanych.dodajPokoj("MIN3","Test",1,new BigDecimal("100"));
+                var pusty=BazaDanych.pobierzPokoje().stream().filter(x->x.getNumer().equals("MIN3")).findFirst().orElseThrow();
+                BazaDanych.wylaczPokoj(pusty.getId(),"GOTOWY");
+                check(BazaDanych.przywrocPokoj(pusty.getId(),"WYLACZONY").getStan().equals("DO_SPRZATANIA"),"Dostępność pokoju na ograniczonym koncie");
                 check(BazaDanych.edytujGoscia(g.getId(),"Jan","Minimalny","500123457","min@example.com"),"Edycja gościa");
-                check(Raporty.generuj(LocalDate.now(),LocalDate.now()).tabele().size()==4,"Raport na ograniczonym koncie");
+                check(Raporty.generuj(LocalDate.now(),LocalDate.now()).tabele().size()==5,"Raport na ograniczonym koncie");
+                var arch=BazaDanych.zapiszGoscia("Jan","MinimalneArchiwum","500123456","min-archive@example.com");
+                BazaDanych.archiwizujGoscia(arch.getId());
+                check(BazaDanych.pobierzGosci().stream().anyMatch(x->x.getId()==arch.getId()&&x.isArchiwalny()),"Archiwizacja na ograniczonym koncie");
+                BazaDanych.przywrocGoscia(arch.getId());
                 System.out.println("PRIVILEGES_OK: brak DDL i zmiany/usuwania płatności; obsługa pobytu działa na minimalnych grantach.");
             } finally {
                 Files.writeString(plik,stara);BazaDanych.wyloguj();

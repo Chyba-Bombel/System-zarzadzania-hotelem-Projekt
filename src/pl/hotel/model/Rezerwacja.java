@@ -14,6 +14,12 @@ public class Rezerwacja {
         int brak = liczbaOsob - 1 - uczestnicy.size();
         return nazwy + (brak > 0 ? " (brak danych " + brak + " os.)" : "");
     }
+    private BigDecimal kosztUslug=BigDecimal.ZERO,netto=BigDecimal.ZERO;
+    public void ustawRozliczenie(BigDecimal uslugi,BigDecimal netto){this.kosztUslug=uslugi;this.netto=netto;}
+    public BigDecimal getKosztUslug(){return kosztUslug;}
+    public BigDecimal getNetto(){return netto;}
+    public BigDecimal getNaleznosc(){return isAnulowana()?BigDecimal.ZERO:obliczCene();}
+    public BigDecimal getSaldo(){return getNaleznosc().subtract(netto);}
     private final int id;
     private final Gosc gosc;
     private final Pokoj pokoj;
@@ -60,7 +66,7 @@ public class Rezerwacja {
         status = "ANULOWANA";
     }
     public BigDecimal obliczCene(){
-        return cenaZaNoc.multiply(BigDecimal.valueOf(liczbaNocy()));
+        return cenaZaNoc.multiply(BigDecimal.valueOf(liczbaNocy())).add(kosztUslug);
     }
 
     public long liczbaNocy() {

@@ -64,6 +64,7 @@ final class TworzenieRezerwacjiDAO {
                     }
 
                 }
+                ArchiwumGosciDAO.wymagajAktywnego(polaczenie,gosc.getId());
                 String sqlPracownik =
                         "SELECT id FROM pracownicy "
                                 + "WHERE id = ? AND aktywny = TRUE";

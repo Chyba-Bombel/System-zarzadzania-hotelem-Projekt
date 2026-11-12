@@ -9,22 +9,26 @@ import java.util.Objects;
 
 public record PotwierdzenieRezerwacji(int id, String glownyGosc, String pokoj, String typ,
         LocalDate od, LocalDate doDnia, int liczbaOsob, BigDecimal cenaZaNoc, String status,
-        List<String> uczestnicy, BigDecimal wplaty, BigDecimal zwroty, LocalDateTime utworzono) {
+        List<String> uczestnicy, BigDecimal wplaty, BigDecimal zwroty, LocalDateTime utworzono, List<PozycjaUslugi> uslugi) {
     public PotwierdzenieRezerwacji {
         Objects.requireNonNull(glownyGosc); Objects.requireNonNull(pokoj); Objects.requireNonNull(typ);
         Objects.requireNonNull(od); Objects.requireNonNull(doDnia); Objects.requireNonNull(cenaZaNoc);
         Objects.requireNonNull(wplaty); Objects.requireNonNull(zwroty); Objects.requireNonNull(utworzono);
-        uczestnicy = List.copyOf(uczestnicy);
+        uczestnicy = List.copyOf(uczestnicy);uslugi=List.copyOf(uslugi);
         if (id < 1 || !doDnia.isAfter(od) || liczbaOsob < 1 || liczbaOsob > 10
                 || uczestnicy.size() > liczbaOsob - 1 || cenaZaNoc.signum() <= 0
                 || wplaty.signum() < 0 || zwroty.signum() < 0
                 || !List.of("POTWIERDZONA", "ZAMELDOWANA", "ZAKONCZONA", "ANULOWANA").contains(status))
             throw new IllegalArgumentException("Niepoprawne dane potwierdzenia rezerwacji.");
     }
+    public PotwierdzenieRezerwacji(int id,String gosc,String pokoj,String typ,LocalDate od,LocalDate koniec,int osoby,BigDecimal cena,String status,List<String> uczestnicy,BigDecimal wplaty,BigDecimal zwroty,LocalDateTime czas){
+        this(id,gosc,pokoj,typ,od,koniec,osoby,cena,status,uczestnicy,wplaty,zwroty,czas,List.of());
+    }
+    public BigDecimal kosztUslug(){return uslugi.stream().filter(PozycjaUslugi::aktywna).map(PozycjaUslugi::wartosc).reduce(BigDecimal.ZERO,BigDecimal::add);}
     public long noce() { return ChronoUnit.DAYS.between(od, doDnia); }
     public BigDecimal wartoscPobytu() { return cenaZaNoc.multiply(BigDecimal.valueOf(noce())); }
     public boolean anulowana() { return status.equals("ANULOWANA"); }
-    public BigDecimal naleznosc() { return anulowana() ? new BigDecimal("0.00") : wartoscPobytu(); }
+    public BigDecimal naleznosc() { return anulowana() ? new BigDecimal("0.00") : wartoscPobytu().add(kosztUslug()); }
     public BigDecimal netto() { return wplaty.subtract(zwroty); }
     public BigDecimal saldo() { return naleznosc().subtract(netto()); }
     public int brakujaceOsoby() { return liczbaOsob - 1 - uczestnicy.size(); }

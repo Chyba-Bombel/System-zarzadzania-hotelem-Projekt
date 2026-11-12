@@ -191,6 +191,7 @@ final class PobytyDAO {
                         }
                         BigDecimal naleznosc = wynik.getBigDecimal("cena_za_noc").multiply(BigDecimal.valueOf(wynik.getLong("noce")));
 
+                        naleznosc=naleznosc.add(KosztyDAO.sumaUslug(polaczenie,id));
                         BigDecimal zaplacono = RozliczeniaDAO.pobierzNetto(polaczenie, id);
                         BigDecimal saldo = naleznosc.subtract(zaplacono);
 

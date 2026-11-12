@@ -22,6 +22,7 @@ final class PlatnosciKonsola {
 
             System.out.println("Cena pobytu: " + rozliczenie.cenaPobytu() + " zł");
 
+            System.out.println("Usługi: "+rozliczenie.uslugi()+" zł | Należność: "+rozliczenie.naleznosc()+" zł");
             System.out.println("Wpłaty: " + rozliczenie.wplaty() + " zł");
 
             System.out.println("Zapłacono netto: " + rozliczenie.zaplaconoNetto() + " zł");

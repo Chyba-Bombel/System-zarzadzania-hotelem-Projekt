@@ -1,5 +1,12 @@
 # System zarządzania hotelem
 
+**Nowość: archiwizowanie i przywracanie gości.** Dla istniejącej bazy wykonaj `db/aktualizacja_archiwum_gosci.sql`, zachowując własny `db.properties`. [Instrukcja](ARCHIWUM_GOSCI.md). W tej paczce poprawiono także wcześniejszą migrację usług i historii dla różnic składni MySQL/MariaDB.
+
+
+**Aktualizacja: usługi dodatkowe, pełniejsza historia i wyszukiwanie zaawansowane.**
+Przed uruchomieniem na dotychczasowej bazie wykonaj `db/aktualizacja_uslugi_historia.sql` oraz `db/uprawnienia_uslugi.sql`. Zachowaj własny `db.properties`. [Instrukcja aktualizacji i obsługi](USLUGI_I_WYSZUKIWANIE.md).
+
+
 **Aplikacja okienkowa w JavaFX z bazą MySQL** do obsługi pracy recepcji: od dodania gościa i utworzenia rezerwacji po płatności, wymeldowanie i raport za wybrany okres.
 
 Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i operacje JDBC obsługują dane hotelu, a JavaFX udostępnia formularze, tabele i menu pracownika.
@@ -8,6 +15,7 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 
 ## Spis treści
 
+- [Archiwum gości](#archiwum-gości)
 - [Możliwości aplikacji](#możliwości-aplikacji)
 - [Technologie i wymagania](#technologie-i-wymagania)
 - [Uruchomienie na Windows](#uruchomienie-na-windows)
@@ -19,8 +27,10 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 - [Kalendarz rezerwacji](#kalendarz-rezerwacji)
 - [Zmiana pokoju](#zmiana-pokoju)
 - [Historia rezerwacji](#historia-rezerwacji)
+- [Usługi i wyszukiwanie](#usługi-i-wyszukiwanie)
 - [Potwierdzenie rezerwacji](#potwierdzenie-rezerwacji)
 - [Notatki recepcji](#notatki-recepcji)
+- [Wyłączanie i przywracanie pokoi](#wyłączanie-i-przywracanie-pokoi)
 - [Raporty i eksport](#raporty-i-eksport)
 - [Budowa projektu](#budowa-projektu)
 - [Relacje w bazie danych](#relacje-w-bazie-danych)
@@ -33,16 +43,22 @@ Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i opera
 | Ekran | Dostępne funkcje |
 | --- | --- |
 | **Pulpit** | Liczniki, przyjazdy na dziś oraz dzisiejsze i zaległe wyjazdy. |
-| **Goście** | Dodawanie, edycja i wyszukiwanie danych gości. |
-| **Pokoje** | Lista pokoi, sprawdzanie dostępności, oznaczanie sprzątania; dla administratora dodawanie i edycja pokoju. |
+| **Goście** | Dodawanie, edycja, wyszukiwanie, archiwizacja i przywracanie; filtry aktywnych, archiwalnych i wszystkich. |
+| **Pokoje** | Lista pokoi, sprawdzanie dostępności, oznaczanie sprzątania; dla administratora dodawanie, edycja, wyłączanie i przywracanie pokoju. |
 | **Kalendarz** | Miesięczny plan pokoi, szczegóły pobytu i rozpoczęcie rezerwacji od klikniętej wolnej nocy. |
-| **Rezerwacje** | Tworzenie rezerwacji, dodatkowi goście, zmiana terminu i pokoju, historia zmian, potwierdzenie do wydruku, notatki recepcji, zameldowanie, wymeldowanie i anulowanie. |
+| **Rezerwacje** | Tworzenie rezerwacji, dodatkowi goście, zmiana terminu i pokoju, historia zmian, potwierdzenie do wydruku, notatki recepcji, usługi, wyszukiwanie po datach i saldzie, zameldowanie, wymeldowanie i anulowanie. |
 | **Płatności** | Rozliczenie pobytu, wpłaty i zaliczki; dla administratora rejestrowanie zwrotów. |
 | **Raporty** | Zestawienia za wybrany okres, eksport CSV i HTML oraz wydruk przez przeglądarkę. |
 | **Pracownicy** | Tworzenie i dezaktywacja kont przez administratora. |
 | **Moje konto** | Zmiana własnego hasła. |
 
 Tabele umożliwiają sortowanie. Na ekranach obsługi gości, pokoi i rezerwacji dostępne są wyszukiwanie oraz filtry. Dane z bazy można pobrać ponownie przyciskiem **„Odśwież dane”**.
+
+## Archiwum gości
+
+W zakładce **Goście** wybierz filtr Aktywni, Archiwalni lub Wszyscy. Aktywną kartotekę możesz zarchiwizować, archiwalną przywrócić. Potwierdzone i zameldowane rezerwacje blokują archiwizację. Archiwum nie usuwa danych, płatności ani historii; gość znika z wyboru nowej rezerwacji. Edycja kontaktów wymaga przywrócenia. Funkcje są dostępne recepcji i administratorowi, z kontrolą także w API.
+
+Konsola: **32** archiwizacja, **33** przywrócenie, **34** lista archiwum. Istniejąca baza wymaga `db/aktualizacja_archiwum_gosci.sql`; nowy pełny import ma już pola. Jeśli poprzednia aktualizacja usług została przerwana, najpierw dokończ ją poprawionym skryptem z tej paczki. Szczegóły, kolejność migracji i opis kodu: [ARCHIWUM_GOSCI.md](ARCHIWUM_GOSCI.md).
 
 ## Technologie i wymagania
 
@@ -124,7 +140,7 @@ Oba pliki powinny być widoczne. Jeśli polecenie zgłasza ich brak, przejdź do
 
 ### 3. Przygotuj MySQL
 
-**Jeśli korzystasz z działającego serwera i istniejącej bazy**, nie instaluj drugiego serwera i nie importuj pełnych danych demonstracyjnych. Przejdź do konfiguracji połączenia. Starsza baza może wymagać tylko pliku `db/aktualizacja_uczestnicy.sql`, zgodnie z rozdziałem o aktualizacji.
+**Jeśli korzystasz z działającego serwera i istniejącej bazy**, nie instaluj drugiego serwera i nie importuj pełnych danych demonstracyjnych. Przejdź do konfiguracji połączenia. Wykonaj brakujące migracje uczestników, bezpieczeństwa, historii oraz nową aktualizację usług i historii opisaną na początku README.
 
 **Dla nowej, lokalnej instalacji na Ubuntu**:
 
@@ -233,7 +249,7 @@ Jeśli Twoja baza nie ma tabeli `uczestnicy_rezerwacji`, wykonaj jako administra
 -- db/aktualizacja_uczestnicy.sql
 ```
 
-Ten plik dodaje tabelę dodatkowych osób i zachowuje dotychczasowe rekordy. Dla innej nazwy bazy zmień zawarte w nim `USE hotel_manager;`. Jeśli aktualizacja została już wykonana, nie powtarzaj migracji uczestników. **Moduł raportów nie dodaje nowych tabel.** Osobno wykonaj wymagane aktualizacje bezpieczeństwa i historii opisane poniżej.
+Ten plik dodaje tabelę dodatkowych osób i zachowuje dotychczasowe rekordy. Dla innej nazwy bazy zmień zawarte w nim `USE hotel_manager;`. Jeśli aktualizacja została już wykonana, nie powtarzaj migracji uczestników. Obecny moduł usług wymaga nowych tabel. Osobno wykonaj brakujące aktualizacje bezpieczeństwa i historii, następnie `db/aktualizacja_uslugi_historia.sql` i `db/uprawnienia_uslugi.sql`.
 
 Przy aktualizacji programu zachowaj własny plik `db.properties`. Starsze rezerwacje mogą pokazywać komunikat o brakujących danych dodatkowych osób — uzupełnisz je przez **„Goście pobytu”** w potwierdzonej lub zameldowanej rezerwacji.
 
@@ -377,7 +393,7 @@ i przenieś własny `db.properties`. Szczegóły: [`ZMIANA_POKOJU.md`](ZMIANA_PO
 
 Zaznacz pobyt w **Rezerwacjach** i kliknij **Historia**. Zobaczysz datę i czas
 serwera, login autora oraz stan rezerwacji przed zmianą i po niej. Wpisy obejmują
-utworzenie, zmianę terminu, zmianę pokoju, zameldowanie, wymeldowanie i anulowanie.
+utworzenie, zmianę terminu i pokoju, zameldowanie, wymeldowanie, anulowanie, wpłaty, zwroty, usługi, notatki i listę dodatkowych gości.
 Możesz czytać po 100 wpisów, przejść do starszych albo odświeżyć najnowsze.
 W konsoli historia jest dostępna jako **opcja 25**.
 
@@ -386,22 +402,30 @@ W konsoli historia jest dostępna jako **opcja 25**.
 1. `db/aktualizacja_historia.sql` — dodaje tabelę, zachowuje dotychczasowe dane.
 2. `db/uprawnienia_historia.sql` — nadaje odczyt i dopisywanie historii kontom
    `hotel_app@localhost` oraz `hotel_app@127.0.0.1`.
+3. `db/aktualizacja_uslugi_historia.sql` i `db/uprawnienia_uslugi.sql` — rozszerzenie istniejącej historii i usługi. Jeśli kroki 1–2 wykonano wcześniej, zacznij od kroku 3.
 
 Dla własnej nazwy bazy albo innego konta dostosuj skrypty. Jeżeli istnieje tylko
 jedno z wymienionych kont, wykonaj tylko odpowiadający mu `GRANT`. Nowa instalacja
 z pełnego skryptu zawiera już tabelę i uprawnienia. Nie importuj ponownie rekordów demo.
 Wcześniejsze wymagane migracje bezpieczeństwa i uczestników nadal obowiązują.
 
-Historia zaczyna się od aktualizacji: program nie dopisuje fikcyjnych dawnych
-zdarzeń. Zapis zdarzenia jest częścią transakcji zmiany rezerwacji — jego błąd
+Nowa migracja odtwarza stare wpłaty i zwroty z istniejącej ewidencji, bez wymyślania poprzedniego salda. Inne dawne zmiany nie są odtwarzane. Zapis zdarzenia jest częścią transakcji zmiany rezerwacji — jego błąd
 wycofuje całą operację. To dziennik zmian, nie podział pobytu między pokoje.
 Opis implementacji i ograniczeń: [`HISTORIA_REZERWACJI.md`](HISTORIA_REZERWACJI.md).
+
+## Usługi i wyszukiwanie
+
+**Rezerwacje → Usługi pobytu** pozwala dodawać pozycje z ilością dla całego pobytu oraz je anulować. Usługi zwiększają należność i saldo, wpływają na dopuszczalną wpłatę i wymeldowanie, trafiają na kartę i do raportów. Historyczna cena nie zmienia się po edycji katalogu. Katalog usług edytuje administrator; recepcja obsługuje pozycje pobytów. Anulowanie opłaconej pozycji może wymagać wcześniejszego zwrotu. Ilości nie zmieniają się wraz z terminem; dostawka nie zwiększa pojemności pokoju.
+
+**Wyszukiwanie zaawansowane** łączy nazwisko głównego lub dodatkowego gościa, dokładny pokój, status, daty i stan rozliczenia. Tryby dat: noce pobytu, przyjazd, wyjazd. Wyniki mają należność z usługami, netto i saldo; są pobierane stronami po 100. Zaznacz wynik i otwórz rezerwację. Zmiana filtrów wymaga ponownego wyszukania.
+
+Konsola: **29** — usługi, **30** — wyszukiwanie, **31** — katalog administratora. Pełny poradnik, reguły dat i rozliczeń oraz opis klas: [USLUGI_I_WYSZUKIWANIE.md](USLUGI_I_WYSZUKIWANIE.md). Dla już działającej wcześniejszej historii potrzebna jest także nowa migracja i granty usług z rozdziału 1 poradnika.
 
 ## Potwierdzenie rezerwacji
 
 Zaznacz rezerwację i kliknij **Potwierdzenie**. Program pobiera aktualne dane
-z bazy i pokazuje zakładki **Pobyt**, **Goście** oraz **Rozliczenie**. Odczyt obejmuje
-uzgodnioną cenę, wpłaty i zwroty; nie mnoży ceny pokoju przez liczbę osób.
+z bazy i pokazuje zakładki **Pobyt**, **Goście**, **Rozliczenie** i **Usługi**. Odczyt obejmuje
+uzgodnioną cenę, historyczne pozycje usług, wpłaty i zwroty; nie mnoży ceny pokoju przez liczbę osób.
 Przycisk **Odśwież dane** pobiera nowy stan, **Zapisz HTML** zapisuje widoczny podgląd.
 
 Otwórz zapisany HTML w przeglądarce i naciśnij **Ctrl+P**. Wybierz drukarkę albo
@@ -413,9 +437,7 @@ Dokument pokazuje również wpłaty i zwroty z ewidencji; nie jest fakturą ani
 bankowym potwierdzeniem płatności. Brakujące nazwiska dodatkowych gości są
 oznaczane komunikatem, bez wymyślania danych. Telefon i e-mail nie trafiają do dokumentu.
 
-**Ten etap nie wymaga zmiany bazy ani nowych bibliotek.** Jeśli działa wersja
-z historią rezerwacji, rozpakuj nową paczkę i przenieś własny `db.properties`.
-Wcześniejsze migracje pozostają wymagane dla starszych baz.
+Sam eksport nie wymaga bibliotek. Obecna karta czyta także usługi, więc wykonaj nową migrację usług i historii oraz zachowaj własny `db.properties`.
 Instrukcja i opis kodu: [`POTWIERDZENIE_REZERWACJI.md`](POTWIERDZENIE_REZERWACJI.md).
 
 ## Notatki recepcji
@@ -432,10 +454,27 @@ zastępuje szkic tekstem z górnego pola.
 Limit to **500 znaków**, z obsługą wielu wierszy. Edycja jest dostępna dla
 potwierdzonych i zameldowanych rezerwacji; anulowane i zakończone są tylko do odczytu.
 W konsoli wybierz **27**. Notatki pozostają wewnętrzne i nie trafiają do raportów
-ani potwierdzenia dla gościa. Nie mają osobnego dziennika zmian.
+ani potwierdzenia dla gościa. Zmiany treści trafiają do wewnętrznej historii pobytu z autorem i czasem.
 
-Nie ma nowej migracji ani zależności — wykorzystywane jest istniejące pole
-`rezerwacje.uwagi`. Instrukcja i opis kodu: [`NOTATKI_REZERWACJI.md`](NOTATKI_REZERWACJI.md).
+Notatka korzysta z istniejącego pola `rezerwacje.uwagi`; zapis jej zmian do historii wymaga aktualnego schematu tej paczki. Instrukcja i opis kodu: [`NOTATKI_REZERWACJI.md`](NOTATKI_REZERWACJI.md).
+
+## Wyłączanie i przywracanie pokoi
+
+Administrator może w zakładce **Pokoje** zaznaczyć pokój i wybrać **Wyłącz pokój**
+albo **Przywróć pokój**. Okno pokazuje bieżący stan i skutek operacji przed zapisem.
+W konsoli służy do tego **opcja 28**. Recepcja nie ma uprawnień do tych operacji.
+
+- Wyłączenie ustawia `WYLACZONY` i blokuje tworzenie nowych rezerwacji.
+- Przywrócenie ustawia `DO_SPRZATANIA`. Przed zameldowaniem trzeba przygotować pokój i oznaczyć go jako posprzątany.
+- Potwierdzone lub zameldowane rezerwacje blokują obie operacje, niezależnie od dat.
+  Najpierw przenieś, anuluj albo zakończ takie pobyty zgodnie z regułami rozliczeń.
+- Anulowane i zakończone rezerwacje pozostają w bazie i nie blokują zmiany.
+- Cena, liczba miejsc i dane rezerwacji nie są zmieniane. Dostępność jest ponownie sprawdzana w transakcji przy zapisie.
+
+Zmiana dotyczy **bieżącego stanu**, bez dat początku/końca wyłączenia i bez dziennika
+stanów pokoju. Raport obłożenia nadal uwzględnia wszystkie pokoje z kartoteki,
+zgodnie z dotychczasowymi zasadami. Nie ma nowej migracji ani zależności.
+Instrukcja: [`STANY_POKOI.md`](STANY_POKOI.md).
 
 ## Raporty i eksport
 
@@ -447,6 +486,7 @@ Na ekranie **„Raporty”** wybierz okres od 1 do 366 dni i kliknij **„Generu
 | **Rezerwacje i goście** | Pobyty przecinające wybrany okres, dane głównego i dodatkowych gości oraz wycena części pobytu w okresie. |
 | **Obłożenie pokoi** | Liczba zarezerwowanych nocy i procent obłożenia dla poszczególnych pokoi. |
 | **Płatności** | Transakcje wykonane w wybranym okresie, niezależnie od terminu rezerwacji. |
+| **Usługi dodatkowe** | Według daty dodania i aktualnego statusu; anulowane pozycje mają wartość aktywną zero. |
 
 - **„Zapisz tabelę CSV”** eksportuje wybraną zakładkę do pliku dla Excela lub LibreOffice. Kodowanie: UTF-8 z BOM; separator: średnik.
 - **„Zapisz cały raport HTML / PDF”** zapisuje wszystkie zakładki jako HTML. Otwórz plik w przeglądarce, kliknij „Drukuj / zapisz jako PDF” i wybierz zapis do PDF w oknie drukowania.
@@ -458,6 +498,8 @@ Program nie tworzy pliku PDF bezpośrednio. Zmiana okresu unieważnia podgląd; 
 **Pokojonoc** to jedna noc rezerwacji jednego pokoju. **Osobonoce** to liczba tych nocy pomnożona przez liczbę osób. Dzień wyjazdu nie jest noclegiem. Do obłożenia wliczane są rezerwacje potwierdzone, zameldowane i zakończone; anulowane są pomijane.
 
 Obłożenie odnosi się do wszystkich pokoi zapisanych obecnie w bazie, także wyłączonych. Projekt nie przechowuje historii zmian liczby i dostępności pokoi, dlatego jest to **obłożenie rezerwacyjne według aktualnej bazy pokoi**.
+
+Usługi mają osobną sumę, bez proporcjonalnego podziału na noce i bez odtwarzania stanu na dawny dzień.
 
 Wartość noclegów korzysta ze stawki zapisanej przy rezerwacji i obejmuje tylko noce przypadające na wybrany okres. Wpłaty i zwroty liczone są osobno, według daty transakcji. Wycena pobytów nie oznacza otrzymanych pieniędzy i nie jest raportem księgowym.
 
@@ -518,6 +560,8 @@ Zapytania JDBC oraz zapis raportów wykonują się w tle przez JavaFX `Task`. In
 | `rezerwacje` | Powiązanie głównego gościa, pokoju i pracownika z terminem, liczbą osób, stawką i statusem. |
 | `uczestnicy_rezerwacji` | Dodatkowe osoby przypisane do jednej rezerwacji — relacja 1:N. |
 | `historia_rezerwacji` | Zdarzenia rezerwacji, autor, zapisany login, czas serwera oraz stan przed zmianą i po niej; relacje N:1 do rezerwacji i pracownika. |
+| `uslugi` | Katalog ofert, cen i aktywności. |
+| `pozycje_uslug` | Wiele pozycji jednego pobytu z historyczną ceną i autorami dodania/anulowania; relacja do katalogu. |
 | `platnosci` | Wpłaty i zwroty przypisane do rezerwacji oraz pracownika — rezerwacja może mieć wiele transakcji. |
 
 Dodatkowi goście są przypisani do **konkretnego pobytu**, nie na stałe do pokoju. Dane rezerwacji i jej nowych uczestników są zapisywane w jednej transakcji.
@@ -538,6 +582,8 @@ Dodatkowi goście są przypisani do **konkretnego pobytu**, nie na stałe do pok
 
 ## Weryfikacja
 
+Bieżący pełny przebieg dokumentuje `WYNIKI_TESTOW_ARCHIWUM_GOSCI.txt`; poprzednie wydanie: `WYNIKI_TESTOW_USLUGI_WYSZUKIWANIE.txt`: migracja wersji 13 dwukrotnie, nowe funkcje, regresja, GUI i konsola. Starsze wyniki dotyczą wcześniejszych wydań.
+
 Sprawdzono kompilację na JDK 17 oraz scenariusze na rzeczywistym MySQL 8.0.46 w odizolowanej bazie testowej. Interfejs uruchomiono również w środowisku headless JavaFX.
 
 | Scenariusz | Zakres |
@@ -545,6 +591,7 @@ Sprawdzono kompilację na JDK 17 oraz scenariusze na rzeczywistym MySQL 8.0.46 w
 | `NotesProbe` | Odczyt/zapis uwag, Unicode i limit, konflikt dwóch edycji, statusy, prywatność eksportów, role oraz rollback. |
 | `ConfirmationProbe` | Spójność odczytu kilku tabel, cena i saldo, grupy gości, anulowanie, kodowanie HTML, niezmienny podgląd, zapis i błędy pliku oraz uprawnienia. |
 | `HistoryProbe` | Autorzy zmian, stan przed i po, brak wpisów po odmowie, wycofanie operacji przy błędzie historii oraz stronicowanie bez duplikatów. |
+| `RoomStateProbe` | Role, wyłączanie i przywracanie, aktywne rezerwacje, sprzątanie, nieaktualny stan, rollback i równoczesna rezerwacja/przeniesienie. |
 | `RoomChangeProbe` | Zmiana pokoju: dostępność, pojemność, statusy, cena i wpłaty, dodatkowi goście, sprzątanie, pełny rollback oraz równoczesne przeniesienia i rezerwacje. |
 | `IntegrationProbe` | Rezerwacje, konflikty terminów, płatności, rozliczanie pobytu, konta, role, równoczesne próby rezerwacji oraz zapis i edycja uczestników z wycofaniem błędnych zmian. |
 | `GuiSmoke` / `GuiSmokeLauncher` | Logowanie, ekrany, formularze, zapis gościa i rezerwacji, edycja dodatkowych osób, zmiana pokoju i odświeżenie kalendarza, odczyt historii, podgląd potwierdzenia i jego odświeżenie po wpłacie, notatki ze szkicem i konfliktem zapisu, rozliczenie, raporty i zakończenie sesji nieaktywnego konta. |
@@ -577,3 +624,5 @@ Dodatkowe wskazówki uruchomienia i aktualizacji znajdują się w **[`START_TUTA
 Wynik bieżącej regresji po dodaniu potwierdzeń: **[`WYNIKI_TESTOW_POTWIERDZENIA.txt`](WYNIKI_TESTOW_POTWIERDZENIA.txt)**.
 
 Bieżący wynik regresji po dodaniu notatek: **[`WYNIKI_TESTOW_NOTATKI.txt`](WYNIKI_TESTOW_NOTATKI.txt)**.
+
+Bieżąca regresja po dodaniu zarządzania stanami: **[`WYNIKI_TESTOW_STANY_POKOI.txt`](WYNIKI_TESTOW_STANY_POKOI.txt)**.

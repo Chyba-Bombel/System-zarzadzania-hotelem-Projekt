@@ -16,6 +16,7 @@ final class EkranLogowania {
         app.stan.goscie.clear(); app.stan.pokoje.clear(); app.stan.rezerwacje.clear(); app.stan.konta.clear(); app.stan.typy = Map.of();
         app.stan.tabelaPlatnosci.getItems().clear(); app.stan.szczegoly.setText("Wybierz rezerwację.");
         app.stan.filtrTerminu = false;
+        app.stan.stanGoscia.getSelectionModel().selectFirst();
         app.stan.szukajGoscia.clear(); app.stan.szukajPokoju.clear(); app.stan.szukajRezerwacji.clear(); app.stan.szukajKonta.clear();
         app.stan.stanPokoju.getSelectionModel().selectFirst(); app.stan.statusRezerwacji.getSelectionModel().selectFirst();
         TextField login = pole("Login pracownika"); login.setId("login");

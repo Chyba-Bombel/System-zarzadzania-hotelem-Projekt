@@ -35,7 +35,12 @@ final class UczestnicyDAO {
                             throw new SQLException("Liczba osób rezerwacji uległa zmianie. Odśwież dane.");
                     }
                 }
+                java.util.List<String> stare=new java.util.ArrayList<>();
+                try(PreparedStatement q=c.prepareStatement("SELECT imie,nazwisko FROM uczestnicy_rezerwacji WHERE rezerwacja_id=? ORDER BY pozycja")){
+                    q.setInt(1,id);try(ResultSet r=q.executeQuery()){while(r.next())stare.add(r.getString(1)+" "+r.getString(2));}
+                }
                 zapiszUczestnikow(c,id,osoby);
+                HistoriaDAO.opis(c,id,"ZMIANA_UCZESTNIKOW",String.join(", ",stare),osoby.stream().map(u->u.imie()+" "+u.nazwisko()).collect(java.util.stream.Collectors.joining(", ")),null);
                 c.commit();
             } catch (SQLException | RuntimeException e) {
                 try { c.rollback(); } catch (SQLException rollback) { e.addSuppressed(rollback); }

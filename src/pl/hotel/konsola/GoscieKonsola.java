@@ -49,13 +49,13 @@ final class GoscieKonsola {
     static void wyswietlGosci(){
         System.out.println("\n--- Lista GOŚCI ---");
 
-        if (StanKonsoli.goscie.isEmpty()){
+        if (StanKonsoli.goscie.stream().noneMatch(g->!g.isArchiwalny())){
             System.out.println("Nie znaleziono gości w bazie");
             return;
         }
 
         for (Gosc gosc : StanKonsoli.goscie){
-            gosc.wyswietlDane();
+            if(!gosc.isArchiwalny())gosc.wyswietlDane();
         }
     }
 
@@ -66,7 +66,7 @@ final class GoscieKonsola {
         boolean znaleziono = false;
 
         for (Gosc gosc : StanKonsoli.goscie) {
-            if (gosc.getNazwisko().toLowerCase(Locale.ROOT).contains((szukaneNazwisko.toLowerCase(Locale.ROOT)))) {
+            if (!gosc.isArchiwalny() && gosc.getNazwisko().toLowerCase(Locale.ROOT).contains((szukaneNazwisko.toLowerCase(Locale.ROOT)))) {
                 gosc.wyswietlDane();
                 znaleziono = true;
             }
@@ -102,6 +102,7 @@ final class GoscieKonsola {
             System.out.println("Nie znaleziono gościa o takim ID.");
             return true;
         }
+        if(wybranyGosc.isArchiwalny()){System.out.println("Najpierw przywróć kartotekę gościa.");return true;}
         System.out.println("Obecne dane:");
         wybranyGosc.wyswietlDane();
 

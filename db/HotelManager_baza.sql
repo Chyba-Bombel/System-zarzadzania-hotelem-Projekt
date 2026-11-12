@@ -13,7 +13,11 @@ CREATE TABLE goscie (
  id BIGINT PRIMARY KEY AUTO_INCREMENT,
  imie VARCHAR(60) NOT NULL, nazwisko VARCHAR(80) NOT NULL,
  telefon VARCHAR(30) NOT NULL, email VARCHAR(120) NOT NULL DEFAULT '',
- INDEX idx_gosc_nazwisko(nazwisko,imie)
+ INDEX idx_gosc_nazwisko(nazwisko,imie),
+ archiwizowany BOOLEAN NOT NULL DEFAULT FALSE,
+ archiwizowano DATETIME(6) NULL,
+ archiwizowal_pracownik_id BIGINT NULL,
+ CONSTRAINT fk_gosc_archiwizowal FOREIGN KEY(archiwizowal_pracownik_id) REFERENCES pracownicy(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 CREATE TABLE pokoje (
  id BIGINT PRIMARY KEY AUTO_INCREMENT, numer VARCHAR(10) NOT NULL UNIQUE,
@@ -39,6 +43,8 @@ CREATE TABLE rezerwacje (
  INDEX idx_dostepnosc(pokoj_id,status,data_od,data_do),
  INDEX idx_termin(data_od,data_do)
 ) ENGINE=InnoDB;
+CREATE INDEX idx_rezerwacje_gosc_status ON rezerwacje(gosc_id,status);
+
 CREATE TABLE IF NOT EXISTS uczestnicy_rezerwacji (
  rezerwacja_id BIGINT NOT NULL,
  pozycja INT NOT NULL,

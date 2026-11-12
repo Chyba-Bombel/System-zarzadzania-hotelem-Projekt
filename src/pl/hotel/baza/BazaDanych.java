@@ -51,6 +51,16 @@ public final class BazaDanych {
         return PokojeDAO.edytujPokoj(id, numer, typ, cena);
     }
 
+    public static Pokoj wylaczPokoj(long id, String oczekiwanyStan) throws SQLException {
+        KontrolaDostepu.wymagaj(true);
+        return DostepnoscPokoiDAO.zmien(id,oczekiwanyStan,true);
+    }
+
+    public static Pokoj przywrocPokoj(long id, String oczekiwanyStan) throws SQLException {
+        KontrolaDostepu.wymagaj(true);
+        return DostepnoscPokoiDAO.zmien(id,oczekiwanyStan,false);
+    }
+
     public static boolean oznaczPokojJakoPosprzatany(long pokojId) throws SQLException {
         KontrolaDostepu.wymagaj(false);
         return PokojeDAO.oznaczPokojJakoPosprzatany(pokojId);
@@ -197,4 +207,30 @@ public final class BazaDanych {
         KontrolaDostepu.wymagaj(false);
         return RaportDAO.generuj(od,koniec);
     }
+    public static java.util.List<UslugaHotelowa> pobierzKatalogUslug(boolean wszystkie)throws SQLException {
+        KontrolaDostepu.wymagaj(false);return KatalogUslugDAO.pobierz(wszystkie);
+    }
+    public static UslugaHotelowa zapiszUsluge(UslugaHotelowa stara,String nazwa,String jednostka,BigDecimal cena,boolean aktywna)throws SQLException {
+        KontrolaDostepu.wymagaj(true);return KatalogUslugDAO.zapisz(stara,nazwa,jednostka,cena,aktywna);
+    }
+    public static UslugiRezerwacji pobierzUslugiRezerwacji(int id)throws SQLException {
+        KontrolaDostepu.wymagaj(false);return UslugiDAO.dane(id);
+    }
+    public static PozycjaUslugi dodajUslugeDoRezerwacji(int id,UslugaHotelowa u,int ile,long pracownik)throws SQLException {
+        KontrolaDostepu.tozsamosc(pracownik,false);return ZapisUslugDAO.dodaj(id,u,ile);
+    }
+    public static void anulujUslugeRezerwacji(int id,long pozycja)throws SQLException {
+        KontrolaDostepu.wymagaj(false);ZapisUslugDAO.anuluj(id,pozycja);
+    }
+    public static StronaRezerwacji wyszukajRezerwacje(FiltrRezerwacji f,long przedId)throws SQLException {
+        KontrolaDostepu.wymagaj(false);return WyszukiwanieDAO.szukaj(f,przedId);
+    }
+
+    public static void archiwizujGoscia(int id)throws SQLException {
+        KontrolaDostepu.wymagaj(false);ArchiwumGosciDAO.zmien(id,true);
+    }
+    public static void przywrocGoscia(int id)throws SQLException {
+        KontrolaDostepu.wymagaj(false);ArchiwumGosciDAO.zmien(id,false);
+    }
+
 }

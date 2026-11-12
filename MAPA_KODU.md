@@ -35,6 +35,7 @@ GUI i konsola nadal wywołują `BazaDanych.pobierzGosci()`, ale właściwe zapyt
 | `TworzenieRezerwacjiDAO` | Zapis rezerwacji: walidacja, blokada pokoju, dostępność, zapis i zatwierdzenie. |
 | `AnulowanieRezerwacjiDAO` | Anulowanie i sprawdzenie pozostałych wpłat. |
 | `TerminyRezerwacjiDAO` | Zmiana terminu wraz ze sprawdzeniem dostępności i rozliczenia. |
+| `DostepnoscPokoiDAO` | Blokada pokoju, kontrola bieżącego stanu i aktywnych rezerwacji, zmiana dostępności w transakcji. |
 | `NotatkiDAO` | Odczyt i zapis uwag, walidacja Unicode, blokada rezerwacji oraz porównanie treści przed zapisem. |
 | `PotwierdzeniaDAO` | Odczyt danych pojedynczej rezerwacji, uczestników i sum wpłat/zwrotów w jednej transakcji tylko do odczytu. |
 | `HistoriaDAO` | Odczyt stanu, dopisanie zdarzenia przez to samo Connection i stronicowany odczyt historii. |
@@ -66,6 +67,7 @@ Podobnie sprawdzenie salda w operacjach zapisu korzysta z już otwartego połąc
 | `GoscieKonsola` | Dodawanie, edycja, wyszukiwanie i wyświetlanie gości. |
 | `PokojeKonsola` | Wolne pokoje, dodawanie, edycja i sprzątanie. |
 | `RezerwacjeKonsola` | Tworzenie, anulowanie i zmiana terminu rezerwacji. |
+| `StanPokojuKonsola` | Opcja 28: wybór pokoju i potwierdzenie administratora. |
 | `NotatkiKonsola` | Opcja 27: przegląd, wielowierszowa edycja i usunięcie treści. |
 | `PotwierdzenieKonsola` | Opcja 26: dane dokumentu, wybór ścieżki i potwierdzenie zastąpienia pliku. |
 | `HistoriaKonsola` | Opcja 25: przeglądanie historii rezerwacji w konsoli. |
@@ -91,6 +93,7 @@ Każda klasa `Ekran...` otrzymuje w konstruktorze ten sam obiekt koordynatora `H
 | `EkranKalendarza` | Miesięczny plan pokoi, filtrowanie, szczegóły i otwieranie formularza z datą. |
 | `KomorkaKalendarza` | Wygląd oraz obsługa kliknięcia pojedynczej nocy. |
 | `EkranRezerwacji` | Rezerwacje, formularze terminu i uczestników, zameldowanie, wymeldowanie i anulowanie. |
+| `StanPokojuGUI` | Świeże dane, kontrola rezerwacji i okno potwierdzenia wyłączenia/przywrócenia. |
 | `NotatkiGUI` | Dwa pola notatki, szkic zachowany po konflikcie, odświeżenie zapisanej treści i tryb tylko do odczytu. |
 | `PotwierdzenieGUI` | Podgląd dokumentu, odświeżanie oraz wybór ścieżki eksportu HTML. |
 | `HistoriaRezerwacjiGUI` | Okno historii, szczegóły oraz strony po 100 wpisów. |
@@ -198,3 +201,28 @@ Fasada udostępnia `pobierzNotatkeRezerwacji(id)` i
 SQL i walidacja należą do `baza/NotatkiDAO`, interfejsy do osobnych klas.
 Pole nie jest dodawane do listy rezerwacji, raportów ani modelu potwierdzenia.
 Szczegóły: `NOTATKI_REZERWACJI.md`.
+
+## Dostępność pokoi
+
+`BazaDanych.wylaczPokoj(id, oczekiwanyStan)` i `przywrocPokoj(id, oczekiwanyStan)`
+wymagają administratora. Obie delegują zapis do `DostepnoscPokoiDAO` i zwracają
+obiekt `Pokoj` z wynikiem. `StanPokojuGUI` nie przechowuje własnej listy pokoi:
+odświeża wspólny stan i przygotowuje okno przed zapisem.
+
+`PokojeDAO.oznaczPokojJakoPosprzatany` pozostaje osobną operacją dostępną recepcji;
+nie może zmienić stanu WYLACZONY na GOTOWY. Nie dodano ogólnego publicznego
+ustawiania dowolnego stanu. Opis transakcji i ograniczeń: `STANY_POKOI.md`.
+
+
+## Usługi i wyszukiwanie
+
+Nowe klasy i relacje szczegółowo opisuje USLUGI_I_WYSZUKIWANIE.md, rozdziały 6–7. BazaDanych ma chronione metody katalogu, usług pobytu i wyszukiwania. KatalogUslugDAO, UslugiDAO, ZapisUslugDAO, KosztyDAO i WyszukiwanieDAO pozostają pakietowe. GUI i konsola mają osobne kontrolery. Rozliczenie ma sumę usług, a lista rezerwacji odczytuje agregaty i uczestników w jednej transakcji REPEATABLE_READ.
+
+Historia ma 12 typów, obejmuje finanse, usługi, notatki i uczestników. HistoriaDAO.opis dopisuje własne migawki przez to samo Connection. WplatyDAO/ZwrotyDAO zapisują także wygenerowany platnosc_id. Czytanie sortuje po utworzono oraz id, aby import starych płatności nie zmieniał chronologii. Aktualny zakres zastępuje wcześniejszy opis historii; szczegóły: HISTORIA_REZERWACJI.md.
+
+
+## Archiwum gości
+
+BazaDanych.archiwizujGoscia/przywrocGoscia sprawdzają sesję i delegują do ArchiwumGosciDAO. Ta klasa blokuje kartotekę i kontroluje aktywne rezerwacje. TworzenieRezerwacjiDAO blokuje tego samego gościa po pokoju, więc archiwizacji nie omija równoczesny zapis. GoscieDAO odczytuje wszystkie kartoteki dla zachowania relacji starych rezerwacji i blokuje edycję archiwum warunkiem UPDATE.
+
+Gosc ma stan i bieżące metadane archiwum. StanGUI/TabeleGUI filtrują listę, EkranGosci i ArchiwumGosciGUI obsługują formularze, ArchiwumGosciKonsola opcje 32–34. Formularz nowej rezerwacji pokazuje tylko aktywne kartoteki. Dalszy opis transakcji i migracji: ARCHIWUM_GOSCI.md.

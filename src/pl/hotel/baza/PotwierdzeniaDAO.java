@@ -28,7 +28,7 @@ final class PotwierdzeniaDAO {
                         wynik = new PotwierdzenieRezerwacji(id, r.getString("imie") + " " + r.getString("nazwisko"),
                                 r.getString("numer"), r.getString("typ"), r.getDate("data_od").toLocalDate(),
                                 r.getDate("data_do").toLocalDate(), r.getInt("liczba_osob"), r.getBigDecimal("cena_za_noc"),
-                                r.getString("status"), osoby, kwoty[0], kwoty[1], r.getTimestamp("czas").toLocalDateTime());
+                                r.getString("status"), osoby, kwoty[0], kwoty[1], r.getTimestamp("czas").toLocalDateTime(),UslugiDAO.pobierz(c,id));
                     }
                 }
                 c.commit(); return wynik;

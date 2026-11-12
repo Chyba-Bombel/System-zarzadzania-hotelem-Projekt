@@ -1,3 +1,5 @@
+Aktualna karta ma zakładkę Usługi, historyczne pozycje w HTML i subtotal w rozliczeniu. Należność obejmuje aktywne usługi. Ta paczka wymaga migracji opisanej w USLUGI_I_WYSZUKIWANIE.md; dawny brak migracji dotyczył samego eksportu.
+
 # Potwierdzenie danych rezerwacji
 
 ## 1. Obsługa w GUI

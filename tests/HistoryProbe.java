@@ -87,7 +87,7 @@ public final class HistoryProbe {
             odmowa(()->BazaDanych.wymeldujGoscia(live.getId()));
             check(IntegrationProbe.rezerwacja(live.getId()).getStatus().equals("ZAMELDOWANA")
                     && IntegrationProbe.pokoj("H101").getStan().equals("GOTOWY"),"Błąd historii wycofuje status i sprzątanie");
-            check(historia(zmieniana.getId()).size()==1 && historia(live.getId()).size()==2,"Błędy nie zostawiają częściowej historii");
+            check(historia(zmieniana.getId()).size()==1 && historia(live.getId()).size()==3,"Błędy nie zostawiają częściowej historii");
         } finally {
             try(Connection c=TestDatabase.polacz();Statement q=c.createStatement()){q.execute("DROP TRIGGER test_history");}
         }

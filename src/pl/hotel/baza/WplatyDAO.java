@@ -75,6 +75,7 @@ final class WplatyDAO {
                     }
 
                 }
+                naleznosc=naleznosc.add(KosztyDAO.sumaUslug(polaczenie,rezerwacjaId));
                 BigDecimal pozostalo = naleznosc.subtract(zaplaconoNetto);
 
                 if (kwota.compareTo(pozostalo) > 0){
@@ -85,13 +86,20 @@ final class WplatyDAO {
                         + "(rezerwacja_id, pracownik_id, kwota, "
                         + "rodzaj, metoda) "
                         + "VALUES (?, ?, ?, 'WPLATA', ?)";
-                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlZapis)){
+                try (PreparedStatement zapytanie = polaczenie.prepareStatement(sqlZapis,Statement.RETURN_GENERATED_KEYS)){
                     zapytanie.setInt(1,rezerwacjaId);
                     zapytanie.setLong(2, pracownikId);
                     zapytanie.setBigDecimal(3,kwota);
                     zapytanie.setString(4,metoda);
 
                     zapytanie.executeUpdate();
+                    try(ResultSet klucze=zapytanie.getGeneratedKeys()){
+                        if(!klucze.next())throw new SQLException("Brak ID płatności.");
+                        long pid=klucze.getLong(1);
+                        HistoriaDAO.opis(polaczenie,rezerwacjaId,"WPLATA","Wpłaty netto: "+zaplaconoNetto+" zł",
+                            "Płatność #"+pid+" | Kwota: "+kwota+" zł | Metoda: "+metoda+" | Wpłaty netto: "+zaplaconoNetto.add(kwota)+" zł",pid);
+                    }
+
 
                 }
 

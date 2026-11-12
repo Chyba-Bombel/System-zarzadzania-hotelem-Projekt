@@ -27,12 +27,15 @@ final class HistoriaDAO {
     static void zapisz(Connection c, int id, String akcja, String przed) throws SQLException {
         String po = stan(c, id);
         if (Objects.equals(przed, po)) return;
-        try (PreparedStatement q = c.prepareStatement(
-                "INSERT INTO historia_rezerwacji (rezerwacja_id, pracownik_id, login_pracownika, akcja, przed, po) "
-                        + "SELECT ?, id, login, ?, ?, ? FROM pracownicy WHERE id=?")) {
-            q.setInt(1, id); q.setString(2, akcja); q.setString(3, przed); q.setString(4, po);
-            q.setLong(5, KontrolaDostepu.identyfikator());
-            if (q.executeUpdate() != 1) throw new SQLException("Nie udało się zapisać historii rezerwacji.");
+        opis(c,id,akcja,przed,po,null);
+    }
+    static void opis(Connection c,int id,String akcja,String przed,String po,Long platnoscId)throws SQLException {
+        if(Objects.equals(przed,po))return;
+        try(PreparedStatement q=c.prepareStatement("INSERT INTO historia_rezerwacji(rezerwacja_id,pracownik_id,login_pracownika,akcja,przed,po,platnosc_id) SELECT ?,id,login,?,?,?,? FROM pracownicy WHERE id=?")){
+            q.setInt(1,id);q.setString(2,akcja);q.setString(3,przed);q.setString(4,po);
+            if(platnoscId==null)q.setNull(5,Types.BIGINT);else q.setLong(5,platnoscId);
+            q.setLong(6,KontrolaDostepu.identyfikator());
+            if(q.executeUpdate()!=1)throw new SQLException("Nie udało się zapisać historii.");
         }
     }
 
@@ -45,13 +48,19 @@ final class HistoriaDAO {
                     if (!r.next()) throw new SQLException("Nie znaleziono rezerwacji.");
                 }
             }
+            Timestamp czas=null;
+            if(przedId!=0)try(PreparedStatement q=c.prepareStatement("SELECT utworzono FROM historia_rezerwacji WHERE rezerwacja_id=? AND id=?")){
+                q.setInt(1,id);q.setLong(2,przedId);try(ResultSet r=q.executeQuery()){
+                    if(!r.next())throw new SQLException("Nieprawidłowa strona historii.");czas=r.getTimestamp(1);
+                }
+            }
             String sql = "SELECT id, pracownik_id, login_pracownika, akcja, przed, po, utworzono "
                     + "FROM historia_rezerwacji WHERE rezerwacja_id=? "
-                    + (przedId == 0 ? "" : "AND id < ? ") + "ORDER BY id DESC LIMIT 101";
+                    + (przedId == 0 ? "" : "AND (utworzono < ? OR (utworzono = ? AND id < ?)) ") + "ORDER BY utworzono DESC,id DESC LIMIT 101";
             ArrayList<ZmianaRezerwacji> wpisy = new ArrayList<>();
             try (PreparedStatement q = c.prepareStatement(sql)) {
                 q.setInt(1, id);
-                if (przedId != 0) q.setLong(2, przedId);
+                if(przedId!=0){q.setTimestamp(2,czas);q.setTimestamp(3,czas);q.setLong(4,przedId);}
                 try (ResultSet r = q.executeQuery()) {
                     while (r.next()) wpisy.add(new ZmianaRezerwacji(r.getLong("id"), r.getLong("pracownik_id"),
                             r.getString("login_pracownika"), r.getString("akcja"), r.getString("przed"),

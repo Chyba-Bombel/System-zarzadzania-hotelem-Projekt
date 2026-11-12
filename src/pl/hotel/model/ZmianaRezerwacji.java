@@ -12,11 +12,17 @@ public record ZmianaRezerwacji(long id, long pracownikId, String login, String a
             case "ZAMELDOWANIE" -> "Zameldowanie";
             case "WYMELDOWANIE" -> "Wymeldowanie";
             case "ANULOWANIE" -> "Anulowanie";
+            case "WPLATA" -> "Przyjęcie wpłaty";
+            case "ZWROT" -> "Zwrot środków";
+            case "DODANIE_USLUGI" -> "Dodanie usługi";
+            case "ANULOWANIE_USLUGI" -> "Anulowanie usługi";
+            case "ZMIANA_NOTATKI" -> "Zmiana notatki";
+            case "ZMIANA_UCZESTNIKOW" -> "Zmiana gości pobytu";
             default -> akcja;
         };
     }
     public String szczegoly() {
-        return "Przed zmianą:\n" + (przed == null ? "Brak — nowa rezerwacja." : przed)
+        return "Przed zmianą:\n" + (przed == null ? (akcja.equals("UTWORZENIE")?"Brak — nowa rezerwacja.":"Brak poprzedniego stanu — wpis odtworzony z ewidencji.") : przed)
                 + "\n\nPo zmianie:\n" + po;
     }
 }

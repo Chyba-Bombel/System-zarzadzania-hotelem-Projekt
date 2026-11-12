@@ -77,6 +77,22 @@ public class GuiSmoke extends Application {
         }
         throw new AssertionError("Brak komunikatu konfliktu notatki");
     }
+    static void potwierdzSprzatanie() throws Exception {
+        for(int i=0;i<100;i++) {
+            boolean potwierdzono=fx(() -> {
+                for(Window w:java.util.List.copyOf(Window.getWindows())) {
+                    if(w.isShowing() && w!=okno && w.getScene().getRoot() instanceof DialogPane d
+                            && d.getButtonTypes().contains(ButtonType.YES)) {
+                        ((Button)d.lookupButton(ButtonType.YES)).fire();return true;
+                    }
+                }
+                return false;
+            });
+            if(potwierdzono)return;
+            Thread.sleep(100);
+        }
+        throw new AssertionError("Brak potwierdzenia sprzątania");
+    }
     static void scenariusz() throws Exception {
         screen("01-logowanie"); loguj("admin","Admin123!");
         if(fx(() -> pole("sesja"))==null)throw new AssertionError("Logowanie nieudane");
@@ -142,7 +158,7 @@ public class GuiSmoke extends Application {
         fx(() -> { ((TableView<?>)node("bookings-table")).getSelectionModel().selectLast(); return null; });
         klik("booking-history"); czekaj();
         int ileWpisow=fx(() -> ((TableView<?>)node("history-table")).getItems().size());
-        if(ileWpisow!=2)throw new AssertionError("Historia GUI: oczekiwano utworzenia i zmiany pokoju, otrzymano "+ileWpisow);
+        if(ileWpisow!=3)throw new AssertionError("Historia GUI: oczekiwano utworzenia, zmiany gości i pokoju, otrzymano "+ileWpisow);
         if(!fx(() -> ((TextArea)node("history-details")).getText()).contains("106"))throw new AssertionError("Brak szczegółów zmiany pokoju w historii");
         if(!fx(() -> ((Button)node("history-older")).isDisabled()))throw new AssertionError("Starsze wpisy aktywne bez starszej strony");
         screen("04c-historia-rezerwacji");
@@ -163,6 +179,7 @@ public class GuiSmoke extends Application {
         screen("04e-potwierdzenie-rozliczenie");
         klik("confirmation-close");
         if(fx(() -> pole("aktywnyDialog"))!=null)throw new AssertionError("Potwierdzenie nie zamknęło się");
+        ServicesGuiSteps.wykonaj(ostatnia.getId());
         klik("booking-notes"); czekaj();
         if(!fx(() -> ((TextArea)node("notes-editor")).isEditable()))throw new AssertionError("Notatka aktywnego pobytu nieedytowalna");
         wpisz("notes-editor","Późny przyjazd o 23:00\nProśba o ciszę");
@@ -204,7 +221,7 @@ public class GuiSmoke extends Application {
         klik("nav-raporty");
         if(!fx(() -> ((Button)node("report-csv")).isDisabled()))throw new AssertionError("Eksport bez raportu aktywny");
         klik("report-generate");czekaj();
-        if(fx(() -> ((TabPane)node("report-tabs")).getTabs().size())!=4)throw new AssertionError("Brak zakładek raportu");
+        if(fx(() -> ((TabPane)node("report-tabs")).getTabs().size())!=5)throw new AssertionError("Brak zakładek raportu");
         if(fx(() -> ((Button)node("report-html")).isDisabled()))throw new AssertionError("Eksport po generowaniu nieaktywny");
         screen("07-raport-podsumowanie");
         fx(() -> { ((TabPane)node("report-tabs")).getSelectionModel().select(1);return null; });
@@ -239,10 +256,35 @@ public class GuiSmoke extends Application {
             throw new AssertionError("Rezerwacja z kalendarza nie zapisana");
         screen("12-kalendarz-zapis");
 
+        klik("nav-pokoje");
+        fx(() -> { ((TextField)pole("szukajPokoju")).setText("208");
+            ((TableView<?>)node("rooms-table")).getSelectionModel().selectFirst(); return null; });
+        klik("room-disable"); czekaj(); screen("13-wylaczenie-pokoju");
+        klik("form-save"); czekaj();
+        if(!IntegrationProbe.pokoj("208").getStan().equals("WYLACZONY"))throw new AssertionError("GUI nie wyłącza pokoju");
+        klik("nav-kalendarz"); wpisz("calendar-search","208"); screen("13a-kalendarz-wylaczony-pokoj");
+        if(!fx(() -> ((Button)node("calendar-cell-18-"+java.time.LocalDate.now())).isDisabled()))throw new AssertionError("Wyłączony pokój pozwala rozpocząć rezerwację w kalendarzu");
+        klik("nav-pokoje");
+        fx(() -> { ((TableView<?>)node("rooms-table")).getSelectionModel().selectFirst(); return null; });
+        klik("room-restore"); czekaj(); klik("form-save"); czekaj();
+        if(!IntegrationProbe.pokoj("208").getStan().equals("DO_SPRZATANIA"))throw new AssertionError("GUI przywraca pokój bez sprzątania");
+        screen("13b-pokoj-przywrocony");
+        GuestArchiveGuiSteps.admin();
         fx(() -> { var m=HotelGUI.class.getDeclaredMethod("pokazLogowanie");m.setAccessible(true);m.invoke(app);return null; });
         loguj("recepcja","Recepcja123!");
         boolean ukryte=fx(() -> okno.getScene().lookup("#nav-pracownicy")==null);
         if(!ukryte)throw new AssertionError("Recepcja widzi administrację");
+        klik("nav-pokoje");
+        if(!fx(() -> okno.getScene().lookup("#room-disable")==null && okno.getScene().lookup("#room-restore")==null))
+            throw new AssertionError("Recepcja widzi administracyjne zmiany stanu pokoju");
+        fx(() -> { ((TextField)pole("szukajPokoju")).setText("208");
+            ((TableView<?>)node("rooms-table")).getSelectionModel().selectFirst();
+            Platform.runLater(() -> ((Button)node("room-clean")).fire()); return null; });
+        potwierdzSprzatanie(); czekaj();
+        if(!IntegrationProbe.pokoj("208").getStan().equals("GOTOWY"))throw new AssertionError("Recepcja nie może oznaczyć przywróconego pokoju jako posprzątany");
+        ServicesGuiSteps.recepcja();
+        GuestArchiveGuiSteps.recepcja();
+        System.out.println("GUI_ROOM_STATE_OK");
         screen("06-recepcja");
 
         try(var c=TestDatabase.polacz();var p=c.prepareStatement("UPDATE pracownicy SET aktywny=FALSE WHERE login='recepcja'")){p.executeUpdate();}
