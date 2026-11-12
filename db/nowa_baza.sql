@@ -192,8 +192,8 @@ SELECT p.rezerwacja_id,p.pracownik_id,k.login,p.rodzaj,NULL,
  ' | Odtworzono z ewidencji; poprzednie saldo nie jest odtwarzane.'),p.data_platnosci,p.id
 FROM platnosci p JOIN pracownicy k ON k.id=p.pracownik_id
 LEFT JOIN historia_rezerwacji h ON h.platnosc_id=p.id WHERE h.id IS NULL;
-CREATE USER 'hotel_app'@'localhost' IDENTIFIED BY 'HotelDemo2026!';
-CREATE USER 'hotel_app'@'127.0.0.1' IDENTIFIED BY 'HotelDemo2026!';
+CREATE USER IF NOT EXISTS 'hotel_app'@'localhost' IDENTIFIED BY 'HotelDemo2026!';
+CREATE USER IF NOT EXISTS 'hotel_app'@'127.0.0.1' IDENTIFIED BY 'HotelDemo2026!';
 GRANT SELECT ON hotel_manager.* TO 'hotel_app'@'localhost';
 GRANT INSERT,UPDATE ON hotel_manager.goscie TO 'hotel_app'@'localhost';
 GRANT INSERT,UPDATE ON hotel_manager.pokoje TO 'hotel_app'@'localhost';
