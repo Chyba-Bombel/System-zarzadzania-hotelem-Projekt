@@ -16,3 +16,7 @@ GRANT INSERT ON hotel_manager.platnosci TO 'hotel_app'@'127.0.0.1';
 GRANT INSERT,DELETE ON hotel_manager.uczestnicy_rezerwacji TO 'hotel_app'@'127.0.0.1';
 GRANT INSERT ON hotel_manager.historia_rezerwacji TO 'hotel_app'@'localhost';
 GRANT INSERT ON hotel_manager.historia_rezerwacji TO 'hotel_app'@'127.0.0.1';
+GRANT SELECT,INSERT,UPDATE ON hotel_manager.uslugi TO 'hotel_app'@'localhost';
+GRANT SELECT,INSERT,UPDATE ON hotel_manager.pozycje_uslug TO 'hotel_app'@'localhost';
+GRANT SELECT,INSERT,UPDATE ON hotel_manager.uslugi TO 'hotel_app'@'127.0.0.1';
+GRANT SELECT,INSERT,UPDATE ON hotel_manager.pozycje_uslug TO 'hotel_app'@'127.0.0.1';
