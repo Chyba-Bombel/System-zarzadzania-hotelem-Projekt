@@ -92,3 +92,18 @@ Z pełnym classpath zależności i osobną bazą testową, przygotowaną jak pow
 Do prób bez pulpitu z Monocle ustaw `-Dglass.platform=Monocle -Dmonocle.platform=Headless -Dheadless.geometry=1920x1080-32 -Dprism.order=sw -Djava.awt.headless=true`. Domyślny mały ekran Monocle może powodować błędy bufora przy większym oknie. Dołącz testowe zależności z pom.xml. Przebieg headless nie potwierdza integracji z menedżerem plików ani instalacji na pulpicie Windows.
 
 Testy biznesowe nadal uruchamia `RunAllProbes`. Wyniki konkretnego przebiegu są w WYNIKI_TESTOW_1.0.2.txt.
+
+## Motywy i pulpit — 1.1.0
+
+`AppearanceProbe` nie wymaga bazy. Sprawdza zapis i odczyt preferencji w oddzielnym katalogu tymczasowym, ponowne uruchomienie JVM, niepoprawny plik i skalę oraz brak zmiany konfiguracji JDBC. Sprawdza też liczniki pulpitu: rozłączne kategorie, puste dane, unikalne pokoje i zaległe wyjazdy.
+
+`ThemeGuiLauncher` wymaga świeżej testowej bazy demonstracyjnej i osobnego katalogu `hotel.data`, początkowo bez pliku `wyglad.properties`. Sprawdza wszystkie strony w dwóch motywach, istniejący dialog po zmianie motywu, popupy, zapis skali, małe okno, kontrast tytułu, brak nakładania kart i zachowanie ról po wylogowaniu. Przygotowanie classpath pozostaje takie jak wyżej. Przykład na Linuxie:
+
+```sh
+java -Dhotel.data=/tmp/hotel-theme-probe -cp "target/classes:target/test-classes:$(cat target/test-classpath.txt)" AppearanceProbe
+java -Dhotel.tests=true -Dhotel.config=db-test.properties -Dhotel.data=/tmp/hotel-theme-probe -cp "target/classes:target/test-classes:$(cat target/test-classpath.txt)" ThemeGuiLauncher
+```
+
+Do uruchomienia bez pulpitu dodaj opcje `-Dglass.platform=Monocle -Dmonocle.platform=Headless -Dheadless.geometry=1920x1200-32 -Dprism.order=sw -Djava.awt.headless=true`. Monocle jest zależnością testową; nie trafia do instalatora.
+
+Pełny `GuiSmokeLauncher` sprawdzaj oddzielnie po odtworzeniu danych dla obu motywów. W katalogu testowego profilu przygotuj `wyglad.properties` z `motyw=JASNY` albo `motyw=CIEMNY` i `skala=100`. Samo `mvn test` nie uruchamia tych scenariuszy. Wyniki tego wydania: `WYNIKI_TESTOW_1.1.0.txt`.

@@ -14,6 +14,9 @@ import static pl.hotel.gui.NarzedziaGUI.*;
 
 public final class HotelGUI extends Application {
     final StanGUI stan = new StanGUI();
+    final MotywyGUI motywy = new MotywyGUI();
+    final UstawieniaWygladuGUI wyglad = new UstawieniaWygladuGUI(this);
+    final NawigacjaGUI nawigacja = new NawigacjaGUI(this);
     final UstawieniaAplikacjiGUI ustawienia = new UstawieniaAplikacjiGUI(this);
     final EkranLogowania ekranLogowania = new EkranLogowania(this);
     final EkranRaportow ekranRaportow = new EkranRaportow(this);
@@ -31,8 +34,9 @@ public final class HotelGUI extends Application {
 
     @Override public void start(Stage stage) {
         stan.stage = stage;
+        motywy.uruchom();
         stage.setTitle("HotelManager " + pl.hotel.konfiguracja.WersjaAplikacji.NUMER + " • System zarządzania");
-        stage.setMinWidth(1080); stage.setMinHeight(720);
+        stage.setMinWidth(1040); stage.setMinHeight(680);
         tabeleGUI.konfigurujTabele();
         ekranLogowania.pokazLogowanie();
         stage.show();
@@ -45,40 +49,18 @@ public final class HotelGUI extends Application {
         overlay.setAlignment(Pos.CENTER); overlay.getStyleClass().add("busy-overlay");
         overlay.visibleProperty().bind(stan.busy); overlay.managedProperty().bind(stan.busy);
         stan.root.getChildren().add(overlay);
-        Scene scene = new Scene(stan.root, login ? 1140 : 1320, login ? 760 : 850);
-        scene.getStylesheets().add(getClass().getResource("/hotel.css").toExternalForm());
+        Scene scene = new Scene(stan.root, login ? 1140 : 1440, login ? 760 : 960);
+        motywy.zastosuj(scene);
         stan.stage.setScene(scene);
     }
 
-    void pokazPanel() {
-        stan.shell = new BorderPane();
-        VBox nav = new VBox(7); nav.setPrefWidth(226); nav.getStyleClass().add("sidebar");
-        nav.getChildren().addAll(etykieta("HOTEL", "brand"), etykieta("PANEL RECEPCJI", "brand-sub"), new Separator());
-        for (String nazwa : new String[]{"Pulpit", "Goście", "Pokoje", "Rezerwacje", "Kalendarz", "Płatności", "Raporty", "Pracownicy", "Moje konto"}) {
-            if (nazwa.equals("Pracownicy") && !admin()) continue;
-            Button b = new Button(nazwa); b.setMaxWidth(Double.MAX_VALUE); b.getStyleClass().add("nav");
-            b.setId("nav-" + klucz(nazwa));
-            b.setOnAction(e -> {
-                stan.strona = nazwa;
-                for (Node n : nav.getChildren()) if (n instanceof Button) n.getStyleClass().remove("active");
-                b.getStyleClass().add("active"); pokazStrone();
-            });
-            if (nazwa.equals(stan.strona)) b.getStyleClass().add("active");
-            nav.getChildren().add(b);
-        }
-        Button informacje = przycisk("O programie", "", ustawienia::pokazInformacje);
-        informacje.setId("about"); informacje.setMaxWidth(Double.MAX_VALUE);
-        nav.getChildren().add(informacje);
-        Region spacer = new Region(); VBox.setVgrow(spacer, Priority.ALWAYS); nav.getChildren().add(spacer);
-        VBox osoba = new VBox(5, etykieta(stan.sesja.getImie() + " " + stan.sesja.getNazwisko(), "user-name"),
-                etykieta(admin() ? "ADMINISTRATOR" : "RECEPCJONISTA", "user-role"));
-        osoba.getStyleClass().add("user-card"); nav.getChildren().add(osoba);
-        Button logout = przycisk("Wyloguj się", "", () -> {
-            if (komunikatyGUI.potwierdz("Wylogowanie", "Zakończyć bieżącą sesję?")) ekranLogowania.pokazLogowanie();
-        }); logout.setId("logout"); logout.setMaxWidth(Double.MAX_VALUE); nav.getChildren().add(logout);
-        stan.shell.setLeft(nav);
-        HBox footer = new HBox(stan.status); footer.getStyleClass().add("statusbar"); stan.shell.setBottom(footer);
-        pokazStrone(); ustawScene(stan.shell, false);
+    void pokazPanel() { nawigacja.pokazPanel(); }
+
+    void przejdz(String strona) { stan.strona = strona; pokazStrone(); }
+
+    void otworzRezerwacje(pl.hotel.model.Rezerwacja r) {
+        stan.szukajRezerwacji.clear(); stan.statusRezerwacji.getSelectionModel().selectFirst();
+        przejdz("Rezerwacje"); stan.tabelaRezerwacji.getSelectionModel().select(r); stan.tabelaRezerwacji.scrollTo(r);
     }
 
     void pokazStrone() {
@@ -93,15 +75,18 @@ public final class HotelGUI extends Application {
             case "Moje konto" -> ekranKonta.stronaKonta();
             default -> ekranPulpitu.pulpit();
         };
-        stan.shell.setCenter(content);
+        nawigacja.ustawTresc(content);
     }
 
     VBox strona(String tytul, String opis, Node... elementy) {
-        Button refresh = przycisk("Odśwież dane", "", () -> zadaniaGUI.odswiez("Dane zaktualizowane.")); refresh.setId("refresh");
+        Button refresh = przycisk("Odśwież dane", "", () -> zadaniaGUI.odswiez("Dane zaktualizowane.")); refresh.setId("refresh"); refresh.setGraphic(IkonyGUI.ikona("odswiez"));
         VBox tekst = new VBox(5, etykieta(tytul, "title"), etykieta(opis, "subtitle"));
         Region gap = new Region(); HBox.setHgrow(gap, Priority.ALWAYS);
-        HBox header = new HBox(12, tekst, gap, refresh); header.setAlignment(Pos.CENTER_LEFT);
-        VBox page = new VBox(18, header); page.setPadding(new Insets(28)); page.getChildren().addAll(elementy);
+        Label breadcrumb = etykieta("Hotel  /  " + tytul, "breadcrumb");
+        VBox naglowek = new VBox(8, breadcrumb, tekst); tekst.setMinWidth(0); naglowek.setMinWidth(0); HBox.setHgrow(naglowek, Priority.ALWAYS);
+        HBox header = new HBox(12, naglowek, gap, refresh); header.setAlignment(Pos.CENTER_LEFT);
+        header.getStyleClass().add("page-header");
+        VBox page = new VBox(18, header); page.setPadding(new Insets(24)); page.setFillWidth(true); page.setMinWidth(0); page.getChildren().addAll(elementy);
         for (Node element : elementy) if (element instanceof Label l) l.setWrapText(true);
         return page;
     }
@@ -113,6 +98,6 @@ public final class HotelGUI extends Application {
         b.disableProperty().bind(tabela.getSelectionModel().selectedItemProperty().isNull()); return b;
     }
 
-    @Override public void stop() { stan.executor.shutdownNow(); }
+    @Override public void stop() { motywy.zamknij(); stan.executor.shutdownNow(); }
     void pokazLogowanie() { ekranLogowania.pokazLogowanie(); }
 }

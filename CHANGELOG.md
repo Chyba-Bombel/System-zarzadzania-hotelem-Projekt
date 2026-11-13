@@ -1,5 +1,18 @@
 # Zmiany
 
+## 1.1.0
+
+- Nowy pulpit i boczne menu z ikonami wektorowymi.
+- Jasny i ciemny motyw dla ekranów, formularzy i komunikatów.
+- Przełącznik przed logowaniem i w menu, zapamiętywanie preferencji.
+- Rozmiar tekstu 100%, 110% i 120%.
+- Wykres stanów pokoi, zakładki przyjazdów i wyjazdów oraz tygodniowy podgląd rezerwacji.
+- Karta wybranego pobytu w widoku rezerwacji i czytelniejsze oznaczenia statusów.
+- Układ dopasowujący się do szerokości okna oraz przewijanie.
+- Osobne, małe klasy wyglądu i pulpitu; bez nowych zależności.
+
+Brak zmian schematu bazy. Preferencje wyglądu zapisują się osobno od konfiguracji połączenia. Tłumaczenia pozostają na kolejny etap. Szczegóły: AKTUALIZACJA_1.1.0.md.
+
 ## 1.0.2
 
 - Test połączenia w tle z bieżącego formularza, bez zapisywania ustawień.

@@ -14,7 +14,8 @@ import static pl.hotel.gui.NarzedziaGUI.*;
 
 final class EkranRezerwacji {
     private final HotelGUI app;
-    EkranRezerwacji(HotelGUI app) { this.app = app; }
+    private final KartaRezerwacjiGUI karta;
+    EkranRezerwacji(HotelGUI app) { this.app = app; this.karta = new KartaRezerwacjiGUI(app); }
 
     Node stronaRezerwacji() {
         Button dodaj = przycisk("+ Nowa rezerwacja", "primary", this::formularzRezerwacji); dodaj.setId("add-booking");
@@ -38,7 +39,7 @@ final class EkranRezerwacji {
         anuluj.getStyleClass().add("danger");
         VBox page = app.strona("Rezerwacje", "Wybierz pobyt z tabeli, aby zmienić termin lub obsłużyć gościa.", bar,
                 app.stan.tabelaRezerwacji, new FlowPane(10, 10, uczestnicy, daty, pokoj, historia, potwierdzenie, notatka, uslugi, katalog, zamelduj, wymelduj, anuluj),
-                etykieta("Wymeldowanie wymaga pełnego rozliczenia. Przed anulowaniem zwróć wpłacone środki.", "muted"));
+                karta.widok(), etykieta("Wymeldowanie wymaga pełnego rozliczenia. Przed anulowaniem zwróć wpłacone środki.", "muted"));
         VBox.setVgrow(app.stan.tabelaRezerwacji, Priority.ALWAYS); return page;
     }
 

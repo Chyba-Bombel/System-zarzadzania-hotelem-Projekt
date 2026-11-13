@@ -27,6 +27,7 @@ final class StanGUI {
     int proby;
     String strona = "Pulpit";
     final Label status = new Label("Gotowy");
+    final Label ostatnieOdswiezenie = new Label("Dane nieodświeżone");
     final ObservableList<Gosc> goscie = FXCollections.observableArrayList();
     final ObservableList<Pokoj> pokoje = FXCollections.observableArrayList();
     final ObservableList<Rezerwacja> rezerwacje = FXCollections.observableArrayList();

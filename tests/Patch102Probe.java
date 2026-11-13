@@ -54,7 +54,7 @@ public final class Patch102Probe {
             catch (java.io.IOException e) { check(true, "Odmowa dowiazania"); }
         }
         String info = InformacjeDiagnostyczne.tekst();
-        check(info.contains("HotelManager 1.0.2") && info.contains("Java:") && info.contains("System:"), "Informacje o wersji");
+        check(info.contains("HotelManager 1.1.0") && info.contains("Java:") && info.contains("System:"), "Informacje o wersji");
         check(!info.contains("SECRET_TEST_ONLY") && !info.contains("jdbc:") && !info.contains("test-user"), "Informacje bez ustawien bazy");
         System.out.println("PATCH102_OK checks=" + ile);
     }

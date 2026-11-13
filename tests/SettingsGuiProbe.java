@@ -54,7 +54,7 @@ public final class SettingsGuiProbe extends Application {
         open("about-open"); czekaj(() -> node("about-copy") != null);
         fx(() -> { ((Button)node("about-copy")).fire(); return null; });
         String schowek = fx(() -> Clipboard.getSystemClipboard().getString());
-        check(schowek != null && schowek.contains("1.0.2") && !schowek.contains("jdbc:") && !schowek.contains("NiepoprawneHaslo"), "Schowek bez danych polaczenia");
+        check(schowek != null && schowek.contains("1.1.0") && !schowek.contains("jdbc:") && !schowek.contains("NiepoprawneHaslo"), "Schowek bez danych polaczenia");
         fx(() -> { ((Button)node("about-logs")).fire(); return null; });
         check(!fx(() -> ((Label)node("about-result")).getText()).isBlank(), "Folder logow lub czytelna sciezka awaryjna");
         fx(() -> { DialogPane pane = (DialogPane)node("about-copy").getScene().getRoot(); ((Button)pane.lookupButton(ButtonType.OK)).fire(); return null; });

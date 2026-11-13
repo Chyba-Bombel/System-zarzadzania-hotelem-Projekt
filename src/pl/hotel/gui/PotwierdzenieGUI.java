@@ -46,7 +46,7 @@ final class PotwierdzenieGUI {
                 uslugi.getItems().setAll(p.uslugi().stream().map(u->u.opis()).toList());
                 wynik = p; pobyt.getItems().setAll(Potwierdzenia.pobyt(p)); saldo.getItems().setAll(Potwierdzenia.rozliczenie(p));
                 goscie.getItems().setAll(Potwierdzenia.goscie(p)); status.setText(Potwierdzenia.uwaga(p));
-                status.setStyle(p.anulowana() ? "-fx-text-fill: #a12638; -fx-font-weight: bold;" : "");
+                status.getStyleClass().remove("error-text"); if(p.anulowana()) status.getStyleClass().add("error-text");
                 czas.setText("Stan na: " + Potwierdzenia.czas(p) + " (czas serwera MySQL)"); zapisz.setDisable(false);
             });
         };

@@ -18,7 +18,7 @@ Serwer MySQL/MariaDB i baza wymagają osobnego przygotowania.
 BAZA
 Przeczytaj db/README.md. nowa_baza.sql służy do nowej bazy;
 aktualizuj_baze.sql do aktualizacji istniejącej, po wykonaniu kopii.
-Poprawka 1.0.2 nie zmienia schematu bazy zgodnej z wersją 1.0.1.
+Wersja 1.1.0 nie zmienia schematu bazy zgodnej z wersją 1.0.2.
 Instalator nie wykonuje SQL i nie tworzy kopii bazy.
 
 POŁĄCZENIE
@@ -83,3 +83,9 @@ zachować konfigurację i historię hotelu.
 
 Repozytorium:
 https://github.com/Chyba-Bombel/System-zarzadzania-hotelem-Projekt/
+
+WYGLĄD 1.1.0
+Przełącznik Tryb ciemny / Tryb jasny znajduje się przed logowaniem i w menu.
+Wygląd pozwala wybrać motyw i tekst 100%, 110% lub 120%. Preferencje zapisują
+się w wyglad.properties w folderze HotelManagerData, osobno od bazy.
+Tłumaczenia interfejsu są przewidziane do kolejnego etapu.

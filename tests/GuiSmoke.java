@@ -45,6 +45,7 @@ public class GuiSmoke extends Application {
     }
     static Node node(String id) {
         for (Window w : Window.getWindows()) if (w.isShowing() && w.getScene()!=null) {
+            w.getScene().getRoot().applyCss(); w.getScene().getRoot().layout();
             Node n = w.getScene().lookup("#"+id); if(n!=null) return n;
         }
         throw new AssertionError("Brak kontrolki "+id);

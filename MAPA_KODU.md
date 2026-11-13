@@ -245,3 +245,19 @@ Gosc ma stan i bieżące metadane archiwum. StanGUI/TabeleGUI filtrują listę, 
 - `diagnostyka/InformacjeDiagnostyczne`: wersja, Java, system i architektura bez konfiguracji bazy.
 - `gui/UstawieniaPolaczeniaGUI`: osobny dialog testu, zapisu i przywracania.
 - `buduj_instalator_linux.sh`: pakiet DEB i archiwum dystrybucyjne Linux.
+
+## Wygląd i pulpit — 1.1.0
+
+| Klasa | Odpowiedzialność |
+| --- | --- |
+| `PreferencjeWygladu` | Walidacja, odczyt i atomowy zapis motywu oraz rozmiaru tekstu. |
+| `MotywyGUI` | Obserwowanie okien/scen i nakładanie CSS, motywu i skali na wszystkie okna JavaFX. |
+| `UstawieniaWygladuGUI` | Szybki przełącznik i formularz preferencji. |
+| `NawigacjaGUI` | Boczne menu, aktywny ekran, przewijanie i stopka. |
+| `IkonyGUI` | Ikony wektorowe SVGPath bez nowej zależności. |
+| `StatusyGUI` | Polskie etykiety i kolory statusów bez zmiany wartości w bazie. |
+| `PodsumowaniePulpitu` | Czyste obliczenia liczników, przyjazdów i wyjazdów na podstawie wczytanych danych. |
+| `KafelPulpituGUI`, `TabelaPobytowPulpituGUI`, `StanPokoiPulpituGUI`, `PodgladKalendarzaGUI` | Osobne komponenty pulpitu. |
+| `KartaRezerwacjiGUI` | Podsumowanie zaznaczonej rezerwacji. |
+
+`resources/hotel.css` zawiera wspólne style i dwie palety oparte na kolorach dziedziczonych. Nie wymaga ręcznego kopiowania oddzielnego CSS dla każdego okna.

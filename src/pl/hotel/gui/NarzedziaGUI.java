@@ -75,7 +75,11 @@ final class NarzedziaGUI {
         return new StringConverter<>() { public String toString(T v) { return v == null ? "" : opis.apply(v); } public T fromString(String s) { return null; } };
     }
 
-    static <T> void pusta(TableView<T> t, String tekst) { t.setPlaceholder(new Label(tekst)); }
+    static <T> void pusta(TableView<T> t, String tekst) {
+        Label opis = etykieta(tekst,"muted"); opis.setWrapText(true); opis.setMaxWidth(330);
+        VBox box = new VBox(10, IkonyGUI.ikona("Rezerwacje"), etykieta("Brak wyników","section-title"), opis);
+        box.setAlignment(Pos.CENTER); box.getStyleClass().add("empty-state"); t.setPlaceholder(box);
+    }
 
     static <T> void podlacz(TableView<T> t, FilteredList<T> lista) {
         SortedList<T> sorted = new SortedList<>(lista); sorted.comparatorProperty().bind(t.comparatorProperty()); t.setItems(sorted);
@@ -84,6 +88,12 @@ final class NarzedziaGUI {
     static <T> void kol(TableView<T> t, String nazwa, double szerokosc, Function<T,?> wartosc) {
         TableColumn<T,Object> c = new TableColumn<>(nazwa); c.setPrefWidth(szerokosc);
         c.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(wartosc.apply(v.getValue())));
+        if (java.util.Set.of("Status","Stan","Kartoteka","Konto","Rola").contains(nazwa)) c.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(Object item, boolean pusty) {
+                super.updateItem(item,pusty); setText(null); setGraphic(null);
+                if (!pusty && item != null) setGraphic(StatusyGUI.etykieta(item.toString()));
+            }
+        });
         c.setComparator(NarzedziaGUI::porownaj);
         t.getColumns().add(c);
     }

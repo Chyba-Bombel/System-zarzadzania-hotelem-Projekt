@@ -46,12 +46,21 @@ final class EkranLogowania {
         konfiguracja.setId("config-open");
         Button informacje = przycisk("O programie • " + pl.hotel.konfiguracja.WersjaAplikacji.NUMER, "", app.ustawienia::pokazInformacje);
         informacje.setId("about-open");
-        VBox card = new VBox(12, etykieta("HOTEL", "section-title"), etykieta("Witaj ponownie", "title"),
+        VBox card = new VBox(12, etykieta("HOTEL MANAGER", "login-brand"), etykieta("Witaj ponownie", "title"),
                 etykieta("Zaloguj się na konto pracownika, aby rozpocząć pracę.", "subtitle"),
                 etykieta("Login", "form-label"), login, etykieta("Hasło", "form-label"), haslo, blad, wejdz,
                 konfiguracja, informacje);
-        card.setMaxWidth(440); card.setMaxHeight(Region.USE_PREF_SIZE); card.getStyleClass().add("login-card");
-        StackPane page = new StackPane(card); page.getStyleClass().add("login-page");
+        card.setMaxWidth(460); card.setMaxHeight(Region.USE_PREF_SIZE); card.getStyleClass().add("login-card");
+        VBox powitanie = new VBox(16, etykieta("H", "hero-monogram"), etykieta("Dobra organizacja.\nSpokojna recepcja.", "hero-title"),
+                etykieta("Goście, rezerwacje i rozliczenia\nw jednym miejscu.", "hero-description"));
+        powitanie.getStyleClass().add("login-hero"); powitanie.setMinWidth(340); powitanie.setPrefWidth(430);
+        StackPane formularz = new StackPane(card); HBox.setHgrow(formularz, javafx.scene.layout.Priority.ALWAYS);
+        HBox srodek = new HBox(36, powitanie, formularz); srodek.setAlignment(javafx.geometry.Pos.CENTER); srodek.setMaxWidth(1040);
+        Button motyw = app.wyglad.przelacznik();
+        Button wyglad = przycisk("Wygląd", "", app.wyglad::pokaz); wyglad.setId("appearance-open"); wyglad.setGraphic(IkonyGUI.ikona("Wygląd"));
+        HBox gorny = new HBox(10, motyw, wyglad); gorny.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        BorderPane uklad = new BorderPane(); uklad.setTop(gorny); uklad.setCenter(new StackPane(srodek));
+        StackPane page = new StackPane(uklad); page.getStyleClass().add("login-page");
         app.ustawScene(page, true); login.requestFocus();
     }
 }

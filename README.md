@@ -1,18 +1,16 @@
-# System zarządzania hotelem — 1.0.2
+# System zarządzania hotelem — 1.1.0
 
 Aplikacja JavaFX + JDBC + MySQL do obsługi gości, rezerwacji, pobytów, usług i rozliczeń. Projekt zachowuje również wersję konsolową. Kod jest podzielony na pakiety i mniejsze klasy, bez komentarzy w źródłach.
 
 [Repozytorium projektu](https://github.com/Chyba-Bombel/System-zarzadzania-hotelem-Projekt)
 
-## Wersja 1.0.2
+## Wersja 1.1.0
 
-Instrukcja aktualizacji i budowania: [AKTUALIZACJA_1.0.2.md](AKTUALIZACJA_1.0.2.md). Poprawka nie zmienia schematu bazy zgodnej z 1.0.1.
+Nowy interfejs z jasnym i ciemnym motywem, zapamiętywaniem wyboru oraz tekstem 100%, 110% i 120%. Przełącznik jest dostępny przed logowaniem i w bocznym menu; dodatkowe ustawienia otwiera przycisk **Wygląd**.
 
-- Test połączenia z formularza przed logowaniem, w tle i bez zapisu ustawień.
-- Do pięciu kopii konfiguracji oraz przywracanie wybranej kopii.
-- Otwieranie logów i kopiowanie informacji o wersji bez ustawień bazy.
-- Skrypt Linux tworzący DEB i ZIP z instrukcją oraz plikami bazy.
-- Stały UUID instalatorów Windows zachowany z 1.0.1.
+Pulpit pokazuje karty, przyjazdy i wyjazdy, wykres stanów pokoi i tygodniowy podgląd rezerwacji. Tabele, formularze i komunikaty korzystają ze wspólnej palety. Widok rezerwacji zawiera kartę zaznaczonego pobytu. Interfejs pozostaje w języku polskim.
+
+Instrukcja: [AKTUALIZACJA_1.1.0.md](AKTUALIZACJA_1.1.0.md). Baza zgodna z 1.0.2 nie wymaga aktualizacji SQL. Zachowano test połączenia, kopie konfiguracji i diagnostykę poprzedniej wersji.
 
 Konfiguracja Windows: `%LOCALAPPDATA%\HotelManagerData\config\db.properties`; Linux: `~/.config/HotelManagerData/config/db.properties` (XDG_CONFIG_HOME ma pierwszeństwo). Logi są w równoległym folderze `logs`, kopie w `config/backups`. Te katalogi nie powinny być folderem instalacji aplikacji. Kopie zawierają hasło: nie publikuj ich. Nie zastępują kopii bazy.
 
@@ -30,7 +28,7 @@ Linux, opcjonalnie z hotel.png:
 bash buduj_instalator_linux.sh
 ```
 
-Wyniki: Windows `dist\1.0.2-exe`; Linux `dist/1.0.2-linux-<architektura>-deb` i ZIP o tej samej nazwie. Gotowe instalatory zawierają Javę, JavaFX i JDBC, ale nie serwer bazy. Kod, bazę, GUI i pakowanie na Linuxie sprawdzono zgodnie z WYNIKI_TESTOW_1.0.2.txt. Faktyczną aktualizację instalatora na Windows trzeba potwierdzić na tym systemie.
+Wyniki: Windows `dist\1.1.0-exe`; Linux `dist/1.1.0-linux-<architektura>-deb` i ZIP o tej samej nazwie. Gotowe instalatory zawierają Javę, JavaFX i JDBC, ale nie serwer bazy. Zakres weryfikacji tej wersji opisuje WYNIKI_TESTOW_1.1.0.txt. Faktyczną aktualizację instalatora na Windows trzeba potwierdzić na tym systemie.
 
 ## Baza danych — dwa główne pliki
 
@@ -51,7 +49,7 @@ Dokładna instrukcja, warunki uruchomienia i opis praw: [db/README.md](db/README
 
 | Ekran | Funkcje |
 | --- | --- |
-| Pulpit | Przyjazdy, dzisiejsze i zaległe wyjazdy, liczniki. |
+| Pulpit | Karty, przyjazdy i wyjazdy, wykres stanów pokoi, tygodniowy podgląd rezerwacji. |
 | Goście | Dodawanie, edycja, wyszukiwanie, archiwizacja i przywracanie. |
 | Pokoje | Dostępność, sprzątanie, dodawanie/edycja i administracyjne wyłączenie/przywrócenie. |
 | Kalendarz | Miesięczny plan pokoi; podgląd pobytu i utworzenie rezerwacji od wolnej nocy. |

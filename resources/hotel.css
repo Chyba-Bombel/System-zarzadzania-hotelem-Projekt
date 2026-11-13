@@ -1,64 +1,229 @@
-.root { -fx-font-family: 'System'; -fx-font-size: 13px; -fx-background-color: #f4f6fa; -fx-text-fill: #223047; }
-.label { -fx-text-fill: #223047; }
-.title { -fx-font-size: 27px; -fx-font-weight: bold; }
-.subtitle, .muted { -fx-text-fill: #68778d; }
-.subtitle { -fx-font-size: 13px; }
-.section-title { -fx-font-size: 16px; -fx-font-weight: bold; }
-.sidebar { -fx-background-color: #18253d; -fx-padding: 28 18 20 18; }
-.brand { -fx-text-fill: white; -fx-font-size: 23px; -fx-font-weight: bold; }
-.brand-sub { -fx-text-fill: #a9b7d0; -fx-font-size: 11px; }
-.nav { -fx-background-color: transparent; -fx-text-fill: #c6d1e4; -fx-alignment: center-left; -fx-padding: 13 15; -fx-background-radius: 8; -fx-font-size: 14px; }
-.nav:hover { -fx-background-color: #233654; }
-.nav.active { -fx-background-color: #355b97; -fx-text-fill: white; -fx-font-weight: bold; }
-.user-card { -fx-background-color: #22324c; -fx-background-radius: 10; -fx-padding: 14; }
-.user-name { -fx-text-fill: white; -fx-font-weight: bold; }
-.user-role { -fx-text-fill: #b3c3df; -fx-font-size: 11px; }
-.button { -fx-cursor: hand; -fx-background-color: white; -fx-border-color: #d8dfeb; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 9 15; -fx-text-fill: #2c405f; }
-.button:hover { -fx-background-color: #eef3fb; }
-.button.primary { -fx-background-color: #315fba; -fx-border-color: #315fba; -fx-text-fill: white; -fx-font-weight: bold; }
-.button.primary:hover { -fx-background-color: #244d9e; }
-.button.danger { -fx-text-fill: #ad3549; -fx-border-color: #e6bdc6; }
-.button:disabled { -fx-opacity: .43; }
-.text-field, .password-field, .combo-box, .date-picker { -fx-background-color: white; -fx-border-color: #d8dfeb; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 5; }
-.text-field:focused, .password-field:focused { -fx-border-color: #4678d0; }
-.table-view { -fx-background-color: white; -fx-border-color: #e1e6ef; -fx-border-radius: 8; -fx-padding: 1; }
-.table-view .column-header-background, .table-view .column-header { -fx-background-color: #edf1f7; }
-.table-view .column-header { -fx-size: 40; -fx-border-color: transparent #e0e5ee transparent transparent; }
-.table-view .column-header .label { -fx-alignment: center-left; -fx-padding: 0 8; -fx-text-fill: #52647d; -fx-font-size: 12px; }
-.table-row-cell { -fx-cell-size: 43; -fx-background-color: white; -fx-border-color: transparent transparent #f0f3f7 transparent; }
-.table-row-cell:odd { -fx-background-color: #fafbfd; }
-.table-row-cell:selected { -fx-background-color: #e1ebff; }
-.table-row-cell:selected .text { -fx-fill: #244475; }
-.table-cell { -fx-alignment: center-left; -fx-padding: 10; -fx-border-color: transparent; }
-.card { -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #e0e6ef; -fx-border-radius: 10; -fx-padding: 20; }
-.metric { -fx-font-size: 32px; -fx-font-weight: bold; }
-.statusbar { -fx-background-color: #edf1f7; -fx-padding: 9 20; }
-.busy-overlay { -fx-background-color: rgba(244,246,250,.82); }
-.error-text { -fx-text-fill: #ad3549; }
-.login-page { -fx-background-color: #18253d; }
-.login-card { -fx-background-color: white; -fx-background-radius: 16; -fx-padding: 38; }
-.login-card .text-field, .login-card .password-field { -fx-pref-height: 42; }
-.dialog-pane { -fx-background-color: #f7f9fc; }
-.dialog-pane .header-panel { -fx-background-color: #edf1f7; }
+.root, .hotel-root, .table-view, .combo-box-base, .status-badge, .calendar-conflict, .column-header-background {
+    -hotel-bg: #f4f5f1;
+    -hotel-surface: #ffffff;
+    -hotel-raised: #f8faf8;
+    -hotel-field: #ffffff;
+    -hotel-text: #243640;
+    -hotel-muted: #637780;
+    -hotel-border: #dce4e1;
+    -hotel-hover: #edf4f1;
+    -hotel-selected: #dcefeb;
+    -hotel-accent: #087f78;
+    -hotel-accent-hover: #066a64;
+    -hotel-on-accent: #ffffff;
+    -hotel-positive-bg: #def4e9;
+    -hotel-positive-text: #176344;
+    -hotel-info-bg: #e0ecfc;
+    -hotel-info-text: #28588b;
+    -hotel-warning-bg: #fff0d6;
+    -hotel-warning-text: #8a570c;
+    -hotel-negative-bg: #fbe4e8;
+    -hotel-negative-text: #a42f46;
+    -hotel-neutral-bg: #edf0f2;
+    -hotel-neutral-text: #526570;
+    -hotel-sidebar: #142d3a;
+    -hotel-sidebar-raised: #203e4d;
+    -hotel-sidebar-text: #cfdee3;
+    -hotel-overlay: rgba(244,245,241,0.88);
+}
+.root, .hotel-root {
+    -fx-font-family: "System";
+    -fx-font-size: 13px;
+    -fx-background-color: -hotel-bg;
+    -fx-base: -hotel-surface;
+    -fx-background: -hotel-bg;
+    -fx-control-inner-background: -hotel-field;
+    -fx-control-inner-background-alt: -hotel-raised;
+    -fx-accent: -hotel-accent;
+    -fx-focus-color: -hotel-accent;
+    -fx-faint-focus-color: transparent;
+    -fx-text-base-color: -hotel-text;
+    -fx-text-background-color: -hotel-text;
+    -fx-selection-bar: -hotel-selected;
+    -fx-selection-bar-non-focused: -hotel-selected;
+    -fx-selection-bar-text: -hotel-text;
+    -fx-mark-color: -hotel-muted;
+}
+.root.theme-dark, .hotel-root.theme-dark, .theme-dark .table-view, .theme-dark .combo-box-base, .theme-dark .status-badge, .theme-dark .calendar-conflict, .theme-dark .column-header-background {
+    -hotel-bg: #111d27;
+    -hotel-surface: #1b2b38;
+    -hotel-raised: #203340;
+    -hotel-field: #172632;
+    -hotel-text: #edf5f7;
+    -hotel-muted: #afc2cc;
+    -hotel-border: #354b59;
+    -hotel-hover: #293f4e;
+    -hotel-selected: #254b50;
+    -hotel-accent: #36b6a7;
+    -hotel-accent-hover: #63cbbc;
+    -hotel-on-accent: #102923;
+    -hotel-positive-bg: #1c433c;
+    -hotel-positive-text: #8ce1bf;
+    -hotel-info-bg: #243e5a;
+    -hotel-info-text: #a6cdff;
+    -hotel-warning-bg: #493c25;
+    -hotel-warning-text: #f6d08b;
+    -hotel-negative-bg: #482e3b;
+    -hotel-negative-text: #ffb8c7;
+    -hotel-neutral-bg: #2c3f4c;
+    -hotel-neutral-text: #c0ced7;
+    -hotel-sidebar: #0d1822;
+    -hotel-sidebar-raised: #1a2f3d;
+    -hotel-sidebar-text: #cfdee3;
+    -hotel-overlay: rgba(17,29,39,0.9);
+}
+.label { -fx-text-fill: -hotel-text; }
+.title { -fx-font-size: 2.05em; -fx-font-weight: bold; }
+.subtitle, .muted, .breadcrumb { -fx-text-fill: -hotel-muted; }
+.breadcrumb { -fx-font-size: .9em; }
+.section-title { -fx-font-size: 1.3em; -fx-font-weight: bold; }
+.strong { -fx-font-weight: bold; }
+.page-header { -fx-padding: 0 0 4 0; }
+.button { -fx-cursor: hand; -fx-background-color: -hotel-surface; -fx-border-color: -hotel-border; -fx-border-radius: 7; -fx-background-radius: 7; -fx-padding: 9 14; -fx-text-fill: -hotel-text; -fx-graphic-text-gap: 9; }
+.button:hover { -fx-background-color: -hotel-hover; -fx-border-color: -hotel-accent; }
+.button:focused { -fx-border-color: -hotel-accent; -fx-border-width: 1.5; }
+.button:pressed { -fx-background-color: -hotel-selected; }
+.button.primary { -fx-background-color: -hotel-accent; -fx-border-color: -hotel-accent; -fx-text-fill: -hotel-on-accent; -fx-font-weight: bold; }
+.button.primary:hover { -fx-background-color: -hotel-accent-hover; }
+.button.danger { -fx-text-fill: -hotel-negative-text; -fx-border-color: -hotel-negative-text; }
+.button:disabled { -fx-opacity: .48; }
+.button.small-button { -fx-padding: 6 10; }
+.button.text-button { -fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: -hotel-accent; -fx-padding: 4; -fx-font-weight: bold; }
+.button.callout { -fx-background-color: -hotel-warning-bg; -fx-border-color: transparent; -fx-text-fill: -hotel-warning-text; -fx-alignment: center-left; }
+.icon { -fx-fill: transparent; -fx-stroke: -hotel-muted; -fx-stroke-width: 1.8; -fx-stroke-line-cap: round; -fx-stroke-line-join: round; }
+.primary .icon { -fx-stroke: -hotel-on-accent; }
+.sidebar { -fx-background-color: -hotel-sidebar; -fx-padding: 24 14 14 14; }
+.brand-block { -fx-padding: 4 8 22 8; }
+.brand { -fx-text-fill: #f1f7f8; -fx-font-size: 1.38em; -fx-font-weight: bold; }
+.brand-sub { -fx-text-fill: #b2c5cf; -fx-font-size: .72em; -fx-padding: 6 0 0 0; }
+.brand-monogram, .hero-monogram { -fx-text-fill: #e9c780; -fx-border-color: #d5b473; -fx-border-width: 2; -fx-border-radius: 12; -fx-font-family: "Serif"; -fx-font-size: 2.6em; -fx-alignment: center; -fx-min-width: 51; -fx-min-height: 58; }
+.button.nav { -fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: -hotel-sidebar-text; -fx-alignment: center-left; -fx-padding: 10 12; -fx-font-size: 1.03em; }
+.button.nav .icon { -fx-stroke: -hotel-sidebar-text; }
+.button.nav:hover { -fx-background-color: -hotel-sidebar-raised; }
+.button.nav.active { -fx-background-color: #087f78; -fx-text-fill: white; -fx-font-weight: bold; }
+.button.nav.active .icon { -fx-stroke: white; }
+.nav-settings { -fx-border-color: #35505c transparent transparent transparent; -fx-padding: 10 0 0 0; }
+.user-card { -fx-padding: 12 5; }
+.user-name { -fx-text-fill: #f0f7f8; -fx-font-weight: bold; }
+.user-role { -fx-text-fill: #b1c5ce; -fx-font-size: .88em; }
+.avatar { -fx-background-color: #355363; -fx-background-radius: 50; -fx-text-fill: white; -fx-min-width: 35; -fx-min-height: 35; -fx-alignment: center; -fx-font-weight: bold; }
+.nav-scroll, .nav-scroll > .viewport { -fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0; }
+.nav-scroll .scroll-bar:vertical { -fx-background-color: transparent; -fx-pref-width: 7; }
+.nav-scroll .scroll-bar .thumb { -fx-background-color: #44606d; }
+.page-scroll, .page-scroll > .viewport, .transparent-scroll, .transparent-scroll > .viewport { -fx-background-color: -hotel-bg; -fx-border-color: transparent; -fx-padding: 0; }
+.transparent-scroll, .transparent-scroll > .viewport { -fx-background-color: transparent; }
+.statusbar { -fx-background-color: -hotel-surface; -fx-border-color: -hotel-border transparent transparent transparent; -fx-padding: 10 20; -fx-font-size: .85em; }
+.session-status { -fx-text-fill: -hotel-accent; }
+.card { -fx-background-color: -hotel-surface; -fx-background-radius: 12; -fx-border-color: -hotel-border; -fx-border-radius: 12; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,.055), 7, 0, 0, 2); }
+.metric { -fx-font-size: 2.45em; -fx-font-weight: bold; }
+.metric-card { -fx-padding: 15 18; }
+.metric-card .icon { -fx-stroke: -hotel-accent; }
+.metric-card .progress-bar { -fx-pref-height: 7; }
+.progress-bar > .track { -fx-background-color: -hotel-neutral-bg; -fx-background-radius: 10; }
+.progress-bar > .bar { -fx-background-color: -hotel-accent; -fx-background-radius: 10; -fx-padding: 3; }
+.progress-indicator { -fx-progress-color: -hotel-accent; }
+.segmented-control { -fx-background-color: -hotel-neutral-bg; -fx-background-radius: 7; -fx-padding: 3; }
+.button.segment { -fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8 17; }
+.button.segment.selected { -fx-background-color: -hotel-accent; -fx-text-fill: -hotel-on-accent; -fx-font-weight: bold; }
+.text-field, .text-area, .password-field, .combo-box-base, .spinner { -fx-background-color: -hotel-field; -fx-border-color: -hotel-border; -fx-border-radius: 7; -fx-background-radius: 7; -fx-text-fill: -hotel-text; -fx-prompt-text-fill: -hotel-muted; }
+.text-field, .password-field { -fx-padding: 9 11; }
+.text-field:focused, .text-area:focused, .combo-box-base:focused, .spinner:focused { -fx-border-color: -hotel-accent; }
+.text-area .content, .text-area .viewport { -fx-background-color: -hotel-field; }
+.combo-box-base .list-cell, .combo-box-popup .list-view, .combo-box-popup .list-cell, .list-view, .list-cell { -fx-background-color: -hotel-field; -fx-text-fill: -hotel-text; }
+.combo-box-base .list-cell { -fx-padding: 8 10; }
+.combo-box-base .arrow-button, .date-picker .arrow-button, .spinner .increment-arrow-button, .spinner .decrement-arrow-button { -fx-background-color: -hotel-raised; }
+.combo-box-base .arrow, .date-picker .arrow, .spinner .increment-arrow, .spinner .decrement-arrow { -fx-background-color: -hotel-muted; }
+.combo-box-popup .list-cell:filled:hover, .combo-box-popup .list-cell:filled:selected, .list-cell:filled:selected { -fx-background-color: -hotel-selected; -fx-text-fill: -hotel-text; }
+.date-picker-popup { -fx-background-color: -hotel-surface; -fx-border-color: -hotel-border; }
+.date-picker-popup > .month-year-pane { -fx-background-color: -hotel-raised; }
+.date-picker-popup .spinner .label, .date-picker-popup .day-name-cell, .date-picker-popup .week-number-cell { -fx-text-fill: -hotel-muted; }
+.date-picker-popup .day-cell { -fx-background-color: -hotel-field; -fx-text-fill: -hotel-text; -fx-border-color: -hotel-border; }
+.date-picker-popup .day-cell:hover { -fx-background-color: -hotel-selected; }
+.date-picker-popup .day-cell:selected { -fx-background-color: -hotel-accent; -fx-text-fill: -hotel-on-accent; }
+.date-picker-popup .previous-month, .date-picker-popup .next-month { -fx-text-fill: -hotel-muted; -fx-opacity: .65; }
+.date-picker-popup .spinner { -fx-background-color: transparent; -fx-border-color: transparent; }
+.date-picker-popup .spinner .button { -fx-background-color: -hotel-surface; }
+.table-view { -fx-background-color: -hotel-surface; -fx-control-inner-background: -hotel-surface; -fx-border-color: -hotel-border; -fx-border-radius: 9; -fx-background-radius: 9; -fx-padding: 1; }
+.table-view .column-header-background, .table-view .column-header, .table-view .filler { -fx-background-color: -hotel-raised; }
+.table-view .column-header { -fx-size: 41; -fx-border-color: transparent transparent -hotel-border transparent; }
+.table-view .column-header .label { -fx-alignment: center-left; -fx-padding: 0 10; -fx-text-fill: -hotel-muted; -fx-font-size: .9em; -fx-font-weight: bold; }
+.table-row-cell { -fx-cell-size: 45; -fx-background-color: -hotel-surface; -fx-border-color: transparent transparent -hotel-border transparent; }
+.table-row-cell:odd { -fx-background-color: -hotel-raised; }
+.table-row-cell:hover:filled { -fx-background-color: -hotel-hover; }
+.table-row-cell:selected { -fx-background-color: -hotel-selected; }
+.table-cell { -fx-alignment: center-left; -fx-padding: 8 10; -fx-border-color: transparent; -fx-text-fill: -hotel-text; }
+.table-row-cell:selected .text { -fx-fill: -hotel-text; }
+.table-view .placeholder .label { -fx-text-fill: -hotel-muted; }
+.empty-state { -fx-padding: 24; }
+.empty-state .icon { -fx-stroke: -hotel-muted; }
+.status-badge { -fx-background-radius: 5; -fx-padding: 5 8; -fx-font-size: .87em; -fx-font-weight: bold; }
+.badge-positive { -fx-background-color: -hotel-positive-bg; -fx-text-fill: -hotel-positive-text; }
+.badge-info { -fx-background-color: -hotel-info-bg; -fx-text-fill: -hotel-info-text; }
+.badge-warning { -fx-background-color: -hotel-warning-bg; -fx-text-fill: -hotel-warning-text; }
+.badge-negative { -fx-background-color: -hotel-negative-bg; -fx-text-fill: -hotel-negative-text; }
+.badge-neutral { -fx-background-color: -hotel-neutral-bg; -fx-text-fill: -hotel-neutral-text; }
+.scroll-bar { -fx-background-color: -hotel-raised; }
+.scroll-bar .track { -fx-background-color: transparent; }
+.scroll-bar .thumb { -fx-background-color: -hotel-border; -fx-background-radius: 6; }
+.scroll-bar .increment-button, .scroll-bar .decrement-button { -fx-background-color: transparent; }
+.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow { -fx-background-color: -hotel-muted; }
+.scroll-pane { -fx-background-color: -hotel-bg; -fx-border-color: transparent; }
+.scroll-pane > .viewport { -fx-background-color: -hotel-bg; }
+.dialog-pane { -fx-background-color: -hotel-bg; -fx-padding: 12; }
+.dialog-pane .header-panel { -fx-background-color: -hotel-raised; -fx-padding: 18; }
+.dialog-pane .header-panel .label { -fx-font-size: 1.3em; -fx-font-weight: bold; }
 .dialog-pane .content.label { -fx-wrap-text: true; }
-.form-label { -fx-font-weight: bold; -fx-text-fill: #52647d; -fx-font-size: 12px; }
-.badge { -fx-font-size: 11px; -fx-font-weight: bold; }
-.tab-pane .tab-header-area .tab-header-background { -fx-background-color: #edf1f7; }
-
-.button.nav { -fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: #c6d1e4; -fx-padding: 13 15; }
-.button.nav:hover { -fx-background-color: #233654; }
-.button.nav.active { -fx-background-color: #355b97; -fx-text-fill: white; }
-.table-view .filler { -fx-background-color: #edf1f7; }
-
+.dialog-pane > .button-bar { -fx-padding: 14 6 4 6; }
+.form-label { -fx-font-weight: bold; -fx-text-fill: -hotel-muted; -fx-font-size: .94em; }
+.error-text { -fx-text-fill: -hotel-negative-text; }
+.busy-overlay { -fx-background-color: -hotel-overlay; }
+.login-page { -fx-background-color: -hotel-bg; -fx-padding: 24 36; }
+.login-hero { -fx-padding: 40; -fx-background-color: -hotel-sidebar; -fx-background-radius: 18; -fx-min-height: 470; -fx-alignment: center-left; }
+.hero-monogram { -fx-font-size: 3.5em; -fx-pref-width: 76; -fx-max-width: 76; -fx-min-height: 80; }
+.hero-title { -fx-text-fill: #f2f7f9; -fx-font-size: 2.35em; -fx-font-weight: bold; }
+.hero-description { -fx-text-fill: #bdced6; -fx-font-size: 1.16em; }
+.login-card { -fx-background-color: -hotel-surface; -fx-background-radius: 16; -fx-border-color: -hotel-border; -fx-border-radius: 16; -fx-padding: 32; }
+.login-brand { -fx-text-fill: -hotel-accent; -fx-font-weight: bold; -fx-font-size: 1.05em; }
+.login-card .text-field, .login-card .password-field { -fx-pref-height: 43; }
+.tab-pane .tab-header-area .tab-header-background { -fx-background-color: -hotel-raised; }
+.tab-pane .tab { -fx-background-color: -hotel-raised; }
+.tab-pane .tab:selected { -fx-background-color: -hotel-surface; }
+.tab-pane .tab-label { -fx-text-fill: -hotel-text; }
+.check-box .box, .radio-button .radio { -fx-background-color: -hotel-field; -fx-border-color: -hotel-border; -fx-border-radius: 4; }
+.check-box:selected .mark, .radio-button:selected .dot { -fx-background-color: -hotel-accent; }
+.separator .line { -fx-border-color: -hotel-border transparent transparent transparent; }
+.context-menu, .tooltip { -fx-background-color: -hotel-surface; -fx-border-color: -hotel-border; -fx-text-fill: -hotel-text; }
+.menu-item .label { -fx-text-fill: -hotel-text; }
+.menu-item:focused { -fx-background-color: -hotel-selected; }
+.chart { -fx-padding: 0; }
+.chart-content { -fx-padding: 0; }
+.default-color0.chart-pie { -fx-pie-color: -hotel-accent; }
+.default-color1.chart-pie { -fx-pie-color: #8cd4bc; }
+.default-color2.chart-pie { -fx-pie-color: #e8b963; }
+.default-color3.chart-pie { -fx-pie-color: #718592; }
+.chart-pie { -fx-border-width: 0; }
+.donut-hole { -fx-fill: -hotel-surface; }
+.donut-empty { -fx-fill: -hotel-neutral-bg; }
+.donut-number { -fx-font-size: 2em; -fx-font-weight: bold; }
+.legend-0 { -fx-text-fill: -hotel-accent; }
+.legend-1 { -fx-text-fill: #70bca3; }
+.legend-2 { -fx-text-fill: #c9902e; }
+.legend-3 { -fx-text-fill: #718592; }
+.week-day { -fx-padding: 7; -fx-alignment: center; -fx-text-fill: -hotel-muted; -fx-font-weight: bold; }
+.week-day.today { -fx-background-color: -hotel-selected; -fx-background-radius: 5; -fx-text-fill: -hotel-accent; }
+.button.week-slot { -fx-padding: 6 8; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: .88em; }
 .calendar-table .table-cell.calendar-cell { -fx-padding: 4 2; }
-.calendar-table .column-header { -fx-size: 48; }
+.calendar-table .column-header { -fx-size: 49; }
 .calendar-table .column-header .label { -fx-alignment: center; -fx-padding: 2; }
-.button.calendar-slot { -fx-padding: 6 2; -fx-background-radius: 4; -fx-border-radius: 4; -fx-font-size: 12px; -fx-font-weight: bold; }
-.calendar-legend { -fx-padding: 5 9; -fx-background-radius: 4; -fx-font-size: 12px; }
-.calendar-free, .button.calendar-free { -fx-background-color: #edf8f1; -fx-text-fill: #286740; -fx-border-color: #c5e4ce; }
-.calendar-confirmed, .button.calendar-confirmed { -fx-background-color: #dce8ff; -fx-text-fill: #234a8b; -fx-border-color: #b0c8ef; }
-.calendar-checked-in, .button.calendar-checked-in { -fx-background-color: #bde6d1; -fx-text-fill: #165c3a; -fx-border-color: #80c5a2; }
-.calendar-finished, .button.calendar-finished { -fx-background-color: #e6e9ef; -fx-text-fill: #566177; -fx-border-color: #c8cfdb; }
-.calendar-unavailable, .button.calendar-unavailable { -fx-background-color: #f2f2f2; -fx-text-fill: #7b8290; -fx-border-color: #e0e2e7; }
-.calendar-conflict, .button.calendar-conflict { -fx-background-color: #ffe0e3; -fx-text-fill: #a31f38; -fx-border-color: #e69ba8; }
-.calendar-details { -fx-background-color: white; -fx-padding: 12; -fx-background-radius: 7; -fx-border-color: #e1e6ef; -fx-border-radius: 7; }
+.calendar-table .calendar-today-column { -fx-background-color: -hotel-selected; }
+.button.calendar-slot { -fx-padding: 6 2; -fx-background-radius: 4; -fx-border-radius: 4; -fx-font-size: .9em; -fx-font-weight: bold; }
+.calendar-legend { -fx-padding: 6 10; -fx-background-radius: 5; -fx-font-size: .9em; }
+.calendar-free, .button.calendar-free { -fx-background-color: -hotel-raised; -fx-text-fill: -hotel-muted; -fx-border-color: -hotel-border; }
+.calendar-confirmed, .button.calendar-confirmed { -fx-background-color: -hotel-positive-bg; -fx-text-fill: -hotel-positive-text; -fx-border-color: -hotel-positive-bg; }
+.calendar-checked-in, .button.calendar-checked-in { -fx-background-color: -hotel-info-bg; -fx-text-fill: -hotel-info-text; -fx-border-color: -hotel-info-bg; }
+.calendar-finished, .button.calendar-finished, .calendar-unavailable, .button.calendar-unavailable { -fx-background-color: -hotel-neutral-bg; -fx-text-fill: -hotel-neutral-text; -fx-border-color: -hotel-border; }
+.calendar-conflict, .button.calendar-conflict { -fx-background-color: -hotel-negative-bg; -fx-text-fill: -hotel-negative-text; -fx-border-color: -hotel-negative-text; }
+.calendar-details { -fx-background-color: -hotel-surface; -fx-padding: 15; -fx-background-radius: 9; -fx-border-color: -hotel-border; -fx-border-radius: 9; }
+
+.scroll-pane.nav-scroll, .scroll-pane.nav-scroll > .viewport { -fx-background-color: transparent; }
+.scroll-pane.transparent-scroll, .scroll-pane.transparent-scroll > .viewport { -fx-background-color: transparent; }

@@ -51,7 +51,7 @@ final class EkranKalendarza {
             LocalDate d = miesiac.atDay(i);
             TableColumn<Pokoj,PoleDnia> col = new TableColumn<>(i + "\n" + d.getDayOfWeek().getDisplayName(TextStyle.SHORT, PL));
             col.setPrefWidth(68); col.setMinWidth(62); col.setSortable(false); col.setReorderable(false);
-            if (d.equals(LocalDate.now())) col.setStyle("-fx-background-color: #dbe9ff;");
+            if (d.equals(LocalDate.now())) col.getStyleClass().add("calendar-today-column");
             col.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(plan.dzien(v.getValue(), d)));
             col.setCellFactory(c -> new KomorkaKalendarza(pole -> klik(pole, panel, szczegoly)));
             tabela.getColumns().add(col);

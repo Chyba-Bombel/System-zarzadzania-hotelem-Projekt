@@ -18,6 +18,7 @@ final class ZadaniaGUI {
     void odswiezPo(String komunikat, Runnable potem) {
         uwierzytelnione(false, "Odświeżanie danych", () -> GuiRepository.pobierz(app.stan.sesja), d -> {
             app.stan.typy = d.typy(); app.stan.goscie.setAll(d.goscie()); app.stan.pokoje.setAll(d.pokoje()); app.stan.rezerwacje.setAll(d.rezerwacje()); app.stan.konta.setAll(d.konta());
+            app.stan.ostatnieOdswiezenie.setText("Odczyt: " + godzina());
             app.tabeleGUI.filtruj(); app.stan.tabelaPokoi.refresh(); app.pokazStrone(); app.stan.status.setText(komunikat + " • " + godzina()); potem.run();
         });
     }

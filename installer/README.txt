@@ -56,7 +56,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\aktualizuj_windows.ps1
 Skrypt robi lokalną kopię konfiguracji i uruchamia instalator z tego folderu.
 Nie pobiera wersji z internetu i nie robi kopii ani aktualizacji bazy.
 Konfiguracja znajduje się poza folderem programu i pozostaje na miejscu.
-Poprawka 1.0.2 nie wymaga zmiany bazy zgodnej z wersją 1.0.1.
+Wersja 1.1.0 nie wymaga zmiany bazy zgodnej z wersją 1.0.2.
 
 NOWOŚCI 1.0.2
 W ustawieniach połączenia jest Testuj połączenie: wykonuje SELECT 1
@@ -89,3 +89,9 @@ Folder danych użytkownika i baza są zarządzane osobno.
 
 Repozytorium:
 https://github.com/Chyba-Bombel/System-zarzadzania-hotelem-Projekt/
+
+WYGLĄD 1.1.0
+Przełącznik Tryb ciemny / Tryb jasny znajduje się przed logowaniem i w menu.
+Wygląd pozwala wybrać motyw i tekst 100%, 110% lub 120%. Preferencje zapisują
+się w wyglad.properties w folderze HotelManagerData, osobno od bazy.
+Tłumaczenia interfejsu są przewidziane do kolejnego etapu.
