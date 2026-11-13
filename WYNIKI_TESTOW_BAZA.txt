@@ -1,0 +1,24 @@
+Weryfikacja 2026-11-12; MySQL 8.0.46, JDK 17, izolowane schematy i konta testowe.
+
+OLD_SCHEMA_OK: najstarszy schemat podstawowy, wszystkie brakujące zmiany, zachowane rekordy i dwukrotne uruchomienie; brakujące konta nie przerywają migracji.
+
+CURRENT_SCHEMA_OK: wersja 15, zachowane kontakty, archiwum, zmieniona oferta, płatności i historia; bez resetu haseł, bez podwójnych wpisów.
+
+SINGLE_HOST_OK: istniejące konto localhost otrzymuje prawa, brak drugiego hosta nie przerywa aktualizacji.
+
+PARTIAL_HISTORY_OK: stara tabela bez platnosc_id i z sześcioma akcjami, zachowany wpis i obie składnie DROP sprawdzone na MySQL 8.
+
+FRESH_INSTALL_OK: pełny import z rekordami i aktualnymi tabelami; istniejące hasło konta pozostaje, późniejsze uruchomienie aktualizatora nie zmienia rekordów.
+
+PRIVILEGES_OK: brak DDL i zmiany/usuwania płatności; obsługa pobytu działa na minimalnych grantach.
+
+CONSOLE_OK: admin
+
+CONSOLE_OK: recepcja
+
+Nie uruchamiano serwera MariaDB ani GUI ponownie: produkcyjne źródła Java i biblioteki nie są zmienione. Wariant DROP CONSTRAINT sprawdzono na MySQL 8. Aktualny zakres obejmuje SQL, pomocnik grantów i konsolę.
+
+APP_AND_DEPENDENCIES_UNCHANGED: porównanie wszystkich źródeł produkcyjnych, bibliotek, zasobów i konfiguracji z paczką 15.
+SOURCE_COMMENTS: 0.
+LOCAL_DOCUMENT_LINKS_OK: odnośniki do plików w dokumentacji prowadzą do istniejących plików.
+DB_CLEANUP_RELEASE_OK.

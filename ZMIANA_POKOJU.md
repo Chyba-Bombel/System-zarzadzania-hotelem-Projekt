@@ -57,16 +57,7 @@ pokojach wymaga osobnej tabeli odcinków pobytu oraz zmian w kalendarzu i raport
 
 ## 5. Aktualizacja i testy
 
-Sama funkcja zmiany pokoju nie dodaje tabel. Obecna paczka zawiera jednak także historię
-zdarzeń, dlatego wykonaj aktualizację i nadaj uprawnienia według `HISTORIA_REZERWACJI.md`.
-Zachowaj własny `db.properties`. Nie importuj ponownie danych demonstracyjnych.
+Istniejąca baza: zamknij stanowiska, wykonaj kopię i uruchom **`db/aktualizuj_baze.sql`** jako administrator MySQL/MariaDB. Skrypt obejmuje wszystkie dotychczasowe zmiany, więc nie wybierasz aktualizacji według etapów. Nowa, pusta instalacja: **`db/nowa_baza.sql`**. Zachowaj własny `db.properties`; pełnego importu demonstracyjnego nie wykonuj na swoich danych. Szczegóły: [db/README.md](db/README.md).
 
-`RoomChangeProbe` sprawdza odmowy, zachowanie ceny i wpłat, uczestników, styki dat,
-przeniesienie zameldowanej rezerwacji oraz sprzątanie. Błąd sprzątania wymuszony
-przez testowy trigger sprawdza wycofanie już zmienionej rezerwacji. Równoległe
-przeniesienie i nowa rezerwacja tego samego terminu mogą mieć tylko jednego zwycięzcę.
-Sprawdzane są również ruchy w przeciwnych kierunkach bez zakleszczenia.
+Weryfikację funkcji opisuje TESTOWANIE.md oraz odpowiedni plik WYNIKI_TESTOW.
 
-`GuiSmoke` obsługuje formularz zmiany pokoju i sprawdza nowy pokój w kalendarzu.
-`PrivilegeProbe` weryfikuje operację na minimalnych uprawnieniach konta MySQL.
-Scenariusze uruchamiaj wyłącznie na oddzielnej bazie testowej według `TESTOWANIE.md`.

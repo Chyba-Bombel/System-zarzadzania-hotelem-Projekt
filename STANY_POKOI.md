@@ -79,12 +79,7 @@ niedostępnych pokoi. Wyłączenie nie usuwa rezerwacji ani zapisanych płatnoś
 
 ## 6. Aktualizacja i sprawdzenie
 
-Nie ma nowych tabel, kolumn, bibliotek ani grantów. Wykorzystywane są istniejące
-stany pokoju i uprawnienia SELECT/UPDATE. Rozpakuj nową paczkę do osobnego folderu
-i przenieś własny `db.properties`. Starsze bazy nadal wymagają wcześniejszych
-aktualizacji. Nie importuj ponownie danych demonstracyjnych.
+Istniejąca baza: zamknij stanowiska, wykonaj kopię i uruchom **`db/aktualizuj_baze.sql`** jako administrator MySQL/MariaDB. Skrypt obejmuje wszystkie dotychczasowe zmiany, więc nie wybierasz aktualizacji według etapów. Nowa, pusta instalacja: **`db/nowa_baza.sql`**. Zachowaj własny `db.properties`; pełnego importu demonstracyjnego nie wykonuj na swoich danych. Szczegóły: [db/README.md](db/README.md).
 
-`RoomStateProbe` sprawdza role, blokujące rezerwacje, stare dane, sprzątanie,
-wycofanie błędu oraz równoczesne operacje. GUI weryfikuje również kalendarz i
-uprawnienia recepcji, konsola odczyt wyboru i potwierdzenia.
-Wyniki: `WYNIKI_TESTOW_STANY_POKOI.txt`. Kod pozostaje bez komentarzy.
+Weryfikację funkcji opisuje TESTOWANIE.md oraz odpowiedni plik WYNIKI_TESTOW.
+

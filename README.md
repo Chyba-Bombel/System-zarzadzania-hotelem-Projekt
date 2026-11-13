@@ -1,184 +1,134 @@
-# System zarządzania hotelem
+# System zarządzania hotelem — 1.0.1
 
-**Nowość: archiwizowanie i przywracanie gości.** Dla istniejącej bazy wykonaj `db/aktualizacja_archiwum_gosci.sql`, zachowując własny `db.properties`. [Instrukcja](ARCHIWUM_GOSCI.md). W tej paczce poprawiono także wcześniejszą migrację usług i historii dla różnic składni MySQL/MariaDB.
-
-
-**Aktualizacja: usługi dodatkowe, pełniejsza historia i wyszukiwanie zaawansowane.**
-Przed uruchomieniem na dotychczasowej bazie wykonaj `db/aktualizacja_uslugi_historia.sql` oraz `db/uprawnienia_uslugi.sql`. Zachowaj własny `db.properties`. [Instrukcja aktualizacji i obsługi](USLUGI_I_WYSZUKIWANIE.md).
-
-
-**Aplikacja okienkowa w JavaFX z bazą MySQL** do obsługi pracy recepcji: od dodania gościa i utworzenia rezerwacji po płatności, wymeldowanie i raport za wybrany okres.
-
-Projekt rozwija wcześniejszą wersję konsolową. Wspólne klasy modelu i operacje JDBC obsługują dane hotelu, a JavaFX udostępnia formularze, tabele i menu pracownika.
+Aplikacja JavaFX + JDBC + MySQL do obsługi gości, rezerwacji, pobytów, usług i rozliczeń. Projekt zachowuje również wersję konsolową. Kod jest podzielony na pakiety i mniejsze klasy, bez komentarzy w źródłach.
 
 [Repozytorium projektu](https://github.com/Chyba-Bombel/System-zarzadzania-hotelem-Projekt)
 
-## Spis treści
+## Wersja 1.0.1: instalator i konfiguracja
 
-- [Archiwum gości](#archiwum-gości)
-- [Możliwości aplikacji](#możliwości-aplikacji)
-- [Technologie i wymagania](#technologie-i-wymagania)
-- [Uruchomienie na Windows](#uruchomienie-na-windows)
-- [Uruchomienie na Linuxie](#uruchomienie-na-linuxie)
-- [Baza danych: nowa instalacja lub aktualizacja](#baza-danych-nowa-instalacja-lub-aktualizacja)
-- [Uruchomienie przez IntelliJ IDEA i Maven](#uruchomienie-przez-intellij-idea-i-maven)
-- [Konta i uprawnienia](#konta-i-uprawnienia)
-- [Przykładowa obsługa pobytu](#przykładowa-obsługa-pobytu)
-- [Kalendarz rezerwacji](#kalendarz-rezerwacji)
-- [Zmiana pokoju](#zmiana-pokoju)
-- [Historia rezerwacji](#historia-rezerwacji)
-- [Usługi i wyszukiwanie](#usługi-i-wyszukiwanie)
-- [Potwierdzenie rezerwacji](#potwierdzenie-rezerwacji)
-- [Notatki recepcji](#notatki-recepcji)
-- [Wyłączanie i przywracanie pokoi](#wyłączanie-i-przywracanie-pokoi)
-- [Raporty i eksport](#raporty-i-eksport)
-- [Budowa projektu](#budowa-projektu)
-- [Relacje w bazie danych](#relacje-w-bazie-danych)
-- [Zasady działania](#zasady-działania)
-- [Weryfikacja](#weryfikacja)
-- [Rozwiązywanie problemów](#rozwiązywanie-problemów)
+Instrukcja budowania, aktualizacji i migracji z 1.0.0: [AKTUALIZACJA_1.0.1.md](AKTUALIZACJA_1.0.1.md). Lista zmian: [CHANGELOG.md](CHANGELOG.md).
 
-## Możliwości aplikacji
+Konfiguracja Windows: `%LOCALAPPDATA%\HotelManagerData\config\db.properties`; logi: `%LOCALAPPDATA%\HotelManagerData\logs`. Są oddzielone od domyślnego folderu instalacji HotelManager. Przy niestandardowej instalacji nie wybieraj folderu HotelManagerData jako folderu programu.
 
-| Ekran | Dostępne funkcje |
-| --- | --- |
-| **Pulpit** | Liczniki, przyjazdy na dziś oraz dzisiejsze i zaległe wyjazdy. |
-| **Goście** | Dodawanie, edycja, wyszukiwanie, archiwizacja i przywracanie; filtry aktywnych, archiwalnych i wszystkich. |
-| **Pokoje** | Lista pokoi, sprawdzanie dostępności, oznaczanie sprzątania; dla administratora dodawanie, edycja, wyłączanie i przywracanie pokoju. |
-| **Kalendarz** | Miesięczny plan pokoi, szczegóły pobytu i rozpoczęcie rezerwacji od klikniętej wolnej nocy. |
-| **Rezerwacje** | Tworzenie rezerwacji, dodatkowi goście, zmiana terminu i pokoju, historia zmian, potwierdzenie do wydruku, notatki recepcji, usługi, wyszukiwanie po datach i saldzie, zameldowanie, wymeldowanie i anulowanie. |
-| **Płatności** | Rozliczenie pobytu, wpłaty i zaliczki; dla administratora rejestrowanie zwrotów. |
-| **Raporty** | Zestawienia za wybrany okres, eksport CSV i HTML oraz wydruk przez przeglądarkę. |
-| **Pracownicy** | Tworzenie i dezaktywacja kont przez administratora. |
-| **Moje konto** | Zmiana własnego hasła. |
+Przed logowaniem kliknij **Ustawienia połączenia z bazą**. Pierwszy odczyt migruje znaleziony stary plik db.properties, a przy jego braku tworzy szablon z pustym hasłem. Istniejąca konfiguracja użytkownika nie jest nadpisywana; po migracji zmieniaj ją w ustawieniach, a nie w starym pliku projektu. `-Dhotel.config=...` nadal służy do jawnego wyboru pliku, zwłaszcza w testach. Samo 1.0.1 nie wymaga zmiany zgodnej bazy.
 
-Tabele umożliwiają sortowanie. Na ekranach obsługi gości, pokoi i rezerwacji dostępne są wyszukiwanie oraz filtry. Dane z bazy można pobrać ponownie przyciskiem **„Odśwież dane”**.
+Zachowaj swoją ikonę hotel.ico obok pom.xml i uruchom na Windows:
 
-## Archiwum gości
-
-W zakładce **Goście** wybierz filtr Aktywni, Archiwalni lub Wszyscy. Aktywną kartotekę możesz zarchiwizować, archiwalną przywrócić. Potwierdzone i zameldowane rezerwacje blokują archiwizację. Archiwum nie usuwa danych, płatności ani historii; gość znika z wyboru nowej rezerwacji. Edycja kontaktów wymaga przywrócenia. Funkcje są dostępne recepcji i administratorowi, z kontrolą także w API.
-
-Konsola: **32** archiwizacja, **33** przywrócenie, **34** lista archiwum. Istniejąca baza wymaga `db/aktualizacja_archiwum_gosci.sql`; nowy pełny import ma już pola. Jeśli poprzednia aktualizacja usług została przerwana, najpierw dokończ ją poprawionym skryptem z tej paczki. Szczegóły, kolejność migracji i opis kodu: [ARCHIWUM_GOSCI.md](ARCHIWUM_GOSCI.md).
-
-## Technologie i wymagania
-
-| Element | Wersja / zastosowanie |
-| --- | --- |
-| Java | JDK 17 lub nowszy; kompilacja do wersji 17. |
-| JavaFX | 17.0.21 — interfejs okienkowy i CSS. |
-| MySQL | 8.0.16 lub nowszy — baza danych i transakcje InnoDB. |
-| JDBC | MySQL Connector/J 9.7.0 — komunikacja aplikacji z bazą. |
-| Maven | Opcjonalny przy uruchamianiu skryptem Windows; potrzebny do uruchomienia przez `mvn javafx:run`. |
-
-Paczka zawiera biblioteki **JavaFX dla Windows x64** i sterownik JDBC. Na Linux/macOS użyj Maven, który dobiera biblioteki dla systemu. Potrzebne jest środowisko graficzne oraz systemowe biblioteki wymagane przez JavaFX.
-
-## Uruchomienie na Windows
-
-1. Rozpakuj **całą paczkę** do wybranego folderu, np. `C:\Projekty\Hotel_GUI`.
-2. Zainstaluj JDK 17 lub nowszy dla Windows x64. W terminalu sprawdź:
-
-   ```bat
-   java -version
-   javac -version
-   ```
-
-3. Uruchom serwer MySQL i przygotuj bazę zgodnie z [instrukcją poniżej](#baza-danych-nowa-instalacja-lub-aktualizacja).
-4. Otwórz `db.properties` i wpisz dane połączenia ze swoją bazą.
-5. Uruchom **`uruchom_windows.bat`**.
-
-Skrypt kompiluje pliki z `src` oraz jego podfolderów, kopiuje arkusz stylów i uruchamia klasę `Launcher`. Maven nie jest potrzebny w tym wariancie. Foldery `src`, `resources`, `lib` oraz plik `db.properties` muszą pozostać obok skryptu.
-
-### Konfiguracja połączenia
-
-Przykładowa konfiguracja dla lokalnej bazy demonstracyjnej:
-
-```properties
-url=jdbc:mysql://localhost:3306/hotel_manager?sslMode=DISABLED&allowPublicKeyRetrieval=true&connectTimeout=5000&socketTimeout=10000
-user=hotel_app
-password=HotelDemo2026!
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\buduj_instalator.ps1
 ```
 
-Dostosuj adres serwera, port, nazwę bazy, użytkownika i hasło do własnej instalacji. To **konto techniczne MySQL**, a nie konto pracownika wpisywane w oknie logowania.
+Wynik: `dist\1.0.1-exe`. To skrypt lokalny; obejrzyj go przed wykonaniem. Nie wykonuje testów ani migracji SQL. Gotowy instalator zawiera Javę, JavaFX i JDBC, ale nie serwer bazy. Kod i nowe testy sprawdzono na Linuxie; działanie instalatora oraz przejście między wersjami wymagają osobnej próby na Windows. Szczegóły: WYNIKI_TESTOW_1.0.1.txt.
 
-Konfiguracja demonstracyjna służy do nauki lokalnej. Przy udostępnianiu projektu nie publikuj własnych haseł do bazy.
+## Baza danych — dwa główne pliki
 
-## Uruchomienie na Linuxie
+| Sytuacja | Plik do wykonania |
+| --- | --- |
+| Masz już bazę z wcześniejszej wersji projektu | **db/aktualizuj_baze.sql** |
+| Instalujesz projekt po raz pierwszy, bez jego bazy | **db/nowa_baza.sql** |
 
-Na Linuxie uruchamiaj projekt przez **Maven**. Nie uruchamiaj `uruchom_windows.bat` i nie używaj bibliotek z `lib/javafx-win` — są przeznaczone dla Windows. Maven pobierze zależności JavaFX odpowiednie dla platformy.
+**Nie trzeba wybierać aktualizacji według etapów.** Jeden skrypt aktualizacji sprawdza istniejące elementy i obejmuje wszystkie dotychczasowe zmiany. Możesz wykonać go ponownie, również po częściowo zakończonej aktualizacji. Nie usuwa gości, rezerwacji ani płatności. Nie odtwarza nieznanej historii dawnych zmian.
 
-Poniższe polecenia instalacji dotyczą **Ubuntu 24.04 LTS, x86_64, z pulpitem graficznym**. W innych dystrybucjach zainstaluj odpowiedniki: JDK 17, Maven i biblioteki GTK 3. Sama aplikacja korzysta z tego samego `pom.xml` i tych samych źródeł.
+Przed aktualizacją zamknij wszystkie stanowiska i zrób kopię bazy. Jako administrator otwórz cały plik w phpMyAdmin lub Workbench i wykonaj go. Dostosuj `USE hotel_manager`, jeśli Twój schemat ma inną nazwę. Zachowaj prywatny `db.properties`. Pełnego skryptu z rekordami demonstracyjnymi nie wykonuj na używanej bazie.
 
-### 1. Zainstaluj JDK, Maven i GTK
+Aktualizacja dodaje prawa istniejącym standardowym kontom hotel_app dla localhost i 127.0.0.1. Nie tworzy kont i nie zmienia ich haseł. Własne konto techniczne wymaga jednorazowego dopasowania pomocnika w `db/administracja/uprawnienia.sql`. Folder administracja zawiera narzędzia dla administratora, nie kolejne etapy instalacji.
 
-W terminalu wykonaj:
+Dokładna instrukcja, warunki uruchomienia i opis praw: [db/README.md](db/README.md).
 
-```bash
+## Możliwości
+
+| Ekran | Funkcje |
+| --- | --- |
+| Pulpit | Przyjazdy, dzisiejsze i zaległe wyjazdy, liczniki. |
+| Goście | Dodawanie, edycja, wyszukiwanie, archiwizacja i przywracanie. |
+| Pokoje | Dostępność, sprzątanie, dodawanie/edycja i administracyjne wyłączenie/przywrócenie. |
+| Kalendarz | Miesięczny plan pokoi; podgląd pobytu i utworzenie rezerwacji od wolnej nocy. |
+| Rezerwacje | Dodatkowi goście, zmiana dat i pokoju, historia, notatki, meldunek, wymeldowanie, anulowanie. |
+| Wyszukiwanie zaawansowane | Nazwisko także dodatkowego gościa, pokój, status, daty i rozliczenie; strony po 100 wyników. |
+| Usługi pobytu | Katalog administratora, dodawanie i anulowanie historycznych pozycji, rozliczenie razem z noclegami. |
+| Płatności | Wpłaty i zaliczki; zwroty administratora, saldo i ewidencja transakcji. |
+| Potwierdzenie | Podgląd danych, gości, usług i rozliczenia; HTML do wydruku/PDF przez przeglądarkę. |
+| Raporty | Podsumowanie, pobyty, obłożenie, płatności i usługi; CSV/HTML. |
+| Pracownicy i konto | Konta, dezaktywacja, role i zmiana własnego hasła. |
+
+## Wymagania
+
+- JDK 17 lub nowszy; projekt kompilowany do wersji 17.
+- JavaFX 17.0.21, MySQL Connector/J 9.7.0.
+- MySQL 8.0.16+; testy wydania wykonano na MySQL 8.0.46.
+- Maven do uruchamiania na Linuxie/macOS lub z IntelliJ; skrypt Windows nie wymaga Maven.
+
+Paczka zawiera biblioteki JavaFX dla Windows x64. Na innych systemach używaj Maven i właściwych bibliotek platformy. W skryptach uwzględniono różnice DROP CHECK/DROP CONSTRAINT między MySQL i MariaDB. Testy na MySQL nie stanowią pełnej weryfikacji działającego serwera MariaDB.
+
+## Windows
+
+1. Rozpakuj całą paczkę do nowego folderu, np. `C:\Projekty\Hotel_GUI`. Nie dokładaj nowych klas do starego src.
+2. Zainstaluj JDK 17+ Windows x64 i sprawdź `java -version` oraz `javac -version`.
+3. Uruchom serwer bazy, następnie wykonaj **jeden** plik zgodnie z tabelą na początku README.
+4. Po uruchomieniu wybierz ustawienia połączenia i podaj adres, port i konto MySQL. Stary plik projektu jest importowany tylko przy braku konfiguracji użytkownika.
+5. Uruchom `uruchom_windows.bat`.
+
+Skrypt kompiluje źródła w podfolderach i kopiuje zasoby. Foldery src, resources, resources-version i lib oraz pom.xml muszą pozostać obok skryptu. Konfiguracja jest w folderze użytkownika. Nie dokładaj innych wersji JAR JavaFX: może to wywołać duplicate module.
+
+## Linux
+
+Na Ubuntu 24.04 LTS x86_64 z pulpitem:
+
+```sh
 sudo apt update
 sudo apt install openjdk-17-jdk maven libgtk-3-0t64
 ```
 
-Sprawdź instalację:
+Na Ubuntu 22.04 odpowiednik GTK to `libgtk-3-0`. W innych dystrybucjach zainstaluj właściwe pakiety JDK, Maven i GTK 3. Sprawdź narzędzia:
 
-```bash
+```sh
 java -version
 javac -version
 mvn -version
 ```
 
-Java i kompilator powinny mieć wersję co najmniej 17. Sprawdź także wersję Javy wskazaną przez Maven. W Ubuntu 22.04 odpowiednikiem pakietu GTK jest `libgtk-3-0`; nie kopiuj nazwy pakietu z innej wersji systemu bez sprawdzenia jej dostępności.
+Przejdź do folderu zawierającego pom.xml:
 
-### 2. Rozpakuj projekt i przejdź do jego folderu
-
-Przykładowo, jeśli rozpakowałeś projekt do katalogu `Projekty`:
-
-```bash
+```sh
 cd ~/Projekty/Hotel_GUI
-ls pom.xml db.properties
 ```
 
-Oba pliki powinny być widoczne. Jeśli polecenie zgłasza ich brak, przejdź do właściwego folderu. Linux rozróżnia wielkie i małe litery w nazwach plików.
+Jeśli nie masz serwera i chcesz zainstalować lokalny MySQL:
 
-### 3. Przygotuj MySQL
-
-**Jeśli korzystasz z działającego serwera i istniejącej bazy**, nie instaluj drugiego serwera i nie importuj pełnych danych demonstracyjnych. Przejdź do konfiguracji połączenia. Wykonaj brakujące migracje uczestników, bezpieczeństwa, historii oraz nową aktualizację usług i historii opisaną na początku README.
-
-**Dla nowej, lokalnej instalacji na Ubuntu**:
-
-```bash
+```sh
 sudo apt install mysql-server
 sudo systemctl start mysql
-systemctl status mysql
 ```
 
-Wykonaj pełny skrypt bazy **jednorazowo**, z głównego katalogu projektu:
+Dla istniejącej bazy wykonaj tylko aktualizację:
 
-```bash
-sudo mysql < db/HotelManager_baza.sql
+```sh
+mysql -u root -p < db/aktualizuj_baze.sql
 ```
 
-Polecenie zakłada lokalny dostęp administratora MySQL przez `sudo`. Jeśli serwer wymaga hasła administratora, zamiast niego użyj:
+Dla nowej instalacji, zamiast poprzedniego polecenia:
 
-```bash
-mysql -u root -p < db/HotelManager_baza.sql
+```sh
+mysql -u root -p < db/nowa_baza.sql
 ```
 
-Dla wcześniejszej bazy bez tabeli dodatkowych gości wykonaj **wyłącznie migrację**:
+Jeśli Twój lokalny administrator uwierzytelnia się przez sudo, zamiast `mysql -u root -p` użyj `sudo mysql`. Nie importuj pełnej bazy demonstracyjnej na swoje rekordy.
 
-```bash
-sudo mysql < db/aktualizacja_uczestnicy.sql
+Uruchom GUI i ustaw połączenie przyciskiem przed logowaniem:
+
+```sh
+mvn javafx:run
 ```
 
-Na serwerze z logowaniem hasłem użyj analogicznie `mysql -u root -p` zamiast `sudo mysql`. Pełny import i migracja to dwa różne warianty — nowa instalacja zawiera już tabelę uczestników. Nie wykonuj pełnego importu na swojej dotychczasowej bazie.
+Pierwsze pobranie zależności wymaga internetu. Uruchamiaj aplikację na zwykłym koncie użytkownika, w sesji graficznej. Nie używaj skryptu .bat i bibliotek javafx-win na Linuxie. Brak DISPLAY oznacza brak dostępu do pulpitu; samo SSH nie wystarcza. Na macOS również użyj Maven i bibliotek właściwych dla systemu.
 
-### 4. Ustaw połączenie
+## IntelliJ IDEA
 
-Otwórz plik w dowolnym edytorze, np.:
+Otwórz pom.xml jako projekt Maven. Ustaw Project SDK oraz Maven Runner JRE na zgodny JDK, poczekaj na zależności i uruchom Plugins → javafx → javafx:run. Konfiguracja znajduje się w folderze użytkownika; jawny hotel.config ma pierwszeństwo. `Launcher` uruchamia GUI, `Main` konsolę.
 
-```bash
-nano db.properties
-```
+## Połączenie i konta
 
-Dla lokalnej bazy demonstracyjnej ustaw:
+Przykładowa lokalna konfiguracja:
 
 ```properties
 url=jdbc:mysql://localhost:3306/hotel_manager?sslMode=DISABLED&allowPublicKeyRetrieval=true&connectTimeout=5000&socketTimeout=10000
@@ -186,443 +136,71 @@ user=hotel_app
 password=HotelDemo2026!
 ```
 
-W `nano` zapisz zmiany skrótem **Ctrl+O**, potwierdź Enterem i zamknij edytor przez **Ctrl+X**. Jeśli używasz własnego konta, portu lub hasła, zachowaj swoje wartości.
+To konto techniczne MySQL, a nie pracownik z okna logowania. Dostosuj wartości i nie publikuj prywatnego db.properties. Zmienne HOTEL_DB_URL, HOTEL_DB_USER i HOTEL_DB_PASSWORD zastępują wartości pliku. Dane spoza loopback wymagają sslMode=VERIFY_IDENTITY oraz zaufanego certyfikatu, bez allowPublicKeyRetrieval=true.
 
-Możesz sprawdzić lokalne połączenie niezależnie od aplikacji:
-
-```bash
-mysql -h 127.0.0.1 -P 3306 -u hotel_app -p hotel_manager
-```
-
-Po zalogowaniu wpisz `SHOW TABLES;`, a następnie `EXIT;`. Hasło podajesz dopiero po wyświetleniu pytania przez klienta MySQL.
-
-### 5. Uruchom okno aplikacji
-
-Z folderu zawierającego `pom.xml` i `db.properties` wykonaj:
-
-```bash
-mvn clean javafx:run
-```
-
-Pierwsze uruchomienie wymaga internetu do pobrania zależności. Maven kompiluje projekt, kopiuje zasoby i uruchamia GUI. Kolejne uruchomienia mogą korzystać z:
-
-```bash
-mvn javafx:run
-```
-
-W oknie aplikacji użyj konta pracownika, np. demonstracyjnego `admin` / `Admin123!`. Aplikację uruchamiaj na zwykłym koncie użytkownika; `sudo` jest potrzebne przy instalacji pakietów i ewentualnie administracji MySQL.
-
-### Problemy typowe dla Linuxa
-
-| Komunikat / objaw | Rozwiązanie |
-| --- | --- |
-| `mvn: command not found` | Zainstaluj Maven i otwórz ponownie terminal. |
-| `release version 17 not supported` | Sprawdź `mvn -version`. Maven korzysta ze zbyt starego JDK. |
-| Maven używa innej Javy niż `java -version` | Sprawdź `JAVA_HOME`. Dla JDK 17 z pakietu Ubuntu x86_64 możesz w bieżącym terminalu ustawić `export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64`, a następnie sprawdzić `mvn -version`. |
-| Brak GTK / `Unable to load glass GTK library` | Zainstaluj biblioteki GTK 3 właściwe dla swojej dystrybucji; dla Ubuntu 24.04 polecenie znajduje się w kroku 1. |
-| `Unable to open DISPLAY` | Uruchom program z terminala otwartego w sesji graficznej. Zwykła sesja SSH lub serwer bez pulpitu nie udostępnia okna aplikacji. |
-| `Communications link failure` / odmowa połączenia | Sprawdź `systemctl status mysql` oraz adres i port w `db.properties`. |
-| `Access denied for user 'hotel_app'` | Sprawdź hasło i istnienie konta na wybranym serwerze. Nie zastępuj danych pracownika danymi MySQL. |
-| Brak `db.properties` lub `pom.xml` | Przejdź do głównego folderu projektu przed uruchomieniem Maven. |
-
-Oficjalne materiały: [JavaFX z Maven](https://openjfx.io/openjfx-docs/maven), [instalacja MySQL na Ubuntu](https://documentation.ubuntu.com/server/how-to/databases/install-mysql/) oraz [pakiet GTK dla Ubuntu 24.04](https://packages.ubuntu.com/noble/libgtk-3-0t64).
-
-## Baza danych: nowa instalacja lub aktualizacja
-
-### Nie masz jeszcze bazy
-
-1. Otwórz MySQL Workbench i połącz się jako administrator MySQL.
-2. Otwórz plik **`db/HotelManager_baza.sql`**.
-3. Wykonaj skrypt jednorazowo. Utworzy bazę `hotel_manager`, tabele, fikcyjne rekordy i konta techniczne `hotel_app`.
-4. Sprawdź ustawienia `db.properties` i uruchom aplikację.
-
-Pełny skrypt zawiera już tabelę dodatkowych gości. Jeżeli konto `hotel_app` istnieje na serwerze, dostosuj końcową część skryptu tworzącą konta zamiast wykonywać ją ponownie bez zmian.
-
-### Masz bazę z wcześniejszej wersji
-
-**Nie importuj ponownie pełnego skryptu z danymi demonstracyjnymi.**
-
-Jeśli Twoja baza nie ma tabeli `uczestnicy_rezerwacji`, wykonaj jako administrator:
-
-```sql
--- Otwórz i wykonaj plik:
--- db/aktualizacja_uczestnicy.sql
-```
-
-Ten plik dodaje tabelę dodatkowych osób i zachowuje dotychczasowe rekordy. Dla innej nazwy bazy zmień zawarte w nim `USE hotel_manager;`. Jeśli aktualizacja została już wykonana, nie powtarzaj migracji uczestników. Obecny moduł usług wymaga nowych tabel. Osobno wykonaj brakujące aktualizacje bezpieczeństwa i historii, następnie `db/aktualizacja_uslugi_historia.sql` i `db/uprawnienia_uslugi.sql`.
-
-Przy aktualizacji programu zachowaj własny plik `db.properties`. Starsze rezerwacje mogą pokazywać komunikat o brakujących danych dodatkowych osób — uzupełnisz je przez **„Goście pobytu”** w potwierdzonej lub zameldowanej rezerwacji.
-
-## Uruchomienie przez IntelliJ IDEA i Maven
-
-1. Otwórz `pom.xml` jako projekt Maven.
-2. Ustaw Project SDK oraz Maven Runner JRE na JDK 17 lub nowszy.
-3. Poczekaj na pobranie zależności. Pierwsze uruchomienie wymaga połączenia z internetem.
-4. Skonfiguruj bazę i `db.properties`.
-5. W panelu Maven wybierz **Plugins → javafx → javafx:run** albo wykonaj w głównym folderze projektu:
-
-   ```sh
-   mvn javafx:run
-   ```
-
-Katalog roboczy musi zawierać `db.properties`. **`Launcher` uruchamia GUI**, natomiast `Main` pozostaje punktem wejścia wcześniejszej wersji konsolowej.
-
-## Aktualizacja bezpieczeństwa
-
-Przed uruchomieniem tej wersji na starej bazie wykonaj jako administrator MySQL
-**`db/aktualizacja_bezpieczenstwo.sql`**. Skrypt dodaje licznik prób i czas blokady
-do `pracownicy`, bez usuwania danych; można wykonać go ponownie. Jeżeli nazwa
-Twojej bazy jest inna, dostosuj `USE hotel_manager;`. Nowa instalacja z pełnego
-skryptu zawiera już te pola. Nie importuj ponownie rekordów demonstracyjnych.
-
-Rozpakuj program do nowego folderu, przenieś własny `db.properties` i użyj nowego
-skryptu Windows — zawiera nowe nazwy plików JAR. Zachowano zgodność z MySQL 8.0;
-sterownik JDBC zaktualizowano do 9.7.0, a JavaFX do 17.0.21.
-
-Opcjonalny **`db/ogranicz_uprawnienia.sql`** ogranicza uprawnienia demonstracyjnych
-kont technicznych `hotel_app@localhost` i `hotel_app@127.0.0.1`. Wykonaj go tylko,
-jeśli używasz tych kont i schematu. Nie jest przeznaczony dla konta `root` ani
-innego wspólnego użytkownika; własne konta wymagają dopasowania grantów.
-Nowe instalacje otrzymują już taki ograniczony zestaw uprawnień.
-
-Połączenie z serwerem innym niż loopback wymaga `sslMode=VERIFY_IDENTITY` oraz
-zaufanego certyfikatu serwera; wyłącz `allowPublicKeyRetrieval` w takim URL.
-Konfiguracja demonstracyjna z wyłączonym TLS jest dopuszczana tylko dla loopback.
-Dane można podać także przez `HOTEL_DB_URL`, `HOTEL_DB_USER` i `HOTEL_DB_PASSWORD`,
-które zastępują wartości z pliku. Nie publikuj własnego `db.properties`.
-`.gitignore` nie usuwa plików już śledzonych przez Git ani wcześniejszych haseł
-z historii. Ujawnione hasło trzeba zmienić.
-
-Publiczne metody bazy wymagają wcześniejszego `BazaDanych.zaloguj(...)` w tym samym
-wątku. GUI wykonuje logowanie i dalsze operacje na swoim jednym wątku roboczym,
-a konsola na wątku menu. Nie można zastąpić logowania konstruktorem `Pracownik`.
-`BazaDanych.polacz()` usunięto z publicznego API. Testy używają osobnej, jawnie
-zabezpieczonej klasy fixture zamiast otwierać połączenia przez aplikację.
-
-Komentarze usunięto ze źródeł Java, testów, CSS, SQL, XML i konfiguracji;
-wyjaśnienia pozostają w dokumentacji Markdown i `START_TUTAJ.txt`.
-
-## Konta i uprawnienia
-
-Po zaimportowaniu niezmienionych danych demonstracyjnych:
-
-| Rola | Login | Hasło demonstracyjne |
+| Rola | Login demo | Hasło demo |
 | --- | --- | --- |
-| Administrator | `admin` | `Admin123!` |
-| Recepcjonista | `recepcja` | `Recepcja123!` |
+| Administrator | admin | Admin123! |
+| Recepcja | recepcja | Recepcja123! |
 
-Jeżeli hasła zostały już zmienione, użyj aktualnych. Po trzech nieudanych próbach logowania uruchom aplikację ponownie; jest to limit danego uruchomienia programu.
+Jeżeli hasła zmieniono wcześniej, użyj aktualnych. Nowa instalacja nie resetuje hasła istniejącego konta MySQL. Konta demonstracyjne służą nauce lokalnej. Hasła pracowników są skrótami PBKDF2 z solą i 600 000 iteracji. Po 5 błędnych logowaniach konto jest blokowane w bazie na 5 minut. Aktywność, rola i zmiana hasła są kontrolowane przy kolejnych operacjach.
 
-Recepcjonista obsługuje gości, rezerwacje, pobyty, sprzątanie, wpłaty i raporty. Administrator ma również możliwość dodawania i edycji pokoi, zarządzania kontami oraz rejestrowania zwrotów.
+Recepcja obsługuje gości, archiwum, pobyty, usługi, wpłaty i raporty. Administrator dodatkowo zarządza pokojami/kontami/cennikiem i przyjmuje zwroty. Konto aplikacji nie powinno być administratorem MySQL. Opcjonalne ograniczanie szerszych praw opisuje instrukcja w db.
 
-Po pięciu nieudanych logowaniach konto jest blokowane na pięć minut. Licznik jest w bazie, więc restart aplikacji nie usuwa blokady. Hasła pracowników są przechowywane jako skróty PBKDF2 z losową solą i 600 000 iteracji. Aktywność konta i jego rola są ponownie sprawdzane przed operacjami GUI korzystającymi z bazy. Dezaktywacja konta powoduje zakończenie jego sesji przy następnej takiej operacji.
+## Zasady obsługi
 
-## Przykładowa obsługa pobytu
+1. Dodaj głównego gościa i wybierz pokój, daty oraz liczbę osób.
+2. Dla dodatkowych osób wpisz imię i nazwisko. Nie potrzebują osobnych kartotek.
+3. Zapis sprawdza dostępność, pojemność, stan pokoju i aktywność kartoteki.
+4. Dodaj usługi i ewentualną zaliczkę; zameldowanie wymaga gotowego pokoju.
+5. Rozlicz całą należność przed wymeldowaniem. Pokój przechodzi do sprzątania.
 
-1. **Dodaj głównego gościa** na ekranie „Goście”.
-2. Na ekranie **„Rezerwacje”** wybierz „Nowa rezerwacja”, gościa, pokój i termin.
-3. Ustaw liczbę osób. Dla każdej dodatkowej osoby wpisz imię i nazwisko.
-4. Zapisz rezerwację. Program sprawdzi pojemność pokoju, termin i dostępność.
-5. W razie potrzeby zarejestruj zaliczkę w **„Płatnościach”**.
-6. W dniu pobytu zaznacz rezerwację i wybierz **„Zamelduj”**. Pokój musi być gotowy.
-7. Po rozliczeniu należności wybierz **„Wymelduj”**. Pokój otrzyma stan `DO_SPRZATANIA`.
-8. Po sprzątaniu oznacz pokój jako posprzątany.
+Pobyt trwa 1–30 nocy i nie zaczyna się w przeszłości. Dzień wyjazdu nie jest noclegiem. Cena pokoju nie jest mnożona przez liczbę osób. Zmiana pokoju zachowuje uzgodnioną stawkę i dotyczy całego pobytu, bez podziału noclegów między pokoje. Przy przeniesieniu zameldowanego pobytu poprzedni pokój wymaga sprzątania, a nowy musi być gotowy.
 
-### Kilku gości w jednym pokoju
+Usługi zachowują cenę i nazwę z chwili dodania. Ilość jest dla całego pobytu: 2 osoby × 3 śniadania = 6 porcji. Zmiana dat nie zmienia ilości, dostawka nie zwiększa pojemności. Obniżenie opłaconego rachunku może wymagać wcześniejszego zwrotu. Saldo = noclegi + aktywne usługi − wpłaty + zwroty. Anulowanie pobytu wymaga zwrócenia jego środków.
 
-Przykład: **Błażej Wencel** jest głównym gościem, a rezerwacja obejmuje trzy osoby. W dodatkowych polach wpisujesz **Annę Nowak** i **Jana Kowalskiego**. Wszystkie osoby mają ten sam pokój i termin pobytu.
+Archiwum ukrywa kartotekę z aktywnej listy i nowych rezerwacji, zachowując historię i płatności. Potwierdzony lub zameldowany pobyt blokuje archiwizację. Przywrócenie umożliwia ponowną edycję i rezerwowanie. Archiwizacja nie jest anonimizacją.
 
-Główny gość pochodzi z kartoteki `goscie`. Dodatkowym osobom wystarczą imię i nazwisko — nie trzeba tworzyć osobnych kartotek z telefonem i e-mailem. Ich dane możesz uzupełnić lub poprawić przyciskiem **„Goście pobytu”**. W zakończonych i anulowanych pobytach lista jest dostępna do podglądu.
+Historia ma 12 typów zdarzeń, w tym wpłaty, zwroty, usługi, notatki i osoby. Autor jest pobierany z sesji. Błąd historii wycofuje całą operację biznesową. Dawne płatności odtwarza aktualizacja z istniejącej ewidencji; innych nieznanych zmian program nie wymyśla.
 
-Liczba osób obejmuje głównego gościa. Dodanie nazwisk nie zwiększa liczby miejsc w pokoju ani nie zmienia ceny rezerwacji.
+Notatki są wewnętrzne, do 500 znaków; konflikt zapisu zachowuje szkic. Nie trafiają do dokumentu dla gościa. Potwierdzenie HTML nie jest fakturą ani bankowym dowodem płatności. PDF tworzy przeglądarka przez Ctrl+P.
 
-## Kalendarz rezerwacji
+Raport obejmuje oba dni graniczne. Obłożenie bazuje na aktualnej kartotece pokoi, także wyłączonych; nie ma historii ich liczby/stanu. Wartość noclegów jest wyceną nocy, płatności przepływami według daty transakcji. Usługi wybierane są według daty dodania i bieżącego statusu, bez podziału na noce i odtwarzania stanu na dawny dzień. CSV/HTML obejmują pięć tabel.
 
-Wybierz **„Kalendarz”** w menu. Wiersze odpowiadają pokojom, a kolumny nocom
-zaczynającym się danego dnia. Strzałki przełączają miesiące, „Dzisiaj” wraca
-do bieżącego miesiąca. Możesz też podać datę i kliknąć „Przejdź”. Filtr szuka
-numeru lub typu pokoju. Dalsze dni zobaczysz po przewinięciu tabeli poziomo.
+## Konsola i dokumentacja
 
-- **+** — wolna noc: kliknięcie odświeża dane i otwiera formularz z pokojem,
-  datą przyjazdu i domyślnym wyjazdem następnego dnia. Możesz zmienić termin
-  w formularzu; ostateczna dostępność jest sprawdzana w transakcji zapisu.
-- **Niebieskie #ID** — potwierdzona rezerwacja; **zielone #ID** — zameldowany pobyt.
-- **Szare #ID** — zakończony pobyt pokazany jako historia; nie blokuje nowego zapisu.
-- **—** — brak możliwości utworzenia nowego pobytu: termin w przeszłości lub
-  pokój obecnie wyłączony. Wyłączenie nie usuwa historycznych rezerwacji z podglądu.
-- **!** — co najmniej dwie aktywne rezerwacje tej samej nocy; trzeba sprawdzić dane.
+Konsola ma opcje 25 — historia, 26 — potwierdzenie, 27 — notatka, 28 — stan pokoju, 29 — usługi, 30 — wyszukiwanie, 31 — cennik, 32 — archiwizacja, 33 — przywrócenie, 34 — archiwum.
 
-Kliknięcie #ID pokazuje gości, termin, status i cenę pobytu. Przycisk
-„Otwórz na liście rezerwacji” przełącza do dotychczasowego ekranu obsługi.
-Jeśli tego dnia zapisano kilka pobytów, można wybrać je z listy pod szczegółami.
-Podpowiedź po najechaniu myszą podaje także numer pokoju i datę nocy.
-
-**Dzień wyjazdu nie jest zajętą nocą.** Anulowane rezerwacje są pomijane.
-Kalendarz korzysta z ostatnio pobranych danych — użyj „Odśwież dane”, aby
-zobaczyć zapisy z innych stanowisk. Numer pokoju, jego pojemność i stan są
-odczytywane z aktualnej kartoteki, bez historii zmian stanu pokoju.
-
-Sam kalendarz nie dodaje tabel ani migracji. Obecna paczka wymaga jednak także
-aktualizacji historii opisanej w następnym rozdziale. Kalendarz działa na bazie
-co wcześniejsza wersja. Ten etap nie obejmuje przenoszenia rezerwacji myszą
-ani zmiany pokoju istniejącej rezerwacji.
-
-## Zmiana pokoju
-
-W zakładce **Rezerwacje** zaznacz pobyt i kliknij **„Zmień pokój”**. Formularz
-pokaże inne pokoje z wystarczającą liczbą miejsc, wolne na cały termin pobytu.
-Dostępność jest ponownie sprawdzana w transakcji przy zapisie.
-
-- Funkcja jest dostępna dla recepcji i administratora.
-- Cena uzgodniona przy rezerwacji, daty, płatności oraz dodatkowi goście pozostają bez zmian.
-- Przeniesienie zameldowanych gości wymaga pokoju `GOTOWY` i oznacza poprzedni pokój jako `DO_SPRZATANIA`; pokój już wyłączony pozostaje wyłączony.
-- Anulowane, zakończone oraz pobyty z wyjazdem dzisiaj lub wcześniej nie mogą być przenoszone.
-- W konsoli wybierz **24. Zmień pokój rezerwacji** i potwierdź wpisując `TAK`.
-
-**Ograniczenie modelu:** rezerwacja ma jeden `pokoj_id`. Zmiana przypisuje nowy
-pokój całemu pobytowi, również przeszłym nocom w kalendarzu i raportach.
-Nie jest to podział pobytu na noclegi w kilku pokojach. Zmiany przypisania pokoju
-są widoczne w historii zdarzeń, ale nie tworzą odcinków noclegów dla kalendarza i raportów.
-Formularz informuje o zakresie zmiany przed zapisem.
-
-Sama zmiana pokoju nie dodaje tabel. Ta paczka zawiera również historię zmian,
-która wymaga aktualizacji opisanej poniżej. Rozpakuj program do nowego folderu
-i przenieś własny `db.properties`. Szczegóły: [`ZMIANA_POKOJU.md`](ZMIANA_POKOJU.md).
-
-## Historia rezerwacji
-
-Zaznacz pobyt w **Rezerwacjach** i kliknij **Historia**. Zobaczysz datę i czas
-serwera, login autora oraz stan rezerwacji przed zmianą i po niej. Wpisy obejmują
-utworzenie, zmianę terminu i pokoju, zameldowanie, wymeldowanie, anulowanie, wpłaty, zwroty, usługi, notatki i listę dodatkowych gości.
-Możesz czytać po 100 wpisów, przejść do starszych albo odświeżyć najnowsze.
-W konsoli historia jest dostępna jako **opcja 25**.
-
-**Przy aktualizacji istniejącej bazy wykonaj jako administrator MySQL:**
-
-1. `db/aktualizacja_historia.sql` — dodaje tabelę, zachowuje dotychczasowe dane.
-2. `db/uprawnienia_historia.sql` — nadaje odczyt i dopisywanie historii kontom
-   `hotel_app@localhost` oraz `hotel_app@127.0.0.1`.
-3. `db/aktualizacja_uslugi_historia.sql` i `db/uprawnienia_uslugi.sql` — rozszerzenie istniejącej historii i usługi. Jeśli kroki 1–2 wykonano wcześniej, zacznij od kroku 3.
-
-Dla własnej nazwy bazy albo innego konta dostosuj skrypty. Jeżeli istnieje tylko
-jedno z wymienionych kont, wykonaj tylko odpowiadający mu `GRANT`. Nowa instalacja
-z pełnego skryptu zawiera już tabelę i uprawnienia. Nie importuj ponownie rekordów demo.
-Wcześniejsze wymagane migracje bezpieczeństwa i uczestników nadal obowiązują.
-
-Nowa migracja odtwarza stare wpłaty i zwroty z istniejącej ewidencji, bez wymyślania poprzedniego salda. Inne dawne zmiany nie są odtwarzane. Zapis zdarzenia jest częścią transakcji zmiany rezerwacji — jego błąd
-wycofuje całą operację. To dziennik zmian, nie podział pobytu między pokoje.
-Opis implementacji i ograniczeń: [`HISTORIA_REZERWACJI.md`](HISTORIA_REZERWACJI.md).
-
-## Usługi i wyszukiwanie
-
-**Rezerwacje → Usługi pobytu** pozwala dodawać pozycje z ilością dla całego pobytu oraz je anulować. Usługi zwiększają należność i saldo, wpływają na dopuszczalną wpłatę i wymeldowanie, trafiają na kartę i do raportów. Historyczna cena nie zmienia się po edycji katalogu. Katalog usług edytuje administrator; recepcja obsługuje pozycje pobytów. Anulowanie opłaconej pozycji może wymagać wcześniejszego zwrotu. Ilości nie zmieniają się wraz z terminem; dostawka nie zwiększa pojemności pokoju.
-
-**Wyszukiwanie zaawansowane** łączy nazwisko głównego lub dodatkowego gościa, dokładny pokój, status, daty i stan rozliczenia. Tryby dat: noce pobytu, przyjazd, wyjazd. Wyniki mają należność z usługami, netto i saldo; są pobierane stronami po 100. Zaznacz wynik i otwórz rezerwację. Zmiana filtrów wymaga ponownego wyszukania.
-
-Konsola: **29** — usługi, **30** — wyszukiwanie, **31** — katalog administratora. Pełny poradnik, reguły dat i rozliczeń oraz opis klas: [USLUGI_I_WYSZUKIWANIE.md](USLUGI_I_WYSZUKIWANIE.md). Dla już działającej wcześniejszej historii potrzebna jest także nowa migracja i granty usług z rozdziału 1 poradnika.
-
-## Potwierdzenie rezerwacji
-
-Zaznacz rezerwację i kliknij **Potwierdzenie**. Program pobiera aktualne dane
-z bazy i pokazuje zakładki **Pobyt**, **Goście**, **Rozliczenie** i **Usługi**. Odczyt obejmuje
-uzgodnioną cenę, historyczne pozycje usług, wpłaty i zwroty; nie mnoży ceny pokoju przez liczbę osób.
-Przycisk **Odśwież dane** pobiera nowy stan, **Zapisz HTML** zapisuje widoczny podgląd.
-
-Otwórz zapisany HTML w przeglądarce i naciśnij **Ctrl+P**. Wybierz drukarkę albo
-**Zapisz jako PDF**. Aplikacja zapisuje HTML; plik PDF tworzy przeglądarka.
-W konsoli tę samą funkcję uruchamia **opcja 26**.
-
-Anulowana rezerwacja ma wyraźne oznaczenie archiwalne i zerową należność.
-Dokument pokazuje również wpłaty i zwroty z ewidencji; nie jest fakturą ani
-bankowym potwierdzeniem płatności. Brakujące nazwiska dodatkowych gości są
-oznaczane komunikatem, bez wymyślania danych. Telefon i e-mail nie trafiają do dokumentu.
-
-Sam eksport nie wymaga bibliotek. Obecna karta czyta także usługi, więc wykonaj nową migrację usług i historii oraz zachowaj własny `db.properties`.
-Instrukcja i opis kodu: [`POTWIERDZENIE_REZERWACJI.md`](POTWIERDZENIE_REZERWACJI.md).
-
-## Notatki recepcji
-
-Zaznacz rezerwację i kliknij **Notatka recepcji**. Górne pole pokazuje zapisane
-uwagi, dolne służy do edycji. **Zapisz notatkę** zatwierdza tekst, **Wyczyść pole**
-przygotowuje pustą treść do zapisania. Zamknięcie okna nie zapisuje zmian.
-
-**Odśwież zapisaną** pobiera aktualną treść bez kasowania Twojego szkicu. Jeśli
-inny pracownik zmienił notatkę, zapis starszej treści zostaje odrzucony. Porównaj
-oba pola, uwzględnij nowsze uwagi i zapisz ponownie. **Użyj zapisanej treści**
-zastępuje szkic tekstem z górnego pola.
-
-Limit to **500 znaków**, z obsługą wielu wierszy. Edycja jest dostępna dla
-potwierdzonych i zameldowanych rezerwacji; anulowane i zakończone są tylko do odczytu.
-W konsoli wybierz **27**. Notatki pozostają wewnętrzne i nie trafiają do raportów
-ani potwierdzenia dla gościa. Zmiany treści trafiają do wewnętrznej historii pobytu z autorem i czasem.
-
-Notatka korzysta z istniejącego pola `rezerwacje.uwagi`; zapis jej zmian do historii wymaga aktualnego schematu tej paczki. Instrukcja i opis kodu: [`NOTATKI_REZERWACJI.md`](NOTATKI_REZERWACJI.md).
-
-## Wyłączanie i przywracanie pokoi
-
-Administrator może w zakładce **Pokoje** zaznaczyć pokój i wybrać **Wyłącz pokój**
-albo **Przywróć pokój**. Okno pokazuje bieżący stan i skutek operacji przed zapisem.
-W konsoli służy do tego **opcja 28**. Recepcja nie ma uprawnień do tych operacji.
-
-- Wyłączenie ustawia `WYLACZONY` i blokuje tworzenie nowych rezerwacji.
-- Przywrócenie ustawia `DO_SPRZATANIA`. Przed zameldowaniem trzeba przygotować pokój i oznaczyć go jako posprzątany.
-- Potwierdzone lub zameldowane rezerwacje blokują obie operacje, niezależnie od dat.
-  Najpierw przenieś, anuluj albo zakończ takie pobyty zgodnie z regułami rozliczeń.
-- Anulowane i zakończone rezerwacje pozostają w bazie i nie blokują zmiany.
-- Cena, liczba miejsc i dane rezerwacji nie są zmieniane. Dostępność jest ponownie sprawdzana w transakcji przy zapisie.
-
-Zmiana dotyczy **bieżącego stanu**, bez dat początku/końca wyłączenia i bez dziennika
-stanów pokoju. Raport obłożenia nadal uwzględnia wszystkie pokoje z kartoteki,
-zgodnie z dotychczasowymi zasadami. Nie ma nowej migracji ani zależności.
-Instrukcja: [`STANY_POKOI.md`](STANY_POKOI.md).
-
-## Raporty i eksport
-
-Na ekranie **„Raporty”** wybierz okres od 1 do 366 dni i kliknij **„Generuj raport”**. Obie daty należą do wybranego okresu.
-
-| Zakładka | Zawartość |
+| Dokument | Zawartość |
 | --- | --- |
-| **Podsumowanie** | Liczba pobytów, pokojonoce, osobonoce, obłożenie, wartość noclegów, wpłaty i zwroty. |
-| **Rezerwacje i goście** | Pobyty przecinające wybrany okres, dane głównego i dodatkowych gości oraz wycena części pobytu w okresie. |
-| **Obłożenie pokoi** | Liczba zarezerwowanych nocy i procent obłożenia dla poszczególnych pokoi. |
-| **Płatności** | Transakcje wykonane w wybranym okresie, niezależnie od terminu rezerwacji. |
-| **Usługi dodatkowe** | Według daty dodania i aktualnego statusu; anulowane pozycje mają wartość aktywną zero. |
+| db/README.md | Jeden wybór: nowa baza albo aktualizacja. |
+| MAPA_KODU.md | Pakiety, klasy i miejsca wprowadzania zmian. |
+| ARCHIWUM_GOSCI.md | Archiwizacja i przywracanie. |
+| USLUGI_I_WYSZUKIWANIE.md | Usługi, saldo i filtry. |
+| HISTORIA_REZERWACJI.md | Zdarzenia, autorzy, relacje i transakcje. |
+| ZMIANA_POKOJU.md | Reguły przenoszenia. |
+| POTWIERDZENIE_REZERWACJI.md | Podgląd i wydruk. |
+| NOTATKI_REZERWACJI.md | Szkice i konflikty edycji. |
+| STANY_POKOI.md | Wyłączanie i przywracanie pokoju. |
+| TESTOWANIE.md | Testy na osobnym schemacie. |
 
-- **„Zapisz tabelę CSV”** eksportuje wybraną zakładkę do pliku dla Excela lub LibreOffice. Kodowanie: UTF-8 z BOM; separator: średnik.
-- **„Zapisz cały raport HTML / PDF”** zapisuje wszystkie zakładki jako HTML. Otwórz plik w przeglądarce, kliknij „Drukuj / zapisz jako PDF” i wybierz zapis do PDF w oknie drukowania.
+## Budowa i weryfikacja
 
-Program nie tworzy pliku PDF bezpośrednio. Zmiana okresu unieważnia podgląd; po nowych zapisach w bazie wygeneruj raport ponownie.
+Main i Launcher są krótkimi wejściami. `pl.hotel.model` zawiera modele, `baza` fasadę i pakietowe DAO, `gui` ekrany i zadania JavaFX, `konsola` menu i obsługę terminala, `raporty` i `potwierdzenia` eksport. BazaDanych sprawdza sesję i role; surowe połączenie nie jest publicznym API. JDBC wykonuje się poza wątkiem JavaFX. Tabele używają parametrów i oddzielnych agregatów płatności/usług.
 
-### Jak liczone są wyniki
+Wydanie 1.0.1 zmienia konfigurację, diagnostykę i pakowanie, bez zmian schematu bazy. Nowe wyniki: WYNIKI_TESTOW_1.0.1.txt. Starsze WYNIKI_TESTOW opisują wcześniejsze przebiegi i nie są potwierdzeniem ponownego wykonania całej integracji ani GUI dla 1.0.1. Testy zmieniają dane i wymagają izolowanej bazy; `mvn test` sam nie uruchamia programów Probe.
 
-**Pokojonoc** to jedna noc rezerwacji jednego pokoju. **Osobonoce** to liczba tych nocy pomnożona przez liczbę osób. Dzień wyjazdu nie jest noclegiem. Do obłożenia wliczane są rezerwacje potwierdzone, zameldowane i zakończone; anulowane są pomijane.
+## Najczęstsze problemy
 
-Obłożenie odnosi się do wszystkich pokoi zapisanych obecnie w bazie, także wyłączonych. Projekt nie przechowuje historii zmian liczby i dostępności pokoi, dlatego jest to **obłożenie rezerwacyjne według aktualnej bazy pokoi**.
-
-Usługi mają osobną sumę, bez proporcjonalnego podziału na noce i bez odtwarzania stanu na dawny dzień.
-
-Wartość noclegów korzysta ze stawki zapisanej przy rezerwacji i obejmuje tylko noce przypadające na wybrany okres. Wpłaty i zwroty liczone są osobno, według daty transakcji. Wycena pobytów nie oznacza otrzymanych pieniędzy i nie jest raportem księgowym.
-
-## Budowa projektu
-
-| Plik / katalog | Rola |
+| Objaw | Co sprawdzić |
 | --- | --- |
-| `src/Launcher.java` | Krótki punkt wejścia GUI; nadal uruchamiany przez Maven i skrypt Windows. |
-| `src/Main.java` | Krótki punkt wejścia zachowanej wersji konsolowej. |
-| `src/pl/hotel/model/` | Modele: gość, pokój, rezerwacja, uczestnik, pracownik i płatność. |
-| `src/pl/hotel/baza/BazaDanych.java` | Publiczne API bazy: przekazuje wywołania do odpowiednich klas DAO. |
-| `src/pl/hotel/baza/PolaczenieBazy.java` | Konfiguracja JDBC, ograniczenia funkcji sterownika, timeouty i TLS dla zdalnej bazy. |
-| `src/pl/hotel/baza/KontrolaDostepu.java` | Uwierzytelniony kontekst wątku i sprawdzanie aktualnych uprawnień konta. |
-| `src/pl/hotel/baza/RaportDAO.java` | Odczyt danych raportu bez udostępniania surowego połączenia innym pakietom. |
-| `src/pl/hotel/baza/*DAO.java` | Zapytania i transakcje podzielone według obszaru: goście, pokoje, rezerwacje, pobyty, rozliczenia, konta. |
-| `src/pl/hotel/konsola/` | Osobno menu, odczyt danych od użytkownika, stan konsoli oraz obsługa poszczególnych obszarów. |
-| `src/pl/hotel/gui/HotelGUI.java` | Cykl życia okna i nawigacja między ekranami. |
-| `src/pl/hotel/kalendarz/PlanKalendarza.java` | Indeks rezerwacji według pokoju i nocy; zasady dostępności widoku, bez JavaFX i SQL. |
-| `src/pl/hotel/gui/KomorkaKalendarza.java` | Kolor, podpowiedź i kliknięcie komórki kalendarza. |
-| `src/pl/hotel/gui/Ekran*.java` | Ekrany i formularze: goście, pokoje, rezerwacje, płatności, konta, raporty i pulpit. |
-| `src/pl/hotel/gui/StanGUI.java` | Dane jednej instancji GUI, w tym sesja, tabele i filtry. |
-| `src/pl/hotel/gui/Formularz.java`, `TabeleGUI.java`, `NarzedziaGUI.java` | Wspólna obsługa formularzy, konfiguracja tabel, kontrolki, formatowanie i walidacja. |
-| `src/pl/hotel/gui/ZadaniaGUI.java`, `KomunikatyGUI.java` | Zadania w tle, odświeżanie i obsługa błędów. |
-| `src/pl/hotel/serwis/GuiRepository.java` | Odczyt zestawu danych dla GUI i weryfikacja sesji. |
-| `src/pl/hotel/raporty/Raporty.java` | Generowanie raportu i eksport CSV oraz HTML. |
-| `src/pl/hotel/bezpieczenstwo/` | Skróty haseł, błąd wygasłej sesji oraz bezpieczne komunikaty błędów. |
-| `src/pl/hotel/walidacja/Dane.java` | Walidacja wymaganych danych także przy wywołaniu bez GUI. |
-| `resources/hotel.css` | Wygląd interfejsu. |
-| `db/HotelManager_baza.sql` | Pełna baza z fikcyjnymi rekordami dla nowej instalacji. |
-| `db/aktualizacja_uczestnicy.sql` | Aktualizacja wcześniejszej bazy o dodatkowych gości. |
-| `lib/` | Biblioteki do uruchamiania skryptem Windows. |
-| `tests/` | Scenariusze sprawdzające bazę, konsolę, GUI i raporty. |
-| `db.properties`, `pom.xml` | Konfiguracja połączenia i projektu Maven. |
-| `uruchom_windows.bat`, `START_TUTAJ.txt` | Skrypt uruchamiający i dodatkowa instrukcja. |
-| [`MAPA_KODU.md`](MAPA_KODU.md) | Opis podziału klas i wskazówki, gdzie wprowadzać kolejne zmiany. |
+| Brak javac lub błędny release | JDK i wersja Javy używana przez Maven. |
+| Duplicate module | Nie mieszaj wersji JavaFX i bibliotek Windows z zależnościami innego systemu. |
+| Access denied | Dane konta MySQL i jego host w db.properties. |
+| Brak tabeli lub kolumny | Wykonaj cały db/aktualizuj_baze.sql na odpowiedniej bazie. |
+| Communications link failure | Serwer, adres, port i timeouty. |
+| Błąd konfiguracji | Ustawienia połączenia, plik w folderze użytkownika albo jawnie ustawione hotel.config. |
+| Unable to open DISPLAY | Uruchom w sesji graficznej. |
+| Błąd zapisu po utracie sieci | Najpierw odśwież dane; serwer mógł już zatwierdzić operację. |
 
-### Aktualizacja do uporządkowanej struktury
-
-Rozpakuj tę wersję **do nowego folderu** i przenieś do niego własny `db.properties`.
-Nie mieszaj starych plików z płaskiego `src` z nowymi pakietami.
-`Launcher` i `Main` zachowują nazwy punktów wejścia, a pozostałe klasy znajdują się
-w `pl.hotel.*`. Użyj również nowego `uruchom_windows.bat`, który szuka źródeł
-rekurencyjnie w podfolderach i zapisuje ścieżki z ukośnikiem `/` dla `javac`.
-
-**Sam podział kodu nie wymaga żadnej zmiany tabel ani ponownego importowania bazy.**
-Przy własnych rozszerzeniach zaktualizuj importy, np. `import pl.hotel.baza.BazaDanych;`.
-Dane, reguły pobytów, granice transakcji i dostępne funkcje pozostają bez zmian.
-
-Zapytania JDBC oraz zapis raportów wykonują się w tle przez JavaFX `Task`. Interfejs pokazuje stan operacji i blokuje kolejne działania do jej zakończenia. Formularze pozostają otwarte po błędzie zapisu, aby można było poprawić dane.
-
-## Relacje w bazie danych
-
-| Tabela | Przechowywane informacje i powiązania |
-| --- | --- |
-| `goscie` | Dane kontaktowe głównych gości; jeden gość może mieć wiele rezerwacji. |
-| `pokoje` | Numer, typ, pojemność, cena i stan; jeden pokój może mieć wiele rezerwacji w różnych terminach. |
-| `pracownicy` | Konta pracowników, role i aktywność; pracownik jest przypisywany do rezerwacji i płatności. |
-| `rezerwacje` | Powiązanie głównego gościa, pokoju i pracownika z terminem, liczbą osób, stawką i statusem. |
-| `uczestnicy_rezerwacji` | Dodatkowe osoby przypisane do jednej rezerwacji — relacja 1:N. |
-| `historia_rezerwacji` | Zdarzenia rezerwacji, autor, zapisany login, czas serwera oraz stan przed zmianą i po niej; relacje N:1 do rezerwacji i pracownika. |
-| `uslugi` | Katalog ofert, cen i aktywności. |
-| `pozycje_uslug` | Wiele pozycji jednego pobytu z historyczną ceną i autorami dodania/anulowania; relacja do katalogu. |
-| `platnosci` | Wpłaty i zwroty przypisane do rezerwacji oraz pracownika — rezerwacja może mieć wiele transakcji. |
-
-Dodatkowi goście są przypisani do **konkretnego pobytu**, nie na stałe do pokoju. Dane rezerwacji i jej nowych uczestników są zapisywane w jednej transakcji.
-
-## Zasady działania
-
-- Nowy pobyt trwa od **1 do 30 nocy** i nie może zaczynać się w przeszłości.
-- Liczba osób nie może przekroczyć pojemności wybranego pokoju.
-- Nakładające się aktywne rezerwacje tego samego pokoju są odrzucane. Wyjazd jednego gościa i przyjazd kolejnego mogą przypadać na ten sam dzień.
-- Cena dotyczy **całego pokoju za noc**. Zmiana cennika pokoju nie zmienia stawek wcześniejszych rezerwacji.
-- Formularz edycji pokoju nie zmienia jego pojemności, aby zachować zgodność wcześniejszych rezerwacji.
-- Zameldowanie wymaga pokoju `GOTOWY`; pokój `WYLACZONY` nie przyjmuje nowych rezerwacji.
-- Wymeldowanie wymaga zerowego salda. Przed anulowaniem należy zwrócić pozostałe wpłacone środki.
-- Wpłaty i zwroty są ewidencją w bazie — aplikacja nie jest połączona z bankiem ani terminalem płatniczym.
-- Transakcje i blokady `FOR UPDATE` chronią operacje wymagające spójnych danych, w tym sprawdzanie dostępności przy zapisie rezerwacji.
-- Przy zmianach wykonanych na innym stanowisku należy odświeżyć listy. Zmiana hasła, roli lub dezaktywacja konta wymaga ponownego logowania przy kolejnej operacji chronionej.
-- Role i tożsamość pracownika są sprawdzane w publicznej warstwie operacji, niezależnie od widoczności przycisków. Wewnętrzne DAO i połączenia JDBC nie są publicznym API. Połączenia korzystają jednak ze wspólnego konta technicznego MySQL, co ogranicza izolację między rolami na poziomie samego serwera.
-
-## Weryfikacja
-
-Bieżący pełny przebieg dokumentuje `WYNIKI_TESTOW_ARCHIWUM_GOSCI.txt`; poprzednie wydanie: `WYNIKI_TESTOW_USLUGI_WYSZUKIWANIE.txt`: migracja wersji 13 dwukrotnie, nowe funkcje, regresja, GUI i konsola. Starsze wyniki dotyczą wcześniejszych wydań.
-
-Sprawdzono kompilację na JDK 17 oraz scenariusze na rzeczywistym MySQL 8.0.46 w odizolowanej bazie testowej. Interfejs uruchomiono również w środowisku headless JavaFX.
-
-| Scenariusz | Zakres |
-| --- | --- |
-| `NotesProbe` | Odczyt/zapis uwag, Unicode i limit, konflikt dwóch edycji, statusy, prywatność eksportów, role oraz rollback. |
-| `ConfirmationProbe` | Spójność odczytu kilku tabel, cena i saldo, grupy gości, anulowanie, kodowanie HTML, niezmienny podgląd, zapis i błędy pliku oraz uprawnienia. |
-| `HistoryProbe` | Autorzy zmian, stan przed i po, brak wpisów po odmowie, wycofanie operacji przy błędzie historii oraz stronicowanie bez duplikatów. |
-| `RoomStateProbe` | Role, wyłączanie i przywracanie, aktywne rezerwacje, sprzątanie, nieaktualny stan, rollback i równoczesna rezerwacja/przeniesienie. |
-| `RoomChangeProbe` | Zmiana pokoju: dostępność, pojemność, statusy, cena i wpłaty, dodatkowi goście, sprzątanie, pełny rollback oraz równoczesne przeniesienia i rezerwacje. |
-| `IntegrationProbe` | Rezerwacje, konflikty terminów, płatności, rozliczanie pobytu, konta, role, równoczesne próby rezerwacji oraz zapis i edycja uczestników z wycofaniem błędnych zmian. |
-| `GuiSmoke` / `GuiSmokeLauncher` | Logowanie, ekrany, formularze, zapis gościa i rezerwacji, edycja dodatkowych osób, zmiana pokoju i odświeżenie kalendarza, odczyt historii, podgląd potwierdzenia i jego odświeżenie po wpłacie, notatki ze szkicem i konfliktem zapisu, rozliczenie, raporty i zakończenie sesji nieaktywnego konta. |
-| `SecurityProbe` | Odmowa nieuprawnionych operacji, SQL injection, blokada logowania między procesami, wygaszenie sesji, równoległe wpłaty i zwroty, limity danych oraz ustawienia JDBC. |
-| `PrivilegeProbe` | Działanie programu na ograniczonym koncie technicznym i odmowa DDL oraz modyfikacji/usuwania płatności. |
-| `CalendarProbe` | Noc przyjazdu i wyjazdu, zmiana miesiąca, luty przestępny, anulowania, zakończone pobyty, wyłączenie pokoju i konflikty. |
-| `ReportProbe` | Granice okresu, obłożenie, wycena noclegów, płatności, dodatkowi goście oraz eksport CSV i HTML. |
-
-**Scenariusze zmieniają dane — uruchamiaj je wyłącznie na osobnej bazie testowej.** Są to programy testowe z metodami `main`, a nie testy automatycznie wykonywane przez `mvn test`. Skrypt Windows przygotowano dla Windows x64; w środowisku weryfikacyjnym sprawdzono kompilację z dołączonymi bibliotekami, lecz nie uruchamiano samego `.bat` na Windows.
-
-## Rozwiązywanie problemów
-
-| Problem | Co sprawdzić |
-| --- | --- |
-| `duplicate module on application module path` | Nie mieszaj wersji bibliotek. Aktualny skrypt wskazuje dokładnie trzy JAR-y JavaFX 17.0.21; rozpakuj paczkę do nowego folderu i przenieś własny `db.properties`. |
-| Brak polecenia `javac` | Zainstaluj JDK i dodaj katalog `bin` do `PATH`; samo JRE nie wystarczy. |
-| `file not found: srcBazaDanych.java` | Użyj aktualnego skryptu `.bat`. Skrypt musi wyszukać źródła w podfolderach i zapisać ścieżki z ukośnikiem `/`, np. `src/pl/hotel/baza/BazaDanych.java`. |
-| Nie znaleziono `db.properties` | Uruchamiaj program z głównego folderu projektu. |
-| `Access denied` | Sprawdź użytkownika MySQL, jego hasło i uprawnienia w `db.properties`. |
-| Brak połączenia z serwerem | Sprawdź działanie MySQL, adres i port. |
-| Nie istnieje tabela `uczestnicy_rezerwacji` | Wykonaj `db/aktualizacja_uczestnicy.sql` na właściwej bazie. |
-| Nie można zapisać rezerwacji | Sprawdź daty, liczbę osób, pojemność pokoju i konflikt z innymi rezerwacjami. |
-| Raport jest nieaktualny | Wygeneruj go ponownie; eksport korzysta z danych widocznych w podglądzie. |
-| Błąd sieci podczas zapisu | Najpierw odśwież dane. Serwer mógł zapisać zmianę przed utratą odpowiedzi; sprawdź wynik przed ponowieniem operacji, szczególnie wpłaty. |
-
-Opis audytu, wyników oraz ograniczeń: **[`RAPORT_BEZPIECZENSTWA/README.md`](RAPORT_BEZPIECZENSTWA/README.md)**. Instrukcja uruchomienia scenariuszy: **[`TESTOWANIE.md`](TESTOWANIE.md)**.
-
-Dodatkowe wskazówki uruchomienia i aktualizacji znajdują się w **[`START_TUTAJ.txt`](START_TUTAJ.txt)**.
-
-Wynik bieżącej regresji po dodaniu potwierdzeń: **[`WYNIKI_TESTOW_POTWIERDZENIA.txt`](WYNIKI_TESTOW_POTWIERDZENIA.txt)**.
-
-Bieżący wynik regresji po dodaniu notatek: **[`WYNIKI_TESTOW_NOTATKI.txt`](WYNIKI_TESTOW_NOTATKI.txt)**.
-
-Bieżąca regresja po dodaniu zarządzania stanami: **[`WYNIKI_TESTOW_STANY_POKOI.txt`](WYNIKI_TESTOW_STANY_POKOI.txt)**.
+Rozpakowuj źródła nowego wydania do osobnego folderu. Konfiguracja użytkownika pozostaje wspólna; przejście ze starego instalatora opisuje AKTUALIZACJA_1.0.1.md. Nie kasuj bazy w celu wymiany plików programu.

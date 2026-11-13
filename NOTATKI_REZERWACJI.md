@@ -1,8 +1,4 @@
-Aktualizacja tej paczki wymaga nowej migracji usług i historii: USLUGI_I_WYSZUKIWANIE.md. Dawne stwierdzenia o braku migracji odnoszą się do samego pola uwagi.
-
-# Notatki recepcji do rezerwacji
-
-## 1. Zastosowanie
+# 1. Zastosowanie
 
 Notatka przechowuje krótkie uwagi organizacyjne, np. późny przyjazd, prośbę
 odnoszącą się do pokoju lub ustalenie z gościem. Jedna rezerwacja ma jedną aktualną
@@ -85,12 +81,7 @@ potwierdzenia ani tabel eksportowanych raportów.
 
 ## 7. Aktualizacja i testy
 
-Nie dodano migracji, tabel, uprawnień ani bibliotek. Działająca poprzednia wersja
-ma już pole `uwagi`. Rozpakuj nową paczkę do osobnego folderu i przenieś własny
-`db.properties`. Dla starszych baz nadal obowiązują wcześniejsze wymagane aktualizacje.
-Nie importuj ponownie rekordów demonstracyjnych.
+Istniejąca baza: zamknij stanowiska, wykonaj kopię i uruchom **`db/aktualizuj_baze.sql`** jako administrator MySQL/MariaDB. Skrypt obejmuje wszystkie dotychczasowe zmiany, więc nie wybierasz aktualizacji według etapów. Nowa, pusta instalacja: **`db/nowa_baza.sql`**. Zachowaj własny `db.properties`; pełnego importu demonstracyjnego nie wykonuj na swoich danych. Szczegóły: [db/README.md](db/README.md).
 
-`NotesProbe` sprawdza walidację, emoji, konkurencyjne edycje, statusy i brak uwag
-w dokumentach eksportowanych. Testy GUI obejmują zachowanie szkicu po konflikcie
-i odczyt archiwum; konsola ma osobne scenariusze edycji. Wyniki bieżącego przebiegu
-znajdują się w `WYNIKI_TESTOW_NOTATKI.txt`. Kod pozostaje bez komentarzy.
+Weryfikację funkcji opisuje TESTOWANIE.md oraz odpowiedni plik WYNIKI_TESTOW.
+

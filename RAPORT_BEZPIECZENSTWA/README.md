@@ -138,12 +138,12 @@ Ponadto:
 ## Wdrożenie aktualizacji
 
 1. Zrób kopię swojej bazy.
-2. Wykonaj jako administrator `db/aktualizacja_bezpieczenstwo.sql` na istniejącym
+2. Wykonaj jako administrator `db/aktualizuj_baze.sql` na istniejącym
    schemacie. Nie importuj ponownie pełnej bazy z rekordami demo.
 3. Rozpakuj aplikację do nowego folderu i przenieś własny `db.properties`.
 4. Użyj nowego skryptu Windows lub Maven; nie kopiuj starych bibliotek JAR.
 5. Dostosuj TLS dla serwera poza loopback i zmień hasła demonstracyjne.
-6. Opcjonalnie zastosuj profil `db/ogranicz_uprawnienia.sql` wyłącznie do kont
+6. Opcjonalnie zastosuj profil `db/administracja/ogranicz_uprawnienia.sql` wyłącznie do kont
    technicznych i schematu wymienionych w tym skrypcie. Własne granty wymagają
    sprawdzenia przez administratora.
 
@@ -156,8 +156,8 @@ wycofanie utworzenia, terminu, pokoju, anulowania i wymeldowania po wymuszonym
 błędzie historii; przy wymeldowaniu wycofuje się również stan sprzątania.
 Tożsamość pochodzi z uwierzytelnionego kontekstu, nie z formularza.
 
-Nowa tabela wymaga `db/aktualizacja_historia.sql` i odpowiednich uprawnień
-SELECT/INSERT; standardowe konta obsługuje `db/uprawnienia_historia.sql`.
+Nowa tabela wymaga `db/aktualizuj_baze.sql` i odpowiednich uprawnień
+SELECT/INSERT; standardowe konta obsługuje `db/administracja/uprawnienia.sql`.
 Test migracji porównał wszystkie stare rekordy po dwukrotnym wykonaniu skryptu.
 Test ograniczonego konta potwierdził odczyt/dopisanie oraz odmowę UPDATE/DELETE.
 

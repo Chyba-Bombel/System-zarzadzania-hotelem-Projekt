@@ -10,7 +10,7 @@ Historia nie obejmuje edycji kartoteki gościa, cennika, kont ani stanu pokoju. 
 
 ## 2. Aktualizacja
 
-Dla wcześniejszej działającej historii wykonaj db/aktualizacja_uslugi_historia.sql, następnie db/uprawnienia_uslugi.sql. Zamknij stanowiska, zrób kopię bazy, dostosuj schemat/konto/host. Jeśli tabeli historii nie ma, wcześniej wykonaj db/aktualizacja_historia.sql i db/uprawnienia_historia.sql. Starsze migracje uczestników i bezpieczeństwa nadal obowiązują. Nowy pełny import zawiera całość. Nie importuj danych demo do istniejącej bazy. Szczegóły: USLUGI_I_WYSZUKIWANIE.md, rozdział 1.
+Istniejąca baza: zamknij stanowiska, wykonaj kopię i uruchom **`db/aktualizuj_baze.sql`** jako administrator MySQL/MariaDB. Skrypt obejmuje wszystkie dotychczasowe zmiany, więc nie wybierasz aktualizacji według etapów. Nowa, pusta instalacja: **`db/nowa_baza.sql`**. Zachowaj własny `db.properties`; pełnego importu demonstracyjnego nie wykonuj na swoich danych. Szczegóły: [db/README.md](db/README.md).
 
 ## 3. Stare płatności
 

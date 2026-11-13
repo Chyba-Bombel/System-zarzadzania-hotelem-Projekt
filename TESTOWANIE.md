@@ -1,32 +1,14 @@
-# Testy programu
+# Testowanie
 
-Scenariusze **zmieniają i dodają rekordy**. Używaj wyłącznie oddzielnej bazy z fikcyjnymi danymi.
-Nie uruchamiaj testów na własnych danych hotelu.
+Testy dodają i zmieniają rekordy. Uruchamiaj je wyłącznie na osobnej bazie z fikcyjnymi danymi, nigdy na danych hotelu.
 
-## Przygotowanie
+## Przygotowanie bazy
 
-1. Przygotuj osobny schemat, np. `hotel_manager_test`, na swoim testowym MySQL.
-2. Zrób roboczą kopię `db/HotelManager_baza.sql`. W tej kopii zmień nazwę
-   `hotel_manager` na `hotel_manager_test` i wykonaj część do `COMMIT`, bez
-   końcowej części tworzącej konta techniczne `hotel_app`.
-3. Utwórz prywatny plik `db-test.properties` z URL do `hotel_manager_test`,
-   kontem administracyjnym testowego serwera i hasłem. Nie publikuj go.
-4. Ustaw `hotel.tests=true` i wskaż konfigurację. Programy odmawiają pracy,
-   jeśli nazwa bazy nie kończy się `_test` lub `_test_<liczba>`.
+Utwórz testowy schemat, np. hotel_manager_test. W roboczej kopii db/nowa_baza.sql zastąp nazwę schematu i wykonaj część przed pierwszym CREATE USER, bez końcowych kont/grantów. Obejmuje to także tabele i dane usług występujące po COMMIT. Nie kończ importu na samym COMMIT.
 
-Przykładowe uruchomienie logiki przez Maven, z głównego folderu projektu:
+Przygotuj prywatny db-test.properties ze wskazaniem tego schematu. Konto fixture potrzebuje praw administracyjnych na testowym serwerze: testy tworzą triggery, a PrivilegeProbe tworzy i usuwa wyłącznie swoje tymczasowe konta. Nazwa bazy musi kończyć się _test albo _test_<liczba>, a uruchomienie zawierać -Dhotel.tests=true.
 
-```sh
-mvn test-compile org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass=RunAllProbes -Dexec.classpathScope=test -Dhotel.tests=true -Dhotel.config=db-test.properties
-```
-
-`RunAllProbes` wykonuje CalendarProbe, SecurityProbe, IntegrationProbe,
-RoomChangeProbe, RoomStateProbe, HistoryProbe, NotesProbe, ConfirmationProbe, ReportProbe, ServicesSearchProbe, GuestArchiveProbe i PrivilegeProbe. Testy są programami z `main`, nie testami
-uruchamianymi samoczynnie przez `mvn test`. Potrzebny jest JDK 17 lub nowszy.
-Pierwsze pobranie pluginu i zależności wymaga internetu.
-
-`SecurityProbe` uruchamia również osobny proces Javy i przekazuje mu classpath
-testów, aplikacji oraz sterownika. Alternatywą dla pluginu jest zwykły classpath:
+## Kompilacja i logika
 
 ```sh
 mvn test-compile dependency:build-classpath -Dmdep.outputFile=target/test-classpath.txt -Dmdep.includeScope=test
@@ -45,105 +27,50 @@ $testClasspath = Get-Content target/test-classpath.txt -Raw
 java -Dhotel.tests=true -Dhotel.config=db-test.properties -cp "target/classes;target/test-classes;$($testClasspath.Trim())" RunAllProbes
 ```
 
-`PrivilegeProbe` tworzy i usuwa dwa tymczasowe konta MySQL z unikalną nazwą,
-więc jego konto fixture potrzebuje uprawnień administracyjnych na testowym serwerze.
-Testy nie mogą służyć do weryfikacji konta produkcyjnego.
+Są to programy main, nie testy JUnit uruchamiane samoczynnie przez mvn test. Potrzebny jest zgodny JDK i zależności. Każdy wątek ma osobną sesję i musi się zalogować. TestDatabase jest fixture testowym, nie publicznym dostępem do połączenia aplikacji.
+
+RunAllProbes wykonuje CalendarProbe, SecurityProbe, IntegrationProbe, RoomChangeProbe, RoomStateProbe, HistoryProbe, NotesProbe, ConfirmationProbe, ReportProbe, ServicesSearchProbe, GuestArchiveProbe i PrivilegeProbe. Testy obejmują uprawnienia, SQL/LIKE, hasła/sesje, terminy, rollback, współbieżność, usługi i rozliczenie, archiwum, historię i eksport.
+
+PrivilegeProbe korzysta teraz z db/administracja/uprawnienia.sql. Dopasowuje konto, schemat i hosty do unikalnych tymczasowych użytkowników. Sprawdza brak DDL, DELETE nowych tabel oraz zmiany/usuwania płatności i historii. Nie używaj go do sprawdzania rzeczywistego konta produkcyjnego.
 
 ## GUI
 
-Na komputerze ze środowiskiem graficznym uruchom oddzielnie
-`GuiSmokeLauncher` z tym samym classpath i parametrami testowymi.
-Aby scenariusz miał wolny pokój 101, przed nim na **testowym schemacie** ustaw
-rezerwacje tego pokoju na `ANULOWANA`. Są to dane demonstracyjne, nie rzeczywiste płatności.
-GUI samo klika formularze, zapisuje fikcyjne dane, sprawdza zmianę pokoju, zachowanie ceny i uczestników, odświeżenie kalendarza oraz raport,
-a na koniec dezaktywuje demonstracyjne konto recepcji. Odtwórz testowy schemat
-przed następnym pełnym przebiegiem. W automatycznej weryfikacji paczki użyto
-Monocle headless, a samego skryptu `.bat` nie uruchamiano na Windows.
+GuiSmokeLauncher uruchom z tym samym classpath i konfiguracją na świeżej bazie testowej. Przed scenariuszem na tej bazie ustaw demonstracyjne rezerwacje pokoju 101 na ANULOWANA, aby umożliwić rezerwację z kalendarza. Nie rób tego na rzeczywistych pobytach.
 
-Po zmianie hasła, roli lub użytkownika w testach należy zalogować właściwe
-konto przed kolejną operacją. Każdy wątek ma swój kontekst uwierzytelnienia.
-Testowa klasa `TestDatabase` korzysta z oddzielnego konta fixture i nie jest
-częścią publicznego dostępu do bazy w aplikacji.
+Scenariusz obsługuje formularze, pokoje, kalendarz, notatki i ich konflikty, usługi, wyszukiwanie, kartę oraz archiwizację/przywracanie. Na końcu dezaktywuje demonstracyjne konto recepcji. ServicesGuiSteps i GuestArchiveGuiSteps są jego częściami. Przed kolejnym pełnym przebiegiem odtwórz fixture.
 
-## Oczekiwane znaczniki
+Poprzednie wydania sprawdzano w Monocle headless. Nie oznacza to uruchomienia natywnego skryptu Windows ani systemowego okna wyboru pliku. Ich wyniki pozostają w WYNIKI_TESTOW_ARCHIWUM_GOSCI.txt i wcześniejszych plikach.
 
-`CALENDAR_OK`, `SECURITY_OK`, `PARTICIPANTS_OK`, `INTEGRATION_OK`, `ROOM_CHANGE_OK`, `ROOM_STATE_OK`, `HISTORY_OK`, `CONFIRMATION_OK`, `NOTES_OK`, `REPORTS_OK`,
-`PRIVILEGES_OK`, `ALL_PROBES_OK` oraz oddzielnie `GUI_ROOM_STATE_OK`, `GUI_NOTES_OK`, `GUI_CONFIRMATION_OK`, `GUI_HISTORY_OK`, `GUI_ROOM_CHANGE_OK` i `GUI_SMOKE_OK`.
+## Sprawdzenie uporządkowania SQL
 
-Szczegółowy zakres i wynik weryfikacji dostarczonej paczki opisano w
-`RAPORT_BEZPIECZENSTWA/README.md`.
+Bieżący zakres jest opisany w WYNIKI_TESTOW_BAZA.txt. Sprawdzono świeży import oraz jeden aktualizator na bazie starszej i obecnej, jego powtórzenie, zachowanie danych, odtworzenie płatności i prawa kont. Podstawowe warunki ręcznej próby:
 
-## Historia
+1. Na kopii starszej bazy wykonaj cały db/aktualizuj_baze.sql jako administrator.
+2. Porównaj stare wiersze i sprawdź nowe tabele/pola.
+3. Zmień ofertę usługi i zarchiwizuj testowego gościa, a następnie wykonaj aktualizację ponownie.
+4. Sprawdź zachowanie zmian i brak podwójnych zdarzeń płatności.
+5. Sprawdź oba standardowe hosty, brak jednego z kont oraz pomocnik własnego konta.
 
-`HistoryProbe` sprawdza sześć rodzajów zdarzeń oraz tożsamość autora, różną od
-pracownika tworzącego rezerwację. Trigger testowy wymusza błąd dopisania historii:
-zmiana terminu, pokoju, anulowanie i wymeldowanie muszą zostać wycofane; sprzątanie
-nie może pozostać zapisane. Sprawdzane jest również wycofanie utworzenia rezerwacji.
-Ponad 100 zmian sprawdza limit i przechodzenie po stronach podczas nowego zapisu.
+Nowa instalacja i aktualizacja są alternatywami. db/administracja/ogranicz_uprawnienia.sql nie należy do zwykłej próby migracji: świadomie odbiera prawa wskazanym kontom.
 
-`PrivilegeProbe` wykonuje skrypt uprawnień historii na tymczasowych kontach
-technicznych i sprawdza odmowę UPDATE/DELETE. GUI otwiera historię nowego pobytu,
-sprawdza zdarzenia utworzenia i przeniesienia oraz obsługuje odświeżanie i zamknięcie.
+## Testy poprawki 1.0.1 bez serwera bazy
 
-Podczas weryfikacji paczki zaimportowano również schemat poprzedniej wersji,
-wykonano migrację historii dwukrotnie i porównano wszystkie dotychczasowe rekordy.
-Nowy dziennik pozostaje pusty dla zmian sprzed aktualizacji.
+Po `mvn test-compile` uruchom z folderu projektu:
 
-## Potwierdzenia rezerwacji
+Windows PowerShell:
 
-`ConfirmationProbe` sprawdza cenę całego pokoju, sumy wpłat i zwrotów, niezmienność
-pobranego podglądu, aktualny pokój przy zachowaniu uzgodnionej ceny i anulowanie.
-Próby równoczesnych zmian trzech tabel sprawdzają, czy odczyt dokumentu zachowuje
-wspólny obraz danych. Testy eksportu obejmują znaki HTML, Unicode, apostrofy,
-brak kontaktów w dokumencie, zastąpienie pliku, błąd zapisu i sprzątanie plików tymczasowych.
+```powershell
+java -cp 'target/classes;target/test-classes' UpdateProbe
+java -cp 'target/classes;target/test-classes' pl.hotel.baza.UpdateConnectionProbe
+```
 
-GUI otwiera podgląd, sprawdza pokój i dodatkowego gościa, odświeża po nowej wpłacie
-i zamyka okno. Oddzielny scenariusz konsolowy wykonuje zapis HTML oraz odmawia
-zastąpienia istniejącego pliku. Nie uruchamiano systemowego okna wyboru pliku,
-fizycznej drukarki ani skryptu Windows na Windows. PDF tworzy przeglądarka.
-Bieżący wynik całego przebiegu znajduje się w `WYNIKI_TESTOW_POTWIERDZENIA.txt`.
+Linux/macOS:
 
-## Notatki recepcji
+```sh
+java -cp 'target/classes:target/test-classes' UpdateProbe
+java -cp 'target/classes:target/test-classes' pl.hotel.baza.UpdateConnectionProbe
+```
 
-`NotesProbe` sprawdza istniejące uwagi, pustą treść, nowe linie, 500 znaków Unicode
-z emoji, odrzucenie znaków sterujących i niepoprawnych surogatów. Dwie równoczesne
-edycje z tą samą poprzednią treścią mogą mieć tylko jednego zwycięzcę. Test porównuje
-również wielkość liter mimo niewrażliwej na nią kolacji SQL. Wymuszony błąd UPDATE
-nie może pozostawić częściowych zmian.
+Uruchamiaj bez zmiennych HOTEL_DB_*, które celowo nadpisują konfigurację testową. UpdateProbe sprawdza migrację, brak nadpisywania, UTF-8 i znaki specjalne hasła, jawny plik, pierwszeństwo zmiennych, pierwsze uruchomienie, błędy i log bez danych poufnych. UpdateConnectionProbe używa atrapy Driver JDBC i nie łączy się z rzeczywistą bazą; potwierdza przekazanie ustawień i zachowanie blokad niebezpiecznych opcji. Nie dodawaj sterownika MySQL do classpath tej próby, aby nie użyć rzeczywistego serwera.
 
-Sprawdzany jest brak uwag w potwierdzeniu, raporcie HTML i wszystkich tabelach CSV,
-odczyt archiwalnych rezerwacji i odmowa ich edycji. `PrivilegeProbe` wykonuje odczyt
-oraz zapis notatki na ograniczonym koncie technicznym.
-
-GUI zachowuje szkic po konflikcie, pokazuje aktualną treść bez kasowania szkicu,
-sprawdza limit pola i odczyt anulowanej rezerwacji. Konsola ma scenariusze wielu
-wierszy, anulowania edycji i usunięcia treści. Bieżące wyniki są w `WYNIKI_TESTOW_NOTATKI.txt`.
-
-## Wyłączanie i przywracanie pokoi
-
-`RoomStateProbe` sprawdza uprawnienia, stany wejściowe, brak pokoju, przyszłą i
-zameldowaną rezerwację, zachowanie archiwalnych pobytów, sprzątanie oraz rollback.
-Wyścig nowej rezerwacji z wyłączeniem ma tylko jednego zwycięzcę. Sprawdzane jest
-również równoczesne przeniesienie pobytu do pokoju, który administrator wyłącza.
-
-GUI wyłącza pokój 208, sprawdza jego blokadę w kalendarzu, przywraca go do sprzątania,
-a po zalogowaniu recepcji sprawdza brak przycisków administratora i oznacza sprzątanie.
-Konsola ma scenariusze wyłączenia, przywrócenia, odmowy potwierdzenia oraz odmowy roli recepcji.
-`PrivilegeProbe` weryfikuje działanie na dotychczasowych minimalnych grantach.
-Wyniki bieżącego przebiegu są w `WYNIKI_TESTOW_STANY_POKOI.txt`.
-
-
-## Nowe usługi, historia i wyszukiwanie
-
-ServicesSearchProbe sprawdza ceny i nazwy historyczne, aktywność i rolę cennika, odrzucenie starej oferty, ilości, należność, zwroty przed anulowaniem, wymeldowanie, HTML, raport, dosłowne znaki LIKE/SQL, granice trzech trybów dat, stronicowanie i starsze daty historii. Wymusza błąd historii, badając rollback zwrotu, usługi, notatki i uczestników. Dwa wyścigi sprawdzają wpłatę kontra anulowanie usługi oraz usługę kontra wymeldowanie.
-
-ServicesGuiSteps jest częścią GuiSmoke: katalog, edycja ceny, dodanie/anulowanie, karta, nazwisko dodatkowe, saldo, daty, otwarcie wyniku i role. PrivilegeProbe nadaje również granty usług i sprawdza brak DELETE nowych tabel. Konsola ma scenariusze 29–31.
-
-Migrację sprawdzono dwukrotnie na poprzednim schemacie: stare rekordy i historia pozostały, płatności uzyskały pojedyncze wpisy, zmieniony cennik nie został nadpisany. Znaczniki: SERVICES_SEARCH_OK, GUI_SERVICES_SEARCH_OK i CONSOLE_SERVICES_SEARCH_OK. Pełny wynik wydania: WYNIKI_TESTOW_USLUGI_WYSZUKIWANIE.txt. Testy GUI używają Monocle; nie oznaczają uruchomienia natywnego skryptu Windows ani okna wyboru pliku.
-
-
-## Archiwizacja gości
-
-GuestArchiveProbe wchodzi w RunAllProbes. Testuje blokadę potwierdzonych i zameldowanych pobytów, zachowanie danych historycznych/finansów, role, metadane autora, przywrócenie, stare obiekty i formularze, rollback oraz wyścig z nową rezerwacją. GuestArchiveGuiSteps jest częścią GuiSmoke i testuje archiwizację, filtry, brak wyboru w nowym pobycie, anulowanie formularza i przywrócenie recepcji. PrivilegeProbe sprawdza oba zapisy na minimalnym koncie.
-
-Migracja jest testowana dwa razy na poprzednim schemacie. Porównywane są stare dane oraz zachowanie już istniejącego stanu archiwalnego. Naprawiony skrypt usług/historii sprawdzono także dla obu postaci DROP na MySQL 8, co nie jest pełnym testem uruchomionej MariaDB. Wyniki: WYNIKI_TESTOW_ARCHIWUM_GOSCI.txt. Znaczniki: GUEST_ARCHIVE_OK, GUI_GUEST_ARCHIVE_ADMIN_OK, GUI_GUEST_ARCHIVE_RECEPTION_OK, CONSOLE_GUEST_ARCHIVE_OK.
+Testy są programami main i nie uruchamiają się samoczynnie przez mvn test. Tworzą tylko pliki tymczasowe, nie zmieniają istniejącej bazy. Checklistę Windows i aktualizacji instalatorem zawiera AKTUALIZACJA_1.0.1.md.

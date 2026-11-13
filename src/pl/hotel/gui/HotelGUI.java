@@ -14,6 +14,7 @@ import static pl.hotel.gui.NarzedziaGUI.*;
 
 public final class HotelGUI extends Application {
     final StanGUI stan = new StanGUI();
+    final UstawieniaAplikacjiGUI ustawienia = new UstawieniaAplikacjiGUI(this);
     final EkranLogowania ekranLogowania = new EkranLogowania(this);
     final EkranRaportow ekranRaportow = new EkranRaportow(this);
     final EkranPulpitu ekranPulpitu = new EkranPulpitu(this);
@@ -30,7 +31,7 @@ public final class HotelGUI extends Application {
 
     @Override public void start(Stage stage) {
         stan.stage = stage;
-        stage.setTitle("Hotel • System zarządzania");
+        stage.setTitle("HotelManager " + pl.hotel.konfiguracja.WersjaAplikacji.NUMER + " • System zarządzania");
         stage.setMinWidth(1080); stage.setMinHeight(720);
         tabeleGUI.konfigurujTabele();
         ekranLogowania.pokazLogowanie();
@@ -65,6 +66,9 @@ public final class HotelGUI extends Application {
             if (nazwa.equals(stan.strona)) b.getStyleClass().add("active");
             nav.getChildren().add(b);
         }
+        Button informacje = przycisk("O programie", "", ustawienia::pokazInformacje);
+        informacje.setId("about"); informacje.setMaxWidth(Double.MAX_VALUE);
+        nav.getChildren().add(informacje);
         Region spacer = new Region(); VBox.setVgrow(spacer, Priority.ALWAYS); nav.getChildren().add(spacer);
         VBox osoba = new VBox(5, etykieta(stan.sesja.getImie() + " " + stan.sesja.getNazwisko(), "user-name"),
                 etykieta(admin() ? "ADMINISTRATOR" : "RECEPCJONISTA", "user-role"));

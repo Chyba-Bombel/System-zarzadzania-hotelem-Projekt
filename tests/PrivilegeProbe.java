@@ -23,8 +23,12 @@ public final class PrivilegeProbe {
                     q.execute("GRANT INSERT ON "+baza+".platnosci TO "+user);
                     q.execute("GRANT INSERT,DELETE ON "+baza+".uczestnicy_rezerwacji TO "+user);
                 }
-                String granty=(Files.readString(Path.of("db/uprawnienia_historia.sql"))+"\n"+Files.readString(Path.of("db/uprawnienia_uslugi.sql"))).replace("hotel_manager",baza).replace("'hotel_app'","'"+konto+"'");
-                for(String polecenie:granty.split(";")) if(!polecenie.isBlank())q.execute(polecenie);
+                for(String host:List.of("localhost","127.0.0.1")) {
+                    String granty=Files.readString(Path.of("db/administracja/uprawnienia.sql"))
+                        .replace("hotel_manager",baza).replace("'hotel_app'","'"+konto+"'")
+                        .replace("SET @host = 'localhost';","SET @host = '"+host+"';");
+                    for(String polecenie:granty.split(";"))if(!polecenie.isBlank())q.execute(polecenie);
+                }
                 try(Connection c=DriverManager.getConnection(p.getProperty("url"),konto,haslo);Statement z=c.createStatement()) {
                     for(String sql:List.of("CREATE TABLE niedozwolona_tabela (id INT)","DELETE FROM historia_rezerwacji WHERE 1=0","UPDATE historia_rezerwacji SET akcja=akcja WHERE 1=0","DELETE FROM platnosci WHERE 1=0","UPDATE platnosci SET kwota=kwota WHERE 1=0","DELETE FROM uslugi WHERE 1=0","DELETE FROM pozycje_uslug WHERE 1=0")) {
                         try{z.execute(sql);throw new AssertionError("Nadmierne uprawnienia techniczne");}

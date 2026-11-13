@@ -2,25 +2,7 @@
 
 ## 1. Aktualizacja istniejącej bazy
 
-Zamknij aplikację na wszystkich stanowiskach i wykonaj kopię bazy. Rozpakuj paczkę do nowego folderu, zachowując własny `db.properties`. Nie mieszaj starych i nowych źródeł.
-
-Dla działającej poprzedniej wersji z historią, notatkami i stanami pokoi wykonaj jako administrator MySQL:
-
-1. `db/aktualizacja_uslugi_historia.sql`.
-2. `db/uprawnienia_uslugi.sql`.
-
-W Workbench otwórz i wykonaj całe pliki. Na Linuxie, z głównego folderu projektu:
-
-```sh
-mysql -u root -p < db/aktualizacja_uslugi_historia.sql
-mysql -u root -p < db/uprawnienia_uslugi.sql
-```
-
-Dostosuj `USE hotel_manager` i schemat w grantach do swojej bazy. Dostosuj konto i hosty, jeśli używasz innego użytkownika niż `hotel_app`. Gdy istnieje tylko jeden z wymienionych hostów konta, wykonaj tylko pasujące GRANT. Aplikacja nadal powinna korzystać z ograniczonego konta, nie z administratora.
-
-Jeśli nie ma tabeli historii, najpierw wykonaj `aktualizacja_historia.sql` i `uprawnienia_historia.sql`. Bardzo stare bazy wymagają również brakujących migracji uczestników i bezpieczeństwa z README. Dla **nowej instalacji** wykonaj jednorazowo pełny `db/HotelManager_baza.sql`, który ma już wszystkie tabele, granty i rekordy. **Nie importuj pełnego skryptu demo do używanej bazy.**
-
-Migracja zachowuje stare rekordy, rozszerza historię, odtwarza stare płatności i tworzy cennik. Można wykonać ją ponownie: `platnosc_id` chroni przed duplikowaniem historii płatności, a kody ofert chronią przed przywróceniem ręcznie zmienionego cennika. DDL w MySQL wykonuje niejawne zatwierdzenia; po przerwaniu migracji trzeba ją dokończyć przed uruchomieniem aplikacji. Kopia bazy pozostaje konieczna.
+Istniejąca baza: zamknij stanowiska, wykonaj kopię i uruchom **`db/aktualizuj_baze.sql`** jako administrator MySQL/MariaDB. Skrypt obejmuje wszystkie dotychczasowe zmiany, więc nie wybierasz aktualizacji według etapów. Nowa, pusta instalacja: **`db/nowa_baza.sql`**. Zachowaj własny `db.properties`; pełnego importu demonstracyjnego nie wykonuj na swoich danych. Szczegóły: [db/README.md](db/README.md).
 
 ## 2. Katalog usług
 

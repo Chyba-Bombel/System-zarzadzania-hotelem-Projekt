@@ -1,0 +1,38 @@
+HOTEL MANAGER 1.0.1 — WYNIKI WERYFIKACJI
+Data: 2026-11-13
+
+WYKONANE
+1. Kompilacja wszystkich klas produkcyjnych przez javac --release 17,
+   z JavaFX Windows oraz sterownikiem JDBC dołączonymi do projektu: OK.
+2. UpdateProbe: 18 sprawdzeń, OK.
+   Migracja starej konfiguracji, pozostawienie źródła, brak nadpisywania,
+   Unicode, UTF-8 BOM i znaki specjalne hasła, jawny hotel.config, zmienne środowiskowe,
+   brak pliku, czysty start z pustym hasłem, błędy bazy/TLS, bezpieczny log,
+   numer wersji z zasobu.
+3. UpdateConnectionProbe: 6 sprawdzeń, OK.
+   Atrapa Driver JDBC: przekazanie konfiguracji, ochrona multi queries,
+   paranoid, wymaganie TLS poza loopback. Bez rzeczywistego serwera bazy.
+4. CalendarProbe: OK — granice dat, statusy, konflikty, przeszłość i miesiące.
+5. Próby konfiguracji/JDBC wykonano na JDK 17 i JDK 21: OK.
+6. Porównanie całego folderu db z wejściową paczką wersji 16: bez zmian.
+7. Kontrola pom.xml: wersja 1.0.1 i filtrowanie resources-version: OK.
+8. Kontrola skryptu pakowania: stały UUID, brak wymuszenia starego
+   hotel.config, kopiowanie jedynie przykładu konfiguracji: OK.
+9. Brak komentarzy w nowych źródłach Java i PowerShell.
+
+OGRANICZENIA
+- Maven package nie został ukończony: brak lokalnego cache wtyczek,
+  a próba pobrania z Maven Central napotkała niedostępny proxy środowiska.
+  Zamiast tego skompilowano wszystkie klasy bezpośrednio javac.
+  Zasób wersji na potrzeby testu wygenerowano z wersji projektu.
+- Nie uruchomiono ponownie pełnej integracji z rzeczywistą bazą.
+- Nie wykonano GUI na działającym pulpicie Windows ani na jego JDK 27.
+- Nie wykonano PowerShell/jpackage/WiX, instalacji ani aktualizacji na Windows.
+  Kod skryptów przejrzano, lecz nie potwierdzono ich działania na tym systemie.
+- Testy nie stanowią potwierdzenia odporności programu na wszystkie ataki.
+
+PRZED PUBLIKACJĄ
+Zbuduj app-image i EXE na Windows, wykonaj próby opisane w
+AKTUALIZACJA_1.0.1.md, zwłaszcza migrację 1.0.0 oraz aktualizację między
+kolejnymi wersjami z nowym wspólnym UUID. Starsze WYNIKI_TESTOW opisują
+wcześniejsze przebiegi i nie są wynikami ponownego testowania 1.0.1.

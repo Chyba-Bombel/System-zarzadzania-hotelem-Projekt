@@ -34,6 +34,7 @@ final class ZadaniaGUI {
         task.setOnSucceeded(e -> { app.stan.busy.set(false); sukces.accept(task.getValue()); });
         task.setOnFailed(e -> {
             app.stan.busy.set(false); Throwable blad = task.getException();
+            pl.hotel.diagnostyka.DziennikBledow.zapisz(blad);
             if (blad instanceof pl.hotel.bezpieczenstwo.SesjaWygasla) {
                 if (app.stan.aktywnyDialog != null) app.stan.aktywnyDialog.close();
                 app.ekranLogowania.pokazLogowanie();

@@ -169,7 +169,7 @@ z tożsamością rzeczywistej sesji. Nie przekazuje się sesji jako dowolnego ob
 `Pracownik`: powstaje wewnętrznie dopiero po sprawdzeniu hasła.
 Własny wątek wykonujący operacje musi sam się zalogować.
 Zmiana roli, aktywności lub hasła powoduje błąd `SesjaWygasla` przy kolejnym użyciu.
-Dwa pola blokady logowania dodaje `db/aktualizacja_bezpieczenstwo.sql`.
+Dwa pola blokady logowania dodaje `db/aktualizuj_baze.sql`.
 Komentarze przeniesiono do dokumentacji — źródła nie mają komentarzy.
 
 ## Historia zmian
@@ -226,3 +226,14 @@ Historia ma 12 typów, obejmuje finanse, usługi, notatki i uczestników. Histor
 BazaDanych.archiwizujGoscia/przywrocGoscia sprawdzają sesję i delegują do ArchiwumGosciDAO. Ta klasa blokuje kartotekę i kontroluje aktywne rezerwacje. TworzenieRezerwacjiDAO blokuje tego samego gościa po pokoju, więc archiwizacji nie omija równoczesny zapis. GoscieDAO odczytuje wszystkie kartoteki dla zachowania relacji starych rezerwacji i blokuje edycję archiwum warunkiem UPDATE.
 
 Gosc ma stan i bieżące metadane archiwum. StanGUI/TabeleGUI filtrują listę, EkranGosci i ArchiwumGosciGUI obsługują formularze, ArchiwumGosciKonsola opcje 32–34. Formularz nowej rezerwacji pokazuje tylko aktywne kartoteki. Dalszy opis transakcji i migracji: ARCHIWUM_GOSCI.md.
+
+## Poprawka 1.0.1
+
+- `konfiguracja/SciezkiAplikacji`: lokalizacja danych użytkownika, konfiguracji i logów.
+- `konfiguracja/KonfiguracjaAplikacji`: migracja, odczyt i zapis ustawień.
+- `konfiguracja/BladKonfiguracji`: bezpieczny komunikat błędu odczytu.
+- `konfiguracja/WersjaAplikacji`: numer z zasobu filtrowanego wersją pom.xml.
+- `diagnostyka/DziennikBledow`: logi z rotacją, bez treści wyjątku i danych biznesowych.
+- `gui/UstawieniaAplikacjiGUI`: konfiguracja przed logowaniem i O programie.
+- `buduj_instalator.ps1`: pakowanie Windows i stały identyfikator aktualizacji.
+- `installer/aktualizuj_windows.ps1`: lokalna kopia ustawień i uruchomienie instalatora.

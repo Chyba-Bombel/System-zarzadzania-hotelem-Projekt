@@ -1,5 +1,3 @@
-Aktualna karta ma zakładkę Usługi, historyczne pozycje w HTML i subtotal w rozliczeniu. Należność obejmuje aktywne usługi. Ta paczka wymaga migracji opisanej w USLUGI_I_WYSZUKIWANIE.md; dawny brak migracji dotyczył samego eksportu.
-
 # Potwierdzenie danych rezerwacji
 
 ## 1. Obsługa w GUI
@@ -82,12 +80,7 @@ Pełna atomowość nie jest gwarantowana w systemach plików bez obsługi ATOMIC
 
 ## 7. Aktualizacja i testy
 
-Nie ma nowej migracji, zależności ani konfiguracji. Jeśli działa poprzednia wersja
-z historią, rozpakuj paczkę do osobnego folderu i przenieś własny `db.properties`.
-Dla starszych baz nadal obowiązują wcześniejsze migracje. Nie importuj ponownie danych demo.
+Istniejąca baza: zamknij stanowiska, wykonaj kopię i uruchom **`db/aktualizuj_baze.sql`** jako administrator MySQL/MariaDB. Skrypt obejmuje wszystkie dotychczasowe zmiany, więc nie wybierasz aktualizacji według etapów. Nowa, pusta instalacja: **`db/nowa_baza.sql`**. Zachowaj własny `db.properties`; pełnego importu demonstracyjnego nie wykonuj na swoich danych. Szczegóły: [db/README.md](db/README.md).
 
-`ConfirmationProbe` sprawdza kwoty, role, uczestników, anulowanie, kodowanie HTML,
-błędy zapisu i spójność równoczesnego odczytu. `GuiSmoke` sprawdza podgląd i jego
-odświeżenie po wpłacie. Konsola ma scenariusz zapisu i odmowy zastąpienia pliku.
-Wynik bieżącej regresji jest w `WYNIKI_TESTOW_POTWIERDZENIA.txt`.
-Źródła pozostają bez komentarzy; opis działania znajduje się w dokumentacji.
+Weryfikację funkcji opisuje TESTOWANIE.md oraz odpowiedni plik WYNIKI_TESTOW.
+

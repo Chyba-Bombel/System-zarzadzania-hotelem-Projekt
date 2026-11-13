@@ -8,14 +8,7 @@ import java.util.*;
 final class PolaczenieBazy {
     private PolaczenieBazy() {}
     public static Connection polacz() throws SQLException {
-        Properties p = new Properties();
-        java.nio.file.Path plik=java.nio.file.Path.of(System.getProperty("hotel.config","db.properties"));
-        try(var r=java.nio.file.Files.newBufferedReader(plik,StandardCharsets.UTF_8)) { p.load(r); }
-        catch(java.io.IOException e) { throw new SQLException("Nie można odczytać konfiguracji bazy. Sprawdź katalog roboczy.",e); }
-        for(String[] para:new String[][]{{"url","HOTEL_DB_URL"},{"user","HOTEL_DB_USER"},{"password","HOTEL_DB_PASSWORD"}}) {
-            String env=System.getenv(para[1]); if(env!=null) p.setProperty(para[0],env);
-            if(!p.containsKey(para[0]))throw new SQLException("Brak pola "+para[0]+" w konfiguracji bazy.");
-        }
+        Properties p = pl.hotel.konfiguracja.KonfiguracjaAplikacji.wczytaj();
         String url=p.getProperty("url");
         Map<String,String> param=new HashMap<>(); URI uri;
         try {

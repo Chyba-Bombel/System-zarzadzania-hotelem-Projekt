@@ -1,101 +1,70 @@
-NOWOŚĆ: ARCHIWIZOWANIE GOŚCI
+HOTEL MANAGER 1.0.1 — URUCHOMIENIE
 
-Zamknij stanowiska, zrób kopię bazy i wykonaj db/aktualizacja_archiwum_gosci.sql.
-Zachowaj własny db.properties. Nie importuj ponownie pełnej bazy demo.
-Jeżeli wcześniejsza migracja usług i historii została przerwana, najpierw
-wykonaj poprawiony db/aktualizacja_uslugi_historia.sql i brakujące granty usług.
-Poprawka rozróżnia DROP CHECK w MySQL i DROP CONSTRAINT w MariaDB.
+1. BAZA: WYBIERZ JEDEN PLIK
 
-Goście: filtr Aktywni / Archiwalni / Wszyscy. Zaznacz kartotekę i Archiwizuj
-lub Przywróć, następnie zatwierdź formularz. Aktywne pobyty blokują archiwizację.
-Archiwum zachowuje stare rezerwacje i płatności, ukrywa gościa w nowym pobycie.
-Edycja archiwalnej kartoteki wymaga przywrócenia. Dostęp: recepcja i administrator.
-Konsola: 32 archiwizacja, 33 przywrócenie, 34 lista archiwum.
-Instrukcja i klasy: ARCHIWUM_GOSCI.md. Wyniki: WYNIKI_TESTOW_ARCHIWUM_GOSCI.txt.
+Masz już bazę projektu:
+- Zamknij wszystkie stanowiska i zrób kopię bazy.
+- Jako administrator wykonaj CAŁY db/aktualizuj_baze.sql.
+- Nie wybierasz aktualizacji według etapów i nie importujesz danych demo.
 
-SYSTEM ZARZĄDZANIA HOTELEM — JAVAFX + MYSQL
+Nie masz jeszcze bazy projektu:
+- Jako administrator wykonaj jednorazowo db/nowa_baza.sql.
+- Pełna instalacja zawiera już wszystkie zmiany i przykładowe rekordy.
 
-1. AKTUALIZACJA ISTNIEJĄCEGO PROGRAMU
+Dla innego schematu dostosuj nazwę bazy. Aktualizacja wymaga zmiany USE na początku;
+w nowej instalacji zastąp nazwę w całym pliku. Szczegóły: db/README.md.
+Standardowe istniejące konta hotel_app otrzymują prawa podczas aktualizacji.
+Własne konto: jednorazowy pomocnik db/administracja/uprawnienia.sql.
+Folder administracja nie jest kolejnym etapem aktualizacji.
 
-Zamknij wszystkie stanowiska, wykonaj kopię bazy i rozpakuj paczkę do NOWEGO
-folderu. Zachowaj własny db.properties. Nie łącz starych i nowych plików src.
-Nie importuj pełnej bazy demonstracyjnej do swojego działającego schematu.
+2. KONFIGURACJA I START
 
-Dla poprzedniej wersji z historią, notatkami i stanami pokoi wykonaj jako
-administrator MySQL, w kolejności:
-  db/aktualizacja_uslugi_historia.sql
-  db/uprawnienia_uslugi.sql
-Dostosuj schemat, konto i hosty. Gdy istnieje jeden host konta, wykonaj tylko
-pasujące GRANT. Jeżeli nie było jeszcze historii, wykonaj wcześniej migrację
-historii i jej granty. Bardzo stare bazy wymagają również migracji uczestników
-i bezpieczeństwa opisanych w README. Szczegóły: USLUGI_I_WYSZUKIWANIE.md.
+Rozpakuj całą paczkę do NOWEGO folderu, żeby nie mieszać starych klas i plików SQL.
+Konfiguracja Windows: %LOCALAPPDATA%\HotelManagerData\config\db.properties.
+Stary db.properties jest importowany tylko raz, jeśli nie ma konfiguracji użytkownika.
+Po migracji edytuj ustawienia przyciskiem przed logowaniem, a nie stary plik projektu.
+Dane połączenia są danymi MySQL, nie loginem pracownika.
+Nie publikuj swojej konfiguracji. Skrypty nie resetują istniejących haseł.
 
-Migracja zachowuje stare dane, dodaje usługi i rozszerza historię.
-Stare płatności są odtwarzane w historii z ewidencji, bez wymyślania salda.
-Nowa instalacja: jednorazowo db/HotelManager_baza.sql, MySQL 8.0.16+.
-Pełny skrypt zawiera już wszystkie tabele i przykładowe rekordy.
+Windows x64: JDK 17+, java i javac w PATH. Uruchom uruchom_windows.bat.
+Biblioteki JavaFX Windows i JDBC są w lib. Nie dokładaj innych wersji JAR.
+Linux: JDK 17+, Maven i pulpit z GTK; z folderu pom.xml uruchom mvn javafx:run.
+IntelliJ: otwórz pom.xml jako Maven, ustaw JDK i uruchom javafx:run.
+Launcher uruchamia GUI, Main konsolę. Pełna instrukcja: README.md.
 
-2. URUCHOMIENIE
+3. KONTA DEMONSTRACYJNE
 
-Windows x64: JDK 17+ z poleceniami java i javac w PATH.
-Uruchom MySQL, przygotuj/aktualizuj bazę, skonfiguruj db.properties.
-Dwukrotnie kliknij uruchom_windows.bat. Biblioteki są w lib, Maven nie jest
-potrzebny. Nie kopiuj starych JAR: duplicate module oznacza dwie wersje modułu.
+Pracownicy: admin / Admin123! oraz recepcja / Recepcja123!.
+Konto MySQL demo: hotel_app / HotelDemo2026!.
+Jeśli wcześniej zmieniłeś hasło, użyj swojego aktualnego.
+Nowe hasła pracowników muszą spełniać wymagania formularza.
+Po 5 błędnych logowaniach konto jest blokowane na 5 minut w bazie.
+Serwer poza loopback wymaga TLS VERIFY_IDENTITY z zaufanym certyfikatem.
 
-Linux: JDK 17+, Maven i sesja graficzna z GTK. Ubuntu 24.04 x86_64:
-openjdk-17-jdk, maven, libgtk-3-0t64; Ubuntu 22.04: libgtk-3-0.
-Z folderu pom.xml uruchom mvn clean javafx:run, później mvn javafx:run.
-Nie używaj bibliotek javafx-win. Pierwsze pobranie wymaga internetu.
-IntelliJ: otwórz pom.xml jako projekt Maven, ustaw JDK 17+, uruchom javafx:run.
-Launcher uruchamia GUI, Main konsolę. Pełny poradnik Linux/Windows: README.md.
+4. OBSŁUGA
 
-3. KONFIGURACJA
+Goście: aktywni, archiwalni, wszyscy; archiwizacja i przywrócenie bez kasowania
+rezerwacji. Aktywne pobyty blokują archiwizację. Nowa rezerwacja wymaga aktywnej
+kartoteki. Konsola: 32 archiwizacja, 33 przywrócenie, 34 lista archiwum.
 
-db.properties zawiera techniczne dane MySQL, nie login pracownika.
-Demo: localhost:3306/hotel_manager, hotel_app / HotelDemo2026!.
-Zachowaj własny port, adres i hasło. Nie publikuj prywatnej konfiguracji.
-Zdalny serwer wymaga TLS VERIFY_IDENTITY z zaufanym certyfikatem.
-Pracownicy demo: admin / Admin123!, recepcja / Recepcja123!.
-Jeśli zmieniałeś hasła, użyj aktualnych. Po 5 błędach blokada na 5 minut w bazie.
-Dezaktywacja, zmiana roli lub hasła unieważnia sesję przy następnej operacji.
+Rezerwacje: główny i dodatkowi goście, kalendarz, zmiana dat/pokoju, historia,
+notatki, meldunek, anulowanie. Zmiana pokoju dotyczy całego pobytu.
+Usługi: ilość dla całego pobytu; historyczne ceny, anulowanie i rozliczenie.
+Zmiana dat nie przelicza ilości, dostawka nie zwiększa pojemności pokoju.
+Konsola: 25 historia, 29 usługi, 30 wyszukiwanie, 31 katalog administratora.
+Wyszukiwanie: nazwisko także dodatkowego gościa, pokój, status, daty i saldo.
+Karta i raporty: HTML/CSV, druk/PDF przez przeglądarkę. Notatki pozostają wewnętrzne.
+Wymeldowanie wymaga rozliczenia noclegów i usług. Zwroty przyjmuje administrator.
 
-4. NOWE FUNKCJE
+Po zmianach na innym stanowisku użyj Odśwież dane. Po błędzie sieci przed ponownym
+zapisem sprawdź stan: serwer mógł już zatwierdzić operację.
+Instrukcje funkcji: pliki Markdown w głównym folderze. Testy: TESTOWANIE.md.
 
-Rezerwacje -> Usługi pobytu: wybierz ofertę i ilość dla całego pobytu.
-2 osoby x 3 śniadania = 6 porcji. Ilość nie zmienia się wraz z terminem.
-Dostawka jest opłatą i nie zwiększa pojemności pokoju.
-Historyczna cena i nazwa pozostają po zmianie katalogu.
-Anulowanie opłaconej pozycji może wymagać wcześniejszego zwrotu.
-Wymeldowanie wymaga rozliczenia noclegów ORAZ usług.
-Administrator: Rezerwacje -> Katalog usług, edycja i wyłączanie ofert.
-Karta i raport pokazują usługi; raport wybiera je po dacie dodania i obecnym
-statusie, bez proporcjonalnego rozdzielania na noce.
+5. INSTALATOR I AKTUALIZACJE 1.0.1
 
-Wyszukiwanie zaawansowane: nazwisko głównego/dodatkowego gościa, dokładny pokój,
-status, daty i saldo. Tryby dat: pobyt, przyjazd, wyjazd. Strony po 100 wyników,
-otwarcie zaznaczonej rezerwacji. Po zmianie filtrów kliknij Szukaj.
-Dzień wyjazdu nie jest noclegiem, ale pasuje do filtra wyjazdu.
-
-Historia: 12 typów zdarzeń, także wpłaty, zwroty, usługi, notatki i dodatkowi
-goście. Każdy wpis ma autora i czas; zapisuje się w tej samej transakcji.
-Starych zmian bez ewidencji program nie fabrykuje.
-Konsola: 25 historia, 29 usługi pobytu, 30 wyszukiwanie, 31 katalog administratora.
-Instrukcje: USLUGI_I_WYSZUKIWANIE.md i HISTORIA_REZERWACJI.md.
-
-5. POZOSTAŁE FUNKCJE I PROBLEMY
-
-Kalendarz, zmiana pokoju, notatki, meldowanie, płatności i raporty pozostają.
-Zmiana pokoju dotyczy całego pobytu, bez podziału noclegów między pokoje.
-Potwierdzenie: zapis HTML, następnie Ctrl+P w przeglądarce do wydruku/PDF.
-Notatki i ich historia są wewnętrzne, nie trafiają do dokumentu dla gościa.
-Odśwież dane pobiera zmiany z innych stanowisk.
-
-Brak tabel uslugi/pozycje_uslug lub pola platnosc_id: wykonaj nową migrację.
-Brak praw usług: dopasuj granty. Access denied: popraw dane MySQL.
-Brak javac: potrzebny JDK. Brak połączenia: sprawdź serwer, port i konfigurację.
-Po błędzie sieci przed ponowieniem zapisu najpierw odśwież dane: serwer mógł
-zatwierdzić operację przed utratą odpowiedzi, także wpłatę lub usługę.
-
-Wyniki bieżącej weryfikacji: WYNIKI_TESTOW_USLUGI_WYSZUKIWANIE.txt.
-Testy wyłącznie na osobnym schemacie z fikcyjnymi danymi: TESTOWANIE.md.
-Opis klas: MAPA_KODU.md. Źródła pozostają bez komentarzy.
+Zachowaj hotel.ico w folderze projektu. Na Windows uruchom buduj_instalator.ps1.
+Dokładne polecenia i migracja z instalatora 1.0.0: AKTUALIZACJA_1.0.1.md.
+Logi: %LOCALAPPDATA%\HotelManagerData\logs. Wersja i ścieżki: O programie.
+Ta poprawka nie wymaga zmiany bazy zgodnej z poprzednią wersją.
+Pierwsze przejście ze starego instalatora: zachowaj konfigurację PRZED
+odinstalowaniem, potem zainstaluj nową wersję. Nie usuwaj bazy.

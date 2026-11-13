@@ -10,23 +10,7 @@ Dodatkowi goście rezerwacji są zapisani jako imię i nazwisko, bez relacji do 
 
 ## 2. Aktualizacja bazy
 
-1. Zamknij program na wszystkich stanowiskach i wykonaj kopię bazy.
-2. Rozpakuj paczkę do nowego folderu, zachowaj własny `db.properties`.
-3. Jako administrator MySQL/MariaDB wykonaj `db/aktualizacja_archiwum_gosci.sql`.
-4. Jeśli schemat ma inną nazwę, dostosuj `USE hotel_manager`.
-5. Uruchom aplikację i sprawdź zakładkę Goście.
-
-W phpMyAdmin wybierz bazę i zaimportuj plik lub wykonaj jego całą zawartość w SQL. W Workbench otwórz plik i wykonaj cały skrypt. Na Linuxie, z głównego folderu projektu:
-
-```sh
-mysql -u root -p < db/aktualizacja_archiwum_gosci.sql
-```
-
-Migracja dodaje trzy pola i indeks, nie zmienia starych kartotek w archiwalne. Można uruchomić ją ponownie: istniejące kolumny i metadane pozostają. DDL w MySQL wykonuje niejawne zatwierdzenia; przerwaną migrację należy dokończyć przed uruchomieniem programu. Standardowe konto aplikacji ma już SELECT/UPDATE do gości, więc nie potrzebuje nowych grantów.
-
-Jeżeli poprzednia aktualizacja usług i historii została przerwana, najpierw dokończ ją poprawionym `db/aktualizacja_uslugi_historia.sql`, a następnie wykonaj brakujące `db/uprawnienia_uslugi.sql`. W paczce poprawiono rozróżnienie DROP CHECK w MySQL i DROP CONSTRAINT w MariaDB. Wspólną blokadę odczytu katalogu zapisano jako LOCK IN SHARE MODE. Nie wykonuj pełnego importu demonstracyjnego na swoich danych.
-
-Dla nowej instalacji `db/HotelManager_baza.sql` zawiera już wszystkie pola. Starsze wymagane migracje nadal obowiązują, jeśli ich nie wykonano.
+Istniejąca baza: zamknij stanowiska, wykonaj kopię i uruchom **`db/aktualizuj_baze.sql`** jako administrator MySQL/MariaDB. Skrypt obejmuje wszystkie dotychczasowe zmiany, więc nie wybierasz aktualizacji według etapów. Nowa, pusta instalacja: **`db/nowa_baza.sql`**. Zachowaj własny `db.properties`; pełnego importu demonstracyjnego nie wykonuj na swoich danych. Szczegóły: [db/README.md](db/README.md).
 
 ## 3. Obsługa GUI
 

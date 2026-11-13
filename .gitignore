@@ -1,8 +1,11 @@
 db.properties
-target/
-out-gui/
+/target/
+/out-gui/
 .sources-gui.txt
 *.log
 raport_*.csv
 raport_*.html
 db-test.properties
+
+/dist/
+/installer-input/
