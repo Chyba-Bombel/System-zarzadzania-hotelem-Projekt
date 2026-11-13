@@ -74,3 +74,21 @@ java -cp 'target/classes:target/test-classes' pl.hotel.baza.UpdateConnectionProb
 Uruchamiaj bez zmiennych HOTEL_DB_*, które celowo nadpisują konfigurację testową. UpdateProbe sprawdza migrację, brak nadpisywania, UTF-8 i znaki specjalne hasła, jawny plik, pierwszeństwo zmiennych, pierwsze uruchomienie, błędy i log bez danych poufnych. UpdateConnectionProbe używa atrapy Driver JDBC i nie łączy się z rzeczywistą bazą; potwierdza przekazanie ustawień i zachowanie blokad niebezpiecznych opcji. Nie dodawaj sterownika MySQL do classpath tej próby, aby nie użyć rzeczywistego serwera.
 
 Testy są programami main i nie uruchamiają się samoczynnie przez mvn test. Tworzą tylko pliki tymczasowe, nie zmieniają istniejącej bazy. Checklistę Windows i aktualizacji instalatorem zawiera AKTUALIZACJA_1.0.1.md.
+
+## Poprawka 1.0.2
+
+Po kompilacji testów wykonaj bez sterownika MySQL w classpath (Windows używa średnika zamiast dwukropka):
+
+```bash
+java -cp 'target/classes:target/test-classes' Patch102Probe
+```
+
+Patch102Probe nie wymaga serwera. Sprawdza poprzednią treść kopii, Unicode, przywracanie, odtwarzanie uszkodzonego pliku, limit pięciu kopii, odmowę obcego pliku i dowiązania, zachowanie konfiguracji po błędzie kopii, sprzątanie plików tymczasowych, prawa POSIX i diagnostykę bez danych bazy.
+
+Z pełnym classpath zależności i osobną bazą testową, przygotowaną jak powyżej, uruchom `ConnectionTestProbe`. Sprawdza prawdziwy SELECT 1, brak zapisu pliku i rekordów, złe hasło, brak bazy, niedostępny serwer oraz zabezpieczenia JDBC. Nigdy nie używaj danych produkcyjnych.
+
+`SettingsGuiLauncher` z tą samą konfiguracją testową sprawdza formularz, dobry i błędny test bez zapisu, zapis, przywrócenie, schowek diagnostyczny, folder logów lub ścieżkę awaryjną oraz otwarcie przywracania przy uszkodzonym pliku. Wymaga świeżej konfiguracji konta testowego root z pustym hasłem lub dostosowania fixture; to narzędzie testowe, nie instrukcja dla konta aplikacji.
+
+Do prób bez pulpitu z Monocle ustaw `-Dglass.platform=Monocle -Dmonocle.platform=Headless -Dheadless.geometry=1920x1080-32 -Dprism.order=sw -Djava.awt.headless=true`. Domyślny mały ekran Monocle może powodować błędy bufora przy większym oknie. Dołącz testowe zależności z pom.xml. Przebieg headless nie potwierdza integracji z menedżerem plików ani instalacji na pulpicie Windows.
+
+Testy biznesowe nadal uruchamia `RunAllProbes`. Wyniki konkretnego przebiegu są w WYNIKI_TESTOW_1.0.2.txt.

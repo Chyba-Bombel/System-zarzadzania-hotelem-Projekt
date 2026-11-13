@@ -1,10 +1,12 @@
 package pl.hotel.gui;
 
 import pl.hotel.konfiguracja.*;
-import pl.hotel.diagnostyka.DziennikBledow;
+import pl.hotel.diagnostyka.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import java.util.Properties;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import java.nio.file.Files;
 
 final class UstawieniaAplikacjiGUI {
     private final HotelGUI app;
@@ -15,53 +17,36 @@ final class UstawieniaAplikacjiGUI {
         dialog.initOwner(app.stan.stage);
         dialog.setTitle("O programie");
         dialog.setHeaderText("HotelManager " + WersjaAplikacji.NUMER);
-        dialog.setContentText("System zarządzania hotelem\n\nKonfiguracja:\n" + SciezkiAplikacji.konfiguracja()
+        Label opis = new Label(InformacjeDiagnostyczne.tekst() + "\n\nKonfiguracja:\n" + SciezkiAplikacji.konfiguracja()
                 + "\n\nDziennik błędów:\n" + SciezkiAplikacji.logi()
                 + "\n\nAktualizacje pobierasz ręcznie z Releases projektu.");
+        opis.setWrapText(true); opis.setMinHeight(Region.USE_PREF_SIZE);
+        Button kopiuj = new Button("Kopiuj informacje o wersji"); kopiuj.setId("about-copy");
+        Button otworz = new Button("Otwórz folder logów"); otworz.setId("about-logs");
+        Label stan = new Label(); stan.setWrapText(true); stan.setMinHeight(48); stan.setId("about-result");
+        kopiuj.setOnAction(e -> {
+            try {
+                ClipboardContent zawartosc = new ClipboardContent(); zawartosc.putString(InformacjeDiagnostyczne.tekst());
+                if (Clipboard.getSystemClipboard().setContent(zawartosc)) stan.setText("Skopiowano wersję, Javę, system i architekturę. Bez ustawień połączenia.");
+                else stan.setText("Schowek jest niedostępny.");
+            } catch (RuntimeException ex) { DziennikBledow.zapisz(ex); stan.setText("Nie można skopiować informacji do schowka."); }
+        });
+        otworz.setOnAction(e -> {
+            try {
+                Files.createDirectories(SciezkiAplikacji.logi());
+                if (!java.awt.Desktop.isDesktopSupported() || !java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.OPEN))
+                    stan.setText("Otwórz ręcznie folder: " + SciezkiAplikacji.logi());
+                else { java.awt.Desktop.getDesktop().open(SciezkiAplikacji.logi().toFile()); stan.setText("Przekazano folder do menedżera plików."); }
+            } catch (java.io.IOException | RuntimeException ex) {
+                DziennikBledow.zapisz(ex); stan.setText("Otwórz ręcznie folder: " + SciezkiAplikacji.logi());
+            }
+        });
+        VBox tresc = new VBox(12, opis, kopiuj, otworz, stan); tresc.setPrefWidth(600);
+        dialog.getDialogPane().setContent(tresc);
         dialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        ((Button)dialog.getDialogPane().lookupButton(ButtonType.OK)).setText("Zamknij");
         dialog.showAndWait();
     }
 
-    void pokazPolaczenie() {
-        try {
-            Properties p = KonfiguracjaAplikacji.wczytajPlik();
-            Dialog<ButtonType> dialog = new Dialog<>();
-            dialog.initOwner(app.stan.stage);
-            dialog.setTitle("Ustawienia połączenia z bazą");
-            TextField url = new TextField(p.getProperty("url", ""));
-            TextField user = new TextField(p.getProperty("user", ""));
-            PasswordField haslo = new PasswordField();
-            haslo.setText(p.getProperty("password", ""));
-            Label sciezka = new Label("Plik: " + SciezkiAplikacji.konfiguracja());
-            sciezka.setWrapText(true);
-            Label informacja = new Label("To konto serwera MySQL, a nie konto pracownika. Zmienne HOTEL_DB_* mają pierwszeństwo przed plikiem. Zapis nie sprawdza połączenia; sprawdzisz je przy logowaniu.");
-            informacja.setWrapText(true);
-            Label blad = new Label();
-            blad.setWrapText(true);
-            VBox pola = new VBox(10, sciezka, new Label("Adres JDBC"), url, new Label("Użytkownik bazy"), user, new Label("Hasło bazy"), haslo, informacja, blad);
-            pola.setPrefWidth(620);
-            dialog.getDialogPane().setContent(pola);
-            ButtonType zapisz = new ButtonType("Zapisz", ButtonBar.ButtonData.OK_DONE);
-            dialog.getDialogPane().getButtonTypes().addAll(zapisz, ButtonType.CANCEL);
-            dialog.getDialogPane().lookupButton(zapisz).addEventFilter(javafx.event.ActionEvent.ACTION, e -> {
-                try {
-                    if (!url.getText().trim().startsWith("jdbc:mysql://") || user.getText().isBlank())
-                        throw new IllegalArgumentException("Podaj adres jdbc:mysql://serwer:port/baza i użytkownika bazy.");
-                    p.setProperty("url", url.getText().trim());
-                    p.setProperty("user", user.getText().trim());
-                    p.setProperty("password", haslo.getText());
-                    KonfiguracjaAplikacji.zapisz(p);
-                } catch (java.io.IOException | IllegalArgumentException ex) {
-                    DziennikBledow.zapisz(ex);
-                    blad.setText("Nie zapisano ustawień. Sprawdź adres JDBC, użytkownika i uprawnienia do folderu konfiguracji.");
-                    e.consume();
-                }
-            });
-            dialog.showAndWait();
-            haslo.clear();
-        } catch (java.io.IOException | IllegalArgumentException | SecurityException e) {
-            DziennikBledow.zapisz(e);
-            app.komunikatyGUI.blad("Nie można otworzyć konfiguracji. Sprawdź plik: " + SciezkiAplikacji.konfiguracja());
-        }
-    }
+    void pokazPolaczenie() { new UstawieniaPolaczeniaGUI(app).pokaz(); }
 }

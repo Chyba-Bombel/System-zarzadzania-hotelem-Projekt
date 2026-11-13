@@ -63,23 +63,39 @@ public final class KonfiguracjaAplikacji {
             try { Files.setPosixFilePermissions(tmp, PosixFilePermissions.fromString("rw-------")); }
             catch (UnsupportedOperationException ignored) {}
             try (var out = Files.newBufferedWriter(tmp, StandardCharsets.UTF_8)) { dane.store(out, null); }
+            KopieKonfiguracji.zachowaj(cel);
             try { Files.move(tmp, cel, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE); }
             catch (AtomicMoveNotSupportedException e) { Files.move(tmp, cel, StandardCopyOption.REPLACE_EXISTING); }
+            KopieKonfiguracji.ogranicz();
         } finally { Files.deleteIfExists(tmp); }
     }
 
     public static Properties wczytaj() throws BladKonfiguracji {
         try {
-            Properties p = odczytaj(przygotuj());
-            for (String[] para : new String[][]{{"url", "HOTEL_DB_URL"}, {"user", "HOTEL_DB_USER"}, {"password", "HOTEL_DB_PASSWORD"}}) {
-                String env = System.getenv(para[1]);
-                if (env != null) p.setProperty(para[0], env);
-                if (!p.containsKey(para[0])) throw new IOException("Brak wymaganego pola.");
-            }
-            return p;
+            return efektywne(odczytaj(przygotuj()));
         } catch (IOException | IllegalArgumentException | SecurityException e) {
             throw new BladKonfiguracji("Nie można odczytać konfiguracji bazy. Otwórz ustawienia połączenia i sprawdź plik db.properties oraz uprawnienia do jego folderu.", e);
         }
+    }
+
+    public static Properties efektywne(Properties dane) throws BladKonfiguracji {
+        Properties p = new Properties();
+        if (dane != null) p.putAll(dane);
+        for (String[] para : new String[][]{{"url", "HOTEL_DB_URL"}, {"user", "HOTEL_DB_USER"}, {"password", "HOTEL_DB_PASSWORD"}}) {
+            String env = System.getenv(para[1]);
+            if (env != null) p.setProperty(para[0], env);
+            if (p.getProperty(para[0]) == null)
+                throw new BladKonfiguracji("Brak wymaganych ustawień połączenia. Uzupełnij adres, użytkownika i hasło bazy.", null);
+        }
+        return p;
+    }
+
+    public static synchronized void przywroc(Path kopia) throws IOException {
+        Path wybrana = KopieKonfiguracji.sprawdz(kopia);
+        Properties p = odczytaj(wybrana);
+        if (p.getProperty("url") == null || p.getProperty("user") == null || p.getProperty("password") == null)
+            throw new IOException("Kopia nie zawiera wymaganych ustawień.");
+        zapisz(p);
     }
 
     private static void zapiszJesliBrak(Path cel, String tekst) throws IOException {

@@ -1,8 +1,11 @@
-HOTEL MANAGER 1.0.1 — URUCHOMIENIE
+HOTEL MANAGER 1.0.2 — URUCHOMIENIE
 
 1. BAZA: WYBIERZ JEDEN PLIK
 
-Masz już bazę projektu:
+Masz bazę zgodną z wersją 1.0.1:
+- Poprawka 1.0.2 nie wymaga SQL. Przejdź do konfiguracji i startu.
+
+Masz starszą bazę, której struktura wymaga aktualizacji:
 - Zamknij wszystkie stanowiska i zrób kopię bazy.
 - Jako administrator wykonaj CAŁY db/aktualizuj_baze.sql.
 - Nie wybierasz aktualizacji według etapów i nie importujesz danych demo.
@@ -60,11 +63,21 @@ Po zmianach na innym stanowisku użyj Odśwież dane. Po błędzie sieci przed p
 zapisem sprawdź stan: serwer mógł już zatwierdzić operację.
 Instrukcje funkcji: pliki Markdown w głównym folderze. Testy: TESTOWANIE.md.
 
-5. INSTALATOR I AKTUALIZACJE 1.0.1
+5. INSTALATOR I AKTUALIZACJE 1.0.2
 
 Zachowaj hotel.ico w folderze projektu. Na Windows uruchom buduj_instalator.ps1.
-Dokładne polecenia i migracja z instalatora 1.0.0: AKTUALIZACJA_1.0.1.md.
+Dokładne polecenia i migracja: AKTUALIZACJA_1.0.2.md.
+Linux: bash buduj_instalator_linux.sh tworzy DEB i kompletne archiwum ZIP.
 Logi: %LOCALAPPDATA%\HotelManagerData\logs. Wersja i ścieżki: O programie.
 Ta poprawka nie wymaga zmiany bazy zgodnej z poprzednią wersją.
 Pierwsze przejście ze starego instalatora: zachowaj konfigurację PRZED
 odinstalowaniem, potem zainstaluj nową wersję. Nie usuwaj bazy.
+
+6. NOWOŚCI 1.0.2
+
+Ustawienia połączenia: Testuj połączenie sprawdza formularz bez zapisu.
+Zmienne HOTEL_DB_* nadal mają pierwszeństwo. Test nie sprawdza całego schematu.
+Zapis zachowuje kopię poprzednich ustawień w config/backups; przywracanie
+dostępne jest w tym samym formularzu. Kopie zawierają hasło bazy.
+O programie: otwieranie folderu logów i kopiowanie informacji o wersji.
+Wyniki weryfikacji: WYNIKI_TESTOW_1.0.2.txt. Nowy wygląd GUI to osobne 1.1.0.

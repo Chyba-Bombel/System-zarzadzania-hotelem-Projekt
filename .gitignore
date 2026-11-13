@@ -1,6 +1,6 @@
 db.properties
-/target/
-/out-gui/
+target/
+out-gui/
 .sources-gui.txt
 *.log
 raport_*.csv
@@ -9,3 +9,6 @@ db-test.properties
 
 /dist/
 /installer-input/
+
+**/backups/db-*.properties
+/db.properties.backup-*

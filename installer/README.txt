@@ -56,7 +56,19 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\aktualizuj_windows.ps1
 Skrypt robi lokalną kopię konfiguracji i uruchamia instalator z tego folderu.
 Nie pobiera wersji z internetu i nie robi kopii ani aktualizacji bazy.
 Konfiguracja znajduje się poza folderem programu i pozostaje na miejscu.
-Poprawka 1.0.1 sama nie wymaga zmiany bazy zgodnej z poprzednią aplikacją.
+Poprawka 1.0.2 nie wymaga zmiany bazy zgodnej z wersją 1.0.1.
+
+NOWOŚCI 1.0.2
+W ustawieniach połączenia jest Testuj połączenie: wykonuje SELECT 1
+w tle, bez zapisu ustawień i sprawdzania całego schematu bazy.
+Zmienne HOTEL_DB_* mają pierwszeństwo także nad testowanym formularzem.
+Przed zapisem zachowywana jest kopia poprzedniego pliku. Dostępnych jest
+do pięciu kopii w podfolderze config\backups. Przywróć kopię pozwala
+odtworzyć wybrane ustawienia i zachowuje też poprzedni stan.
+Jeśli nie uda się utworzyć kopii, ustawienia nie zostaną nadpisane.
+Kopie zawierają hasło bazy — nie udostępniaj ich. Nie zastępują kopii bazy.
+W O programie można otworzyć folder logów lub skopiować wersję, Javę,
+system i architekturę, bez danych połączenia.
 
 PROBLEMY
 - Brak połączenia: sprawdź serwer, adres, port i dostęp do sieci.

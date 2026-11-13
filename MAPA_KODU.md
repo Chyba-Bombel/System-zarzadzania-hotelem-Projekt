@@ -237,3 +237,11 @@ Gosc ma stan i bieżące metadane archiwum. StanGUI/TabeleGUI filtrują listę, 
 - `gui/UstawieniaAplikacjiGUI`: konfiguracja przed logowaniem i O programie.
 - `buduj_instalator.ps1`: pakowanie Windows i stały identyfikator aktualizacji.
 - `installer/aktualizuj_windows.ps1`: lokalna kopia ustawień i uruchomienie instalatora.
+
+## Poprawka 1.0.2
+
+- `baza/TestPolaczenia`: SELECT 1 z formularza, bez sesji pracownika i zapisu ustawień.
+- `konfiguracja/KopieKonfiguracji`: poprzednia treść pliku, lista i ograniczanie kopii.
+- `diagnostyka/InformacjeDiagnostyczne`: wersja, Java, system i architektura bez konfiguracji bazy.
+- `gui/UstawieniaPolaczeniaGUI`: osobny dialog testu, zapisu i przywracania.
+- `buduj_instalator_linux.sh`: pakiet DEB i archiwum dystrybucyjne Linux.

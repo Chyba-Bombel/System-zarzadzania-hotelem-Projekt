@@ -1,30 +1,42 @@
-# System zarządzania hotelem — 1.0.1
+# System zarządzania hotelem — 1.0.2
 
 Aplikacja JavaFX + JDBC + MySQL do obsługi gości, rezerwacji, pobytów, usług i rozliczeń. Projekt zachowuje również wersję konsolową. Kod jest podzielony na pakiety i mniejsze klasy, bez komentarzy w źródłach.
 
 [Repozytorium projektu](https://github.com/Chyba-Bombel/System-zarzadzania-hotelem-Projekt)
 
-## Wersja 1.0.1: instalator i konfiguracja
+## Wersja 1.0.2
 
-Instrukcja budowania, aktualizacji i migracji z 1.0.0: [AKTUALIZACJA_1.0.1.md](AKTUALIZACJA_1.0.1.md). Lista zmian: [CHANGELOG.md](CHANGELOG.md).
+Instrukcja aktualizacji i budowania: [AKTUALIZACJA_1.0.2.md](AKTUALIZACJA_1.0.2.md). Poprawka nie zmienia schematu bazy zgodnej z 1.0.1.
 
-Konfiguracja Windows: `%LOCALAPPDATA%\HotelManagerData\config\db.properties`; logi: `%LOCALAPPDATA%\HotelManagerData\logs`. Są oddzielone od domyślnego folderu instalacji HotelManager. Przy niestandardowej instalacji nie wybieraj folderu HotelManagerData jako folderu programu.
+- Test połączenia z formularza przed logowaniem, w tle i bez zapisu ustawień.
+- Do pięciu kopii konfiguracji oraz przywracanie wybranej kopii.
+- Otwieranie logów i kopiowanie informacji o wersji bez ustawień bazy.
+- Skrypt Linux tworzący DEB i ZIP z instrukcją oraz plikami bazy.
+- Stały UUID instalatorów Windows zachowany z 1.0.1.
 
-Przed logowaniem kliknij **Ustawienia połączenia z bazą**. Pierwszy odczyt migruje znaleziony stary plik db.properties, a przy jego braku tworzy szablon z pustym hasłem. Istniejąca konfiguracja użytkownika nie jest nadpisywana; po migracji zmieniaj ją w ustawieniach, a nie w starym pliku projektu. `-Dhotel.config=...` nadal służy do jawnego wyboru pliku, zwłaszcza w testach. Samo 1.0.1 nie wymaga zmiany zgodnej bazy.
+Konfiguracja Windows: `%LOCALAPPDATA%\HotelManagerData\config\db.properties`; Linux: `~/.config/HotelManagerData/config/db.properties` (XDG_CONFIG_HOME ma pierwszeństwo). Logi są w równoległym folderze `logs`, kopie w `config/backups`. Te katalogi nie powinny być folderem instalacji aplikacji. Kopie zawierają hasło: nie publikuj ich. Nie zastępują kopii bazy.
 
-Zachowaj swoją ikonę hotel.ico obok pom.xml i uruchom na Windows:
+Przed logowaniem kliknij **Ustawienia połączenia z bazą**. Przycisk testu wykonuje `SELECT 1`, bez weryfikacji całej struktury i wszystkich uprawnień. `HOTEL_DB_*` ma pierwszeństwo nad formularzem i plikiem. Pierwszy odczyt nadal migruje stary db.properties tylko przy braku konfiguracji użytkownika. Jawny `-Dhotel.config=...` nadal służy zwłaszcza testom.
+
+Windows, z zachowaną własną ikoną hotel.ico:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\buduj_instalator.ps1
 ```
 
-Wynik: `dist\1.0.1-exe`. To skrypt lokalny; obejrzyj go przed wykonaniem. Nie wykonuje testów ani migracji SQL. Gotowy instalator zawiera Javę, JavaFX i JDBC, ale nie serwer bazy. Kod i nowe testy sprawdzono na Linuxie; działanie instalatora oraz przejście między wersjami wymagają osobnej próby na Windows. Szczegóły: WYNIKI_TESTOW_1.0.1.txt.
+Linux, opcjonalnie z hotel.png:
+
+```bash
+bash buduj_instalator_linux.sh
+```
+
+Wyniki: Windows `dist\1.0.2-exe`; Linux `dist/1.0.2-linux-<architektura>-deb` i ZIP o tej samej nazwie. Gotowe instalatory zawierają Javę, JavaFX i JDBC, ale nie serwer bazy. Kod, bazę, GUI i pakowanie na Linuxie sprawdzono zgodnie z WYNIKI_TESTOW_1.0.2.txt. Faktyczną aktualizację instalatora na Windows trzeba potwierdzić na tym systemie.
 
 ## Baza danych — dwa główne pliki
 
 | Sytuacja | Plik do wykonania |
 | --- | --- |
-| Masz już bazę z wcześniejszej wersji projektu | **db/aktualizuj_baze.sql** |
+| Starsza baza wymagająca zmiany struktury | **db/aktualizuj_baze.sql** |
 | Instalujesz projekt po raz pierwszy, bez jego bazy | **db/nowa_baza.sql** |
 
 **Nie trzeba wybierać aktualizacji według etapów.** Jeden skrypt aktualizacji sprawdza istniejące elementy i obejmuje wszystkie dotychczasowe zmiany. Możesz wykonać go ponownie, również po częściowo zakończonej aktualizacji. Nie usuwa gości, rezerwacji ani płatności. Nie odtwarza nieznanej historii dawnych zmian.
@@ -64,7 +76,7 @@ Paczka zawiera biblioteki JavaFX dla Windows x64. Na innych systemach używaj Ma
 
 1. Rozpakuj całą paczkę do nowego folderu, np. `C:\Projekty\Hotel_GUI`. Nie dokładaj nowych klas do starego src.
 2. Zainstaluj JDK 17+ Windows x64 i sprawdź `java -version` oraz `javac -version`.
-3. Uruchom serwer bazy, następnie wykonaj **jeden** plik zgodnie z tabelą na początku README.
+3. Uruchom serwer bazy. Jeśli wymaga przygotowania lub aktualizacji struktury, wybierz jeden skrypt z tabeli. Baza zgodna z 1.0.1 nie wymaga SQL dla tej poprawki.
 4. Po uruchomieniu wybierz ustawienia połączenia i podaj adres, port i konto MySQL. Stary plik projektu jest importowany tylko przy braku konfiguracji użytkownika.
 5. Uruchom `uruchom_windows.bat`.
 
@@ -100,7 +112,7 @@ sudo apt install mysql-server
 sudo systemctl start mysql
 ```
 
-Dla istniejącej bazy wykonaj tylko aktualizację:
+Dla starszej bazy wymagającej zmiany struktury wykonaj aktualizację (pomiń dla bazy zgodnej z 1.0.1):
 
 ```sh
 mysql -u root -p < db/aktualizuj_baze.sql
@@ -188,7 +200,7 @@ Konsola ma opcje 25 — historia, 26 — potwierdzenie, 27 — notatka, 28 — s
 
 Main i Launcher są krótkimi wejściami. `pl.hotel.model` zawiera modele, `baza` fasadę i pakietowe DAO, `gui` ekrany i zadania JavaFX, `konsola` menu i obsługę terminala, `raporty` i `potwierdzenia` eksport. BazaDanych sprawdza sesję i role; surowe połączenie nie jest publicznym API. JDBC wykonuje się poza wątkiem JavaFX. Tabele używają parametrów i oddzielnych agregatów płatności/usług.
 
-Wydanie 1.0.1 zmienia konfigurację, diagnostykę i pakowanie, bez zmian schematu bazy. Nowe wyniki: WYNIKI_TESTOW_1.0.1.txt. Starsze WYNIKI_TESTOW opisują wcześniejsze przebiegi i nie są potwierdzeniem ponownego wykonania całej integracji ani GUI dla 1.0.1. Testy zmieniają dane i wymagają izolowanej bazy; `mvn test` sam nie uruchamia programów Probe.
+Wydanie 1.0.2 zmienia konfigurację, diagnostykę i pakowanie bez zmian schematu bazy. Nowe wyniki: WYNIKI_TESTOW_1.0.2.txt. Starsze WYNIKI_TESTOW opisują wcześniejsze przebiegi. Testy zmieniają dane i wymagają izolowanej bazy; `mvn test` sam nie uruchamia programów Probe.
 
 ## Najczęstsze problemy
 
@@ -203,4 +215,4 @@ Wydanie 1.0.1 zmienia konfigurację, diagnostykę i pakowanie, bez zmian schemat
 | Unable to open DISPLAY | Uruchom w sesji graficznej. |
 | Błąd zapisu po utracie sieci | Najpierw odśwież dane; serwer mógł już zatwierdzić operację. |
 
-Rozpakowuj źródła nowego wydania do osobnego folderu. Konfiguracja użytkownika pozostaje wspólna; przejście ze starego instalatora opisuje AKTUALIZACJA_1.0.1.md. Nie kasuj bazy w celu wymiany plików programu.
+Rozpakowuj źródła nowego wydania do osobnego folderu. Konfiguracja użytkownika pozostaje wspólna; przejścia między wersjami opisuje AKTUALIZACJA_1.0.2.md. Nie kasuj bazy w celu wymiany plików programu.

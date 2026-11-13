@@ -42,11 +42,14 @@ final class EkranLogowania {
             });
         };
         wejdz.setOnAction(e -> loguj.run()); haslo.setOnAction(e -> loguj.run()); login.setOnAction(e -> haslo.requestFocus());
+        Button konfiguracja = przycisk("Ustawienia połączenia z bazą", "", app.ustawienia::pokazPolaczenie);
+        konfiguracja.setId("config-open");
+        Button informacje = przycisk("O programie • " + pl.hotel.konfiguracja.WersjaAplikacji.NUMER, "", app.ustawienia::pokazInformacje);
+        informacje.setId("about-open");
         VBox card = new VBox(12, etykieta("HOTEL", "section-title"), etykieta("Witaj ponownie", "title"),
                 etykieta("Zaloguj się na konto pracownika, aby rozpocząć pracę.", "subtitle"),
                 etykieta("Login", "form-label"), login, etykieta("Hasło", "form-label"), haslo, blad, wejdz,
-                przycisk("Ustawienia połączenia z bazą", "", app.ustawienia::pokazPolaczenie),
-                przycisk("O programie • " + pl.hotel.konfiguracja.WersjaAplikacji.NUMER, "", app.ustawienia::pokazInformacje));
+                konfiguracja, informacje);
         card.setMaxWidth(440); card.setMaxHeight(Region.USE_PREF_SIZE); card.getStyleClass().add("login-card");
         StackPane page = new StackPane(card); page.getStyleClass().add("login-page");
         app.ustawScene(page, true); login.requestFocus();

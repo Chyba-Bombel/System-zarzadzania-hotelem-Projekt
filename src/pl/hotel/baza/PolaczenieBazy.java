@@ -8,7 +8,10 @@ import java.util.*;
 final class PolaczenieBazy {
     private PolaczenieBazy() {}
     public static Connection polacz() throws SQLException {
-        Properties p = pl.hotel.konfiguracja.KonfiguracjaAplikacji.wczytaj();
+        return polacz(pl.hotel.konfiguracja.KonfiguracjaAplikacji.wczytaj());
+    }
+
+    static Connection polacz(Properties p) throws SQLException {
         String url=p.getProperty("url");
         Map<String,String> param=new HashMap<>(); URI uri;
         try {
