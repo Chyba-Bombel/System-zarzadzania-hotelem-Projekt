@@ -84,7 +84,7 @@ public final class UpdateProbe {
                 check(tekst.toString().contains("kod=1064"), "Log zawiera kod diagnostyczny");
                 check(!tekst.toString().contains(sekret) && !tekst.toString().contains("Kowalski") && !tekst.toString().contains("SELECT"), "Log nie zapisuje hasel, danych gosci ani SQL");
             }
-            check(WersjaAplikacji.NUMER.equals("1.1.0"), "Wersja z zasobu aplikacji");
+            check(WersjaAplikacji.NUMER.equals("1.1.1"), "Wersja z zasobu aplikacji");
             System.out.println("UPDATE_PROBE_OK checks=" + licznik);
         } finally {
             przywroc("hotel.data", staryData);

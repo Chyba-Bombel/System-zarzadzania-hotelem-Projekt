@@ -31,6 +31,7 @@ if errorlevel 1 (
 )
 del ".sources-gui.txt" >nul 2>nul
 copy /Y "resources\hotel.css" "out-gui\hotel.css" >nul
+for %%I in ("resources\*.png") do if exist "%%~fI" copy /Y "%%~fI" "out-gui\" >nul
 powershell -NoProfile -Command "$v=([xml](Get-Content -Raw pom.xml)).project.version; Set-Content -Encoding ASCII out-gui/wersja.properties ('version='+$v)"
 java --module-path "%JAVAFX_MODULES%" --add-modules javafx.controls -cp "out-gui;lib\mysql-connector-j-9.7.0.jar" Launcher
 if errorlevel 1 pause

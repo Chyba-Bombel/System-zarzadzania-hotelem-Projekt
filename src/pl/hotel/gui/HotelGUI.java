@@ -34,6 +34,7 @@ public final class HotelGUI extends Application {
 
     @Override public void start(Stage stage) {
         stan.stage = stage;
+        IkonaAplikacjiGUI.ustaw(stage);
         motywy.uruchom();
         stage.setTitle("HotelManager " + pl.hotel.konfiguracja.WersjaAplikacji.NUMER + " • System zarządzania");
         stage.setMinWidth(1040); stage.setMinHeight(680);

@@ -54,6 +54,7 @@ final class MotywyGUI {
 
     private void obserwuj(Window okno) {
         if (okna.containsKey(okno)) return;
+        if (okno instanceof javafx.stage.Stage stage) IkonaAplikacjiGUI.ustaw(stage);
         ChangeListener<Scene> listener = (o, stare, nowe) -> { usunScene(stare); obserwujScene(nowe); };
         okna.put(okno, listener); okno.sceneProperty().addListener(listener); obserwujScene(okno.getScene());
     }
